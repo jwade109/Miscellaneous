@@ -1,4 +1,4 @@
-package dragon;
+package curves;
 
 import java.awt.Color;
 
@@ -15,7 +15,6 @@ public class CurveAnt
     public CurveAnt(Curve curve, int order, Color color)
     {
         sequence = curve.generate(order);
-        System.out.println(sequence);
         x = 0;
         y = 0;
         dir = Direction.NORTH;

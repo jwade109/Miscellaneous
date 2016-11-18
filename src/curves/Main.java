@@ -1,4 +1,4 @@
-package dragon;
+package curves;
 
 import javax.swing.JFrame;
 import java.awt.Color;
@@ -21,7 +21,7 @@ public class Main
     private int lineSize = 40;
     private int frameHeight = 1300;
     private int frameWidth = 1300;
-    private final int order = 19;
+    private final int order = 10;
     private int tick = 1; // milliseconds: 20 ms = 50 fps
     private int maxStep;
 
@@ -40,7 +40,7 @@ public class Main
     public void start()
     {
         ants = new ArrayList<CurveAnt>();
-        ants.add(new CurveAnt(new KochCurve(), order, Color.BLACK));
+        ants.add(new CurveAnt(new DragonCurve(), order, Color.BLACK));
 
         maxStep = new DragonCurve().generate(order).length();
 

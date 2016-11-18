@@ -1,4 +1,4 @@
-package dragon;
+package curves;
 
 public class ExampleCurve implements Curve
 {
