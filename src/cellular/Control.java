@@ -38,6 +38,8 @@ public class Control
 			{
 				continue;
 			}
+			scan.close();
+			reader.close();
 			// Interpret the commands into action
 			if (commands[0].equals("createBox"))
 			{

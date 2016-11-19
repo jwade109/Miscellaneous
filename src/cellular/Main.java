@@ -1,10 +1,9 @@
 package cellular;
 
-public class main
+public class Main
 {
 	public static void main(String[] args)
 	{
-		System.out.println("Hello, World!");
 		if (args[0].equals("run"))
 		{
 			System.out.println("Running program...");
