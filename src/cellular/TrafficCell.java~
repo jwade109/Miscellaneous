@@ -1,0 +1,62 @@
+package cellular;
+
+public class TrafficCell extends Cell
+{
+	/**
+	 *  Creates a new Cell with a given String state.
+	 */
+	public TrafficCell(String state)
+	{
+		// This will eventually use the file syntax to define new tiles.
+		super(0);
+	}
+	/**
+	 *  Returns the state of the Cell.
+	 */
+	public int getState()
+	{
+		return state;
+	}
+	/**
+	 *  Sets the state of this Cell.
+	 */
+	public void setState(int state)
+	{
+		this.state = state;	
+	}
+	/**
+	 *  Sets the nextState of this Cell.
+	 */
+	public void setNextState(int newState)
+	{
+		nextState = newState;
+	}
+	/**
+	 *  Changes the state to the next one.
+	 */
+	public void setToNext()
+	{
+		state = nextState;	
+	}
+	/**
+	 *  Compares the states of two tiles to tell if they are the same.
+	 */
+	public boolean equals(Cell road)
+	{
+		return state == road.getState();
+	}
+	/**
+	 *  Checks if this tile is a certain state.
+	 */
+	public boolean isState(int state)
+	{
+		return this.state == state;	
+	}
+	/**
+	 *  Computes the next state of the cell from the rule for a new cell.
+	 */
+    public void computeNextState(Cell[] neighbors)
+    {
+    	// Here's where the fun stuff happens!
+    }
+}
