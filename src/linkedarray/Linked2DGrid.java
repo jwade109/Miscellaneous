@@ -1,11 +1,11 @@
 package linkedarray;
 
-public class Linked2DArray<T> implements XYArrayInterface<T>
+public class Linked2DGrid<T> implements XYArrayInterface<T>
 {
 
     Node<T> origin;
     
-    public Linked2DArray()
+    public Linked2DGrid()
     {
         origin = new Node<T>();
     }
@@ -18,7 +18,7 @@ public class Linked2DArray<T> implements XYArrayInterface<T>
     }
 
     @Override
-    public void setEntry(T data)
+    public void setEntry(int x, int y, T data)
     {
         // TODO Auto-generated method stub
         
@@ -45,13 +45,13 @@ public class Linked2DArray<T> implements XYArrayInterface<T>
         return 0;
     }
 
-    private class Node<T>
+    private class Node<E>
     {
-        Node<T> top;
-        Node<T> bottom;
-        Node<T> left;
-        Node<T> right;
-        T data;
+        Node<E> top;
+        Node<E> bottom;
+        Node<E> left;
+        Node<E> right;
+        E data;
         
         public Node()
         {
@@ -62,7 +62,7 @@ public class Linked2DArray<T> implements XYArrayInterface<T>
             right = null;
         }
         
-        public Node(T data)
+        public Node(E data)
         {
             this.data = data;
             top = null;
@@ -71,7 +71,8 @@ public class Linked2DArray<T> implements XYArrayInterface<T>
             right = null;
         }
         
-        public Node(T data, Node<T> top, Node<T> bottom, Node<T> left, Node<T> right)
+        public Node(E data, Node<E> top, Node<E> bottom,
+        		Node<E> left, Node<E> right)
         {
             this.data = data;
             this.top = top;

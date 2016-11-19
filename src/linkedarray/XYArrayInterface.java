@@ -4,7 +4,7 @@ public interface XYArrayInterface<T>
 {    
     public T getEntry(int x, int y);
     
-    public void setEntry(T data);
+    public void setEntry(int x, int y, T data);
     
     public T remove();
     
