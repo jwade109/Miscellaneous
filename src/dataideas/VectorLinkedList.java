@@ -3,13 +3,13 @@ package dataideas;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-// Modified for data ideas package
+// Modified for dataideas package
 // Implements CarranoDataStructuresLib’s ListInterface
 
 
 /**
- * A custom implementation of the List ADT using singly linked nodes. This class
- * also provides an Iterator and is sortable.
+ * A custom implementation of the List ADT using singly linked nodes. 
+ * This class also provides an Iterator and is sortable.
  * 
  * @author Adam Wilborn
  * @version 2016.11.12
@@ -18,11 +18,14 @@ import java.util.NoSuchElementException;
  * @version 2016.11.12
  * 
  * @author William McDermott
- * @version 2016.11.13
+ * @version 2016.11.21
+ * 
+ * Modified for the dataideas package, could be replaced with a simpler 
+ * class for efficiency.
  * 
  * @param <T> generic data type.
  */
-public class CustomLinkedList<T> implements Iterable<T>
+public class VectorLinkedList<T> implements Iterable<T>
 {
     private Node firstNode;
     private int numberOfEntries;
@@ -31,7 +34,7 @@ public class CustomLinkedList<T> implements Iterable<T>
      * Default constructor for our CustomLinkedList. 
      * Initializes the class's data fields to indicate an empty list.
      */
-    public CustomLinkedList()
+    public VectorLinkedList()
     {
         firstNode = null;
         numberOfEntries = 0;
@@ -43,10 +46,7 @@ public class CustomLinkedList<T> implements Iterable<T>
      */
     public void add(T newEntry)
     {
-        if (newEntry == null)
-        {
-            throw new IllegalArgumentException("Can't add null entry");
-        }
+        // Allowed adding a null entry for 
         Node newNode = new Node(newEntry);
         if (isEmpty())
         {
@@ -68,10 +68,7 @@ public class CustomLinkedList<T> implements Iterable<T>
      */
     public void add(int newPosition, T newEntry)
     {
-        if (newEntry == null)
-        {
-            throw new IllegalArgumentException("Can't add null entry");
-        }
+        // Allowed for null entry adding.
         if ((newPosition >= 0) && (newPosition <= numberOfEntries))
         {
             Node newNode = new Node(newEntry);
@@ -417,7 +414,7 @@ public class CustomLinkedList<T> implements Iterable<T>
      * @param comparator The comparator that says how to sort the list.
      * @return The CustomLinkedList sorted.
      */
-    private CustomLinkedList<T> sortRecursive(CustomLinkedList<T> list,
+    private VectorLinkedList<T> sortRecursive(VectorLinkedList<T> list,
             Comparator<T> comparator)
     {
         if (list.getLength() < 2)

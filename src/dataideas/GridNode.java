@@ -23,14 +23,14 @@ public class GridNode<T>
     /**
      * The neighborhood of a GridNode, the cells directly adjacent to it.
      */
-    private CustomLinkedList<GridNode<T>> neighbors;
+    private VectorLinkedList<GridNode<T>> neighbors;
     
     /**
      * Creates a new GridNode with no neighbors.
      */
     public GridNode(T data)
     {
-        this(data, new CustomLinkedList<GridNode<T>>());
+        this(data, new VectorLinkedList<GridNode<T>>());
     }
 
     /**
@@ -39,7 +39,7 @@ public class GridNode<T>
      * @param neighbors The neighbors to this node.
      * @throws IllegalArgumentException
      */
-    public GridNode(T data, CustomLinkedList<GridNode<T>> neighbors)
+    public GridNode(T data, VectorLinkedList<GridNode<T>> neighbors)
     {
         this.data = data;
         this.neighbors = neighbors;
@@ -67,7 +67,7 @@ public class GridNode<T>
      * Gets the neighbors of this GridNode.
      * @return  The neighborhood of this GridNode.
      */
-    public CustomLinkedList<GridNode<T>> getNeighbors()
+    public VectorLinkedList<GridNode<T>> getNeighbors()
     {
         return neighbors;
     }
@@ -97,11 +97,12 @@ public class GridNode<T>
      * @param neighbors     The new neighbors of this GridNode.
      * @throws IllegalArgumentException
      */
-    public void setNeighborhood(CustomLinkedList<GridNode<T>> neighbors)
+    public void setNeighborhood(VectorLinkedList<GridNode<T>> neighbors)
     {
         if (neighbors == null)
         {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Null neighbor list " +
+                "put into setNeighborhood(). Use an empty list.");
         }
         this.neighbors = neighbors;
     }
@@ -110,7 +111,6 @@ public class GridNode<T>
      * Sets a specific neighbor based on a basis vector for direction.
      * @param neighbor  A GridNode to set as a neighbor.
      * @param vector    The direction vector to add the neighbor
-     * @throws IllegalArgumentException
      */
     public void setNeighbor(GridNode<T> neighbor, int[] vector)
     {
@@ -121,14 +121,9 @@ public class GridNode<T>
      * Sets a specific neighbor based on an integer position for direction.
      * @param neighbor  A GridNode to set as a neighbor.
      * @param position    The encoded direction to add the neighbor.
-     * @throws IllegalArgumentException
      */
     public void setNeighbor(GridNode<T> neighbor, int position)
     {
-        if (neighbor == null)
-        {
-            throw new IllegalArgumentException();
-        }
         neighbors.replace(position, neighbor);
     }
     
