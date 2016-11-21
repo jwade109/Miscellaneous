@@ -30,10 +30,8 @@ public class GridNode<T>
      */
     public GridNode(T data)
     {
-        // An empty linked list instead of null, eventually.
-        this(data, null);
+        this(data, new CustomLinkedList<GridNode<T>>());
     }
-    
 
     /**
      * Creates a new GridNode in n dimensions.
@@ -79,9 +77,9 @@ public class GridNode<T>
      * @param vector    The direction to add the GridNode.
      * @return          One neighbor of this GridNode.
      */
-    public GridNode<T> getNeighbor(int[] vector)
+    public GridNode<T> getNeighbor(int position)
     {
-        return neighbors.getEntry(this.vectorToPosition(vector));
+        return neighbors.getEntry(position);
     }
     
     /**
@@ -104,19 +102,19 @@ public class GridNode<T>
      * @param vector    The direction vector to add the neighbor
      * @throws IllegalArgumentException
      */
-    public void setNeighbor(GridNode<T> neighbor, int[] vector)
+    public void setNeighbor(GridNode<T> neighbor, int position)
     {
         if (neighbor == null)
         {
             throw new IllegalArgumentException();
         }
-        neighbors.replace(this.vectorToPosition(vector), neighbor);
+        neighbors.replace(position, neighbor);
     }
     
     /**
      * Turns a vector into a value in the array.
-     * @param vector    A vector to process into a position.
-     * @return          The position to return.
+     * @param vector    A basis vector to process into a position.
+     * @return          The position in the neighbors list.
      * @throws IllegalArgumentException
      */
     private int vectorToPosition(int[] vector)
@@ -125,13 +123,24 @@ public class GridNode<T>
         {
             throw new IllegalArgumentException();
         }
-        int position = 0;
+        int position = -1;
         for (int i = 0; i < vector.length; i++)
         {
             if (vector[i] == 1)
             {
-                position += (int) (Math.pow(2, i) + 0.01);
+                position = 2 * i;
+                break;
             }
+            if (vector[i] == -1)
+            {
+                position = 2 * i + 1;
+                break;
+            }
+        }
+        // Illegal vector.
+        if (position == -1)
+        {
+            throw new 
         }
         return position;
     }

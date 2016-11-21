@@ -18,12 +18,17 @@ public abstract class AbstractVectorGrid<T>
     /**
      * The basis vectors for this vector space.
      */
-    private int[][] basis;
+    // private int[][] basis;
     
     /**
      * The origin node reference.
      */
     private final GridNode<T> origin;
+    
+    /**
+     * The number of dimensions this grid has.
+     */
+    private final int dims;
     
     /**
      * Creates a new AbstractVectorGrid, in the default
@@ -40,8 +45,12 @@ public abstract class AbstractVectorGrid<T>
      */
     public AbstractVectorGrid(int dims)
     {
-        // THINGS HAPPEN HERE
-        // NEED A LINKED LIST FOR SECOND COORDINATE TODO
-        origin = new GridNode<T>(null, null);
+        this.dims = dims;
+        origin = new GridNode<T>(null, new CustomLinkedList<GridNode<T>>());
     }
+    
+    /**
+     * Gets an element at the specified coordinates.
+     */
+    abstract public void getEntry();
 }
