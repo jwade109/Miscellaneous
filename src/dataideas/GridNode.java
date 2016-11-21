@@ -2,11 +2,11 @@ package dataideas;
 
 /**
  * Represents the Grid nodes where the edges in a graph meet.
- * These nodes represent a versatile kind of Node that can have
+ * These nodes represent a versatile kind of node that can have
  * any number of neighbors, and can have client code access them
- * at any point. GridNode's can be replaced with new GridNodes or 
- * gotten rid of as necessary, and they serve mainly as helper
- * objects.
+ * at any point. GridNodes keep track of a CustomLinkedList of their
+ * neighbors, which allows them to be used in graphs or in more 
+ * organized structures as well.
  * 
  * @author William McDermott
  * @version 2016.11.20
@@ -23,11 +23,16 @@ public class GridNode<T>
     /**
      * The neighborhood of a GridNode, the cells directly adjacent to it.
      */
-    private GridNode<T>[] neighbors;
+    private CustomLinkedList<GridNode<T>> neighbors;
     
     /**
-     * Creates a new GridNode 
+     * Creates a new GridNode with no neighbors.
      */
+    public GridNode(T data)
+    {
+        // An empty linked list instead of null, eventually.
+        this(data, null);
+    }
     
 
     /**
@@ -36,7 +41,7 @@ public class GridNode<T>
      * @param neighbors The neighbors to this node.
      * @throws IllegalArgumentException
      */
-    public GridNode(T data, GridNode<T>[] neighbors)
+    public GridNode(T data, CustomLinkedList<GridNode<T>> neighbors)
     {
         this.data = data;
         this.neighbors = neighbors;
@@ -64,7 +69,7 @@ public class GridNode<T>
      * Gets the neighbors of this GridNode.
      * @return  The neighborhood of this GridNode.
      */
-    public GridNode<T>[] getNeighbors()
+    public CustomLinkedList<GridNode<T>> getNeighbors()
     {
         return neighbors;
     }
@@ -76,7 +81,7 @@ public class GridNode<T>
      */
     public GridNode<T> getNeighbor(int[] vector)
     {
-        return neighbors[this.vectorToPosition(vector)];
+        return neighbors.getEntry(this.vectorToPosition(vector));
     }
     
     /**
@@ -84,10 +89,9 @@ public class GridNode<T>
      * @param neighbors     The new neighbors of this GridNode.
      * @throws IllegalArgumentException
      */
-    public void setNeighborhood(GridNode<T>[] neighbors)
+    public void setNeighborhood(CustomLinkedList<GridNode<T>> neighbors)
     {
-        if (neighbors == null
-            || this.neighbors.length != neighbors.length)
+        if (neighbors == null)
         {
             throw new IllegalArgumentException();
         }
@@ -102,12 +106,11 @@ public class GridNode<T>
      */
     public void setNeighbor(GridNode<T> neighbor, int[] vector)
     {
-        if (neighbor == null
-            || vector.length != neighbors.length)
+        if (neighbor == null)
         {
             throw new IllegalArgumentException();
         }
-        neighbors[this.vectorToPosition(vector)] = neighbor;
+        neighbors.replace(this.vectorToPosition(vector), neighbor);
     }
     
     /**
@@ -127,7 +130,7 @@ public class GridNode<T>
         {
             if (vector[i] == 1)
             {
-                position += (int) Math.pow(2, i) + 0.01;
+                position += (int) (Math.pow(2, i) + 0.01);
             }
         }
         return position;
