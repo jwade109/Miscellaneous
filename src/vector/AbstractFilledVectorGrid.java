@@ -1,4 +1,4 @@
-package dataideas;
+package vector;
 
 /**
  * This abstract class represents an arbitrary-dimensional,
@@ -13,7 +13,7 @@ package dataideas;
  * 
  * @param T     The type this vector grid holds as data.
  */
-public abstract class AbstractVectorGrid<T>
+public abstract class AbstractFilledVectorGrid<T>
 {
     /**
      * The number of dimensions this grid has.
@@ -40,7 +40,7 @@ public abstract class AbstractVectorGrid<T>
      * Creates a new AbstractVectorGrid, in the default
      * of two dimensions.
      */
-    public AbstractVectorGrid()
+    public AbstractFilledVectorGrid()
     {
         this(2);
     }
@@ -49,7 +49,7 @@ public abstract class AbstractVectorGrid<T>
      * Creates a new AbstractVectorGrid in dims dimensions.
      * @param dims  The number of dimensions for this object to use.
      */
-    public AbstractVectorGrid(int dims)
+    public AbstractFilledVectorGrid(int dims)
     {
         this.dims = dims;
         origin = new GridNode<T>(null, this.createEmptyList());

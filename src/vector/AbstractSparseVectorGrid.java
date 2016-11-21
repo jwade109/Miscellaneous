@@ -1,4 +1,4 @@
-package dataideas;
+package vector;
 
 /**
  * This abstract class represents an arbitrary-dimensional,

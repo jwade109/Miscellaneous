@@ -1,4 +1,4 @@
-package dataideas;
+package vector;
 
 /**
  * Represents the Grid nodes where the edges in a graph meet.
