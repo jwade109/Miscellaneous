@@ -27,10 +27,28 @@ public class GridNode<T>
     
     /**
      * Creates a new GridNode with no neighbors.
+     * @param data  The object to be held by this node.
      */
     public GridNode(T data)
     {
-        this(data, new VectorLinkedList<GridNode<T>>());
+        this(data, 0);
+    }
+    
+    /**
+     * Creates a new GridNode with a set number of empty neighbors.
+     * @param data          The object to be held by this node.
+     * @param numNeighbors  The number of initially null neighbors.
+     */
+    public GridNode(T data, int numNeighbors)
+    {
+        VectorLinkedList<GridNode<T>> list =
+            new VectorLinkedList<GridNode<T>>();
+        for (int i = 0; i < numNeighbors; i++)
+        {
+            list.add(null);
+        }
+        this.data = data;
+        this.neighbors = list;
     }
 
     /**
@@ -79,7 +97,7 @@ public class GridNode<T>
      */
     public GridNode<T> getNeighbor(int[] vector)
     {
-        return this.getNeighbor(this.vectorToPosition(vector));
+        return this.getNeighbor(GridNode.vectorToPosition(vector));
     }
     
     /**
@@ -114,13 +132,13 @@ public class GridNode<T>
      */
     public void setNeighbor(GridNode<T> neighbor, int[] vector)
     {
-        this.setNeighbor(neighbor, this.vectorToPosition(vector));
+        this.setNeighbor(neighbor, GridNode.vectorToPosition(vector));
     }
     
     /**
      * Sets a specific neighbor based on an integer position for direction.
-     * @param neighbor  A GridNode to set as a neighbor.
-     * @param position    The encoded direction to add the neighbor.
+     * @param neighbor      A GridNode to set as a neighbor.
+     * @param position      The encoded direction to add the neighbor.
      */
     public void setNeighbor(GridNode<T> neighbor, int position)
     {
@@ -133,7 +151,7 @@ public class GridNode<T>
      * @return          The position in the neighbors list.
      * @throws IllegalArgumentException
      */
-    private int vectorToPosition(int[] vector)
+    private static int vectorToPosition(int[] vector)
     {
         if (vector == null)
         {

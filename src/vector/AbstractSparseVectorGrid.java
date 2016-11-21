@@ -8,8 +8,10 @@ package vector;
  * 
  * @author William McDermott
  * @version 2016.11.20
+ * 
+ * @param T     The type for this vector grid to hold.
  */
-public abstract class AbstractSparseVectorGrid 
+public class AbstractSparseVectorGrid<T> // extends AbstractVectorGrid<T>
 {
 	// TODO
 }
