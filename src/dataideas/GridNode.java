@@ -9,7 +9,7 @@ package dataideas;
  * organized structures as well.
  * 
  * @author William McDermott
- * @version 2016.11.20
+ * @version 2016.11.21
  * 
  * @param T     The type of data this GridNode holds.
  */
@@ -77,6 +77,16 @@ public class GridNode<T>
      * @param vector    The direction to add the GridNode.
      * @return          One neighbor of this GridNode.
      */
+    public GridNode<T> getNeighbor(int[] vector)
+    {
+        return this.getNeighbor(this.vectorToPosition(vector));
+    }
+    
+    /**
+     * Gets a neighbor of this GridNode in a specific direction.
+     * @param position  The encoded direction to add the GridNode.
+     * @return          One neighbor of this GridNode.
+     */
     public GridNode<T> getNeighbor(int position)
     {
         return neighbors.getEntry(position);
@@ -102,6 +112,17 @@ public class GridNode<T>
      * @param vector    The direction vector to add the neighbor
      * @throws IllegalArgumentException
      */
+    public void setNeighbor(GridNode<T> neighbor, int[] vector)
+    {
+        this.setNeighbor(neighbor, this.vectorToPosition(vector));
+    }
+    
+    /**
+     * Sets a specific neighbor based on an integer position for direction.
+     * @param neighbor  A GridNode to set as a neighbor.
+     * @param position    The encoded direction to add the neighbor.
+     * @throws IllegalArgumentException
+     */
     public void setNeighbor(GridNode<T> neighbor, int position)
     {
         if (neighbor == null)
@@ -121,8 +142,9 @@ public class GridNode<T>
     {
         if (vector == null)
         {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Vector is null!");
         }
+        // Perhaps adding a check for n-1 zeroes would be helpful.
         int position = -1;
         for (int i = 0; i < vector.length; i++)
         {
@@ -140,7 +162,8 @@ public class GridNode<T>
         // Illegal vector.
         if (position == -1)
         {
-            throw new 
+            throw new IllegalArgumentException("Not a basis vector or "
+                + "its opposite!");
         }
         return position;
     }

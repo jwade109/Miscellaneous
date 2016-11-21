@@ -18,7 +18,7 @@ public abstract class AbstractVectorGrid<T>
     /**
      * The basis vectors for this vector space.
      */
-    // private int[][] basis;
+    private int[][] basis;
     
     /**
      * The origin node reference.
@@ -47,10 +47,33 @@ public abstract class AbstractVectorGrid<T>
     {
         this.dims = dims;
         origin = new GridNode<T>(null, new CustomLinkedList<GridNode<T>>());
+        basis = new int[2 * dims][dims];
+        for (int i = 0; i < dims; i++)
+        {
+            int[] basisVector = new int[dims];
+            basisVector[i] = 1;
+            int[] basisOpposite = new int[dims];
+            basisOpposite[i] = -1;
+            this.basis[2 * i] = basisVector;
+            this.basis[2 * i + 1] = basisOpposite;
+        }
     }
     
     /**
-     * Gets an element at the specified coordinates.
+     * Gets an element at the specified vector coordinates.
+     * @param vector    The vector direction to retrieve this element.
+     * @throws IndexOutOfBoundsException
      */
-    abstract public void getEntry();
+    abstract public T getEntry(int[] direction);
+    
+    /**
+     * Clears the entire vector grid.
+     */
+    abstract public void clear();
+    
+    /**
+     * Returns the box dimensions of this VectorGrid. 
+     * This means that many of the included elements may be null
+     */
+    abstract public int[] getDims();
 }
