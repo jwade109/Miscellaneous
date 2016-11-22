@@ -77,15 +77,11 @@ public class ChunkArray<T>
      */
     private Chunk getChunk(int x, int y)
     {
-        for (Chunk c : chunks)
+        for (int i = 0; i < chunks.size(); i++)
         {
-            if (c.getX() == x && c.getY() == y)
+            if (chunks.get(i).getX() == x && chunks.get(i).getY() == y)
             {
-                return c;
-            }
-            if (c.isEmpty())
-            {
-                chunks.remove(c);
+                return chunks.get(i);
             }
         }
         Chunk c = new Chunk(x, y);
