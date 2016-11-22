@@ -177,7 +177,6 @@ public class Control
 	 */
 	public static void load(String[] input)
 	{
-		
 		System.out.println("In Development!");
 	}
 }
