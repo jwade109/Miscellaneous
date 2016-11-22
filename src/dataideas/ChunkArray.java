@@ -85,6 +85,8 @@ public class ChunkArray<T>
             }
             if (c.isEmpty())
             {
+                // The number one rule of for-each loops
+                // DON'T EDIT THE THING BEING INCREMENTED OVER.
                 chunks.remove(c);
             }
         }
