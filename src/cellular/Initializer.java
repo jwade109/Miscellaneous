@@ -1,5 +1,7 @@
 package cellular;
 
+import java.io.File;
+
 /**
  * Initializes the cellular automata program's file structure.
  * This program initializes a file structure for pictures,
@@ -20,11 +22,16 @@ public class Initializer
         FilingCabinet checker = new FilingCabinet();
         if (!checker.checkExists("resources"))
         {
-            FilingCabinet.createDirectory("resources");
+            FilingCabinet.createDirectory(
+                checker.getPathToFiles() + 
+                File.pathSeparator + "/resources");
         }
         if (!checker.checkExists("saves"))
         {
-            FilingCabinet.createDirectory("saves");
+            FilingCabinet.createDirectory(
+                checker.getPathToFiles() + 
+                File.pathSeparator + "saves");
         }
+        System.out.println(checker.getPathToFiles());
     }
 }

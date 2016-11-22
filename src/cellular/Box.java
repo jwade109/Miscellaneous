@@ -1,11 +1,7 @@
 package cellular;
 
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-
 import javax.swing.*;
 import javax.swing.JFrame;
-import javax.imageio.*;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -21,7 +17,7 @@ public class Box
 	private int height;
 	private int cellDim;
 	/**
-	 *  Creates a new Box.
+	 * Creates a new Box.
 	 */
 	public Box(String name, int width, int height, String type, long waitTime)
 	{
@@ -62,14 +58,14 @@ public class Box
 		view.setSize(cellDim * width, 20 + cellDim * height);
 	}
 	/**
-	 *  Returns the Grid under this Box.
+	 * Returns the Grid under this Box.
 	 */
 	public Grid getGrid()
 	{
 		return place;
 	}
 	/**
-	 *  Ticks the automata and updates the display.
+	 * Ticks the automata and updates the display.
 	 */
 	public void tick()
 	{
@@ -86,7 +82,7 @@ public class Box
 		}
 	}
 	/**
-	 *  Runs the Box.
+	 * Runs the Box.
 	 */
 	public void run(int gens)
 	{
@@ -96,14 +92,14 @@ public class Box
 		}
 	}
 	/**
-	 *  Returns the GameWindow JPanel under this Box.
+	 * Returns the GameWindow JPanel under this Box.
 	 */
 	public GameWindow getGameWindow()
 	{
 		return game;
 	}
 	/**
-	 *  Sets the name of the box, and updates the window title.
+	 * Sets the name of the box, and updates the window title.
 	 */
 	public void setName(String name)
 	{

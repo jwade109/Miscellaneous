@@ -25,11 +25,18 @@ public class FilingCabinet
             .getLocation().getPath());
         // The jar file that is executing this program is called file.
         // parent is the file directory above file.
-        String parent = file.getParent();
-        pathToFiles = parent.replaceAll("%20", " ");
+        String absolute = file.getAbsolutePath();
+        pathToFiles = absolute.toString().replaceAll("%20", " ");
+    }
+    /**
+     * Gets the pathToFiles string.
+     */
+    public String getPathToFiles()
+    {
+        return pathToFiles;
     }
 	/**
-	 *  Creates a FilingCabinet with a path to the files for documentation.
+	 * Creates a FilingCabinet with a path to the files for documentation.
 	 */
 	public FilingCabinet(String path)
 	{
@@ -40,16 +47,16 @@ public class FilingCabinet
      * the directory does not exist, and only makes one directory 
      * at a time.
      */
-    public static void createDirectory(String directoryName)
+    public static void createDirectory(String filePath)
     {
         FilingCabinet filer = new FilingCabinet("/");
-        if (!filer.checkExists(directoryName))
+        if (!filer.checkExists(filePath))
         {
-            new File(directoryName).mkdir();
+            new File(filePath).mkdir();
         }
     }
 	/**
-	 *  Creates a new documentation file for a problem.
+	 * Creates a new documentation file for a problem.
 	 */
 	public void makeNewDocFile(String newNumber)
 	{
@@ -75,7 +82,7 @@ public class FilingCabinet
 		}
 	}
 	/**
-	 *  Returns a File object with the specified name.
+	 * Returns a File object with the specified name.
 	 */
 	public File getFile(String filename)
 	{

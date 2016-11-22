@@ -13,7 +13,7 @@ public class Messages
      * The Welcome text.
      */
     public static final String WELCOME_TEXT
-        = "Welcome\nWelcome to the Cellular Automata Interface.";
+        = "Welcome to the Cellular Automata Interface.";
     /**
      * The Exit text.
      */

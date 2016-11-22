@@ -18,6 +18,7 @@ public class Control
 		Messages.displayWelcomeText();
 		String[] commands = new String[10];
 		commands[0] = "";
+		Scanner scan = new Scanner(System.in);
 		while (!commands[0].equals("exit"))
 		{
 			// Clear the commands array.
@@ -27,7 +28,6 @@ public class Control
 			}
 			// Ask for commands
 			System.out.print("Command: ");
-			Scanner scan = new Scanner(System.in);
 			String line = scan.nextLine();
 			Scanner reader = new Scanner(line);
 			// Record the commands
@@ -42,7 +42,6 @@ public class Control
 			{
 				continue;
 			}
-			scan.close();
 			reader.close();
 			// Interpret the commands into action
 			if (commands[0].equals("createBox"))
@@ -97,11 +96,16 @@ public class Control
 					save(commands);	
 				}
 			}
+			else if (commands[0].equals("exit"))
+			{
+			    // Do nothing.
+			}
 			else
 			{
 				System.out.println("Unrecognized Command!");	
 			}
 		}
+		scan.close();
 		Messages.displayExitText();
 		System.exit(0);
 	}
