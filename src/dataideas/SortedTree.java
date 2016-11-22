@@ -23,7 +23,7 @@ public class SortedTree<T, K extends Comparable<K>>
      */
     public SortedTree()
     {
-        node = new GridNode<T>(null, 2);
+        // root = new BSTNode<T, K>();
     }
     
     /**
