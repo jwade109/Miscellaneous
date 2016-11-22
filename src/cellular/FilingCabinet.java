@@ -27,6 +27,17 @@ public class FilingCabinet
 		pathToFiles = path;
 	}
 	/**
+	 * Makes a new file, intitially blank, which can be filled by using
+	 * 
+	 */
+	public void makeNewFile(String fileName)
+	{
+	    if (this.checkExisting(fileName))
+	    {
+	        
+	    }
+	}
+	/**
 	 *  Creates a new documentation file for a problem.
 	 */
 	public void makeNewDocFile(String newNumber)

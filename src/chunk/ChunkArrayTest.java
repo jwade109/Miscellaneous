@@ -73,6 +73,22 @@ public class ChunkArrayTest
     }
     
     /**
+     * Tests the remove() method.
+     */
+    @Test
+    public void testRemove()
+    {
+        int removed = (int) array.remove(0, 0);
+        assertEquals(101, removed);
+        removed = (int) array.remove(1, 1);
+        assertEquals(102, removed);
+        removed = (int) array.remove(49, 49);
+        assertEquals(103, removed);
+        // Assert that the chunk at (0,0) is removed now,
+        // if and when that is implemented.
+    }
+    
+    /**
      * Tests the clear() method.
      */
     public void testClear()
