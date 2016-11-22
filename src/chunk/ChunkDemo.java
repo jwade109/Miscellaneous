@@ -62,7 +62,6 @@ public class ChunkDemo
 
             public void mouseClicked(MouseEvent e)
             {
-                System.out.println("dumb");
                 ALLSTOP = !ALLSTOP;
             }
 
@@ -238,6 +237,7 @@ public class ChunkDemo
             g.setColor(Color.WHITE);
             g.fillRect(0, 0, 2 * frameWidth, 2 * frameHeight);
 
+            g.setColor(Color.BLACK);
             for (int i = grid.getDomain()[0]; i < grid.getDomain()[1]; i++)
             {
                 for (int j = grid.getRange()[0]; j < grid.getRange()[1]; j++)
@@ -246,18 +246,22 @@ public class ChunkDemo
                     {
                         if (grid.getEntry(i, j) == 1)
                         {
-                            g.setColor(Color.GREEN);
+                            g.fillRect(
+                                    buffer + cellSize * i + translate[0]
+                                            + newTranslate[0],
+                                    buffer + cellSize * j + translate[1]
+                                            + newTranslate[1],
+                                    cellSize, cellSize);
                         }
                         else if (grid.getEntry(i, j) == 0)
                         {
-                            g.setColor(Color.BLUE);
+                            g.drawRect(
+                                    buffer + cellSize * i + translate[0]
+                                            + newTranslate[0],
+                                    buffer + cellSize * j + translate[1]
+                                            + newTranslate[1],
+                                    cellSize, cellSize);
                         }
-                        g.fillRect(
-                                buffer + cellSize * i + translate[0]
-                                        + newTranslate[0],
-                                buffer + cellSize * j + translate[1]
-                                        + newTranslate[1],
-                                cellSize, cellSize);
                     }
                 }
             }
