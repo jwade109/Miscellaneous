@@ -1,7 +1,6 @@
 package cellular;
 
 import java.io.File;
-import java.nio.file.Files;
 
 import java.lang.Exception;
 import java.io.FileNotFoundException;
@@ -12,13 +11,23 @@ import java.io.PrintWriter;
 public class FilingCabinet
 {
 	private String pathToFiles;
-	/**
-	 *  Creates a FilingCabinet with the default Documentation address.
-	 */
-	public FilingCabinet()
-	{
-		pathToFiles = "/Users/macuser/programs/Project Euler/Documentation/";
-	}
+	   
+    /**
+     * Creates a new FilingCabinet at the directory of program execution.
+     */
+    public FilingCabinet()
+    {
+        // This file points to the jar file or to the main class.
+        // Be sure to edit the name for use.
+        // Shamelessly ripped from the internet, of course.
+        final File file = new File(
+            Main.class.getProtectionDomain().getCodeSource()
+            .getLocation().getPath());
+        // The jar file that is executing this program is called file.
+        // parent is the file directory above file.
+        String parent = file.getParent();
+        pathToFiles = parent.replaceAll("%20", " ");
+    }
 	/**
 	 *  Creates a FilingCabinet with a path to the files for documentation.
 	 */
@@ -27,23 +36,25 @@ public class FilingCabinet
 		pathToFiles = path;
 	}
 	/**
-	 * Makes a new file, intitially blank, which can be filled by using
-	 * 
-	 */
-	public void makeNewFile(String fileName)
-	{
-	    if (this.checkExisting(fileName))
-	    {
-	        
-	    }
-	}
+     * Creates a new directory. Only executes when
+     * the directory does not exist, and only makes one directory 
+     * at a time.
+     */
+    public static void createDirectory(String directoryName)
+    {
+        FilingCabinet filer = new FilingCabinet("/");
+        if (!filer.checkExisting(directoryName))
+        {
+            new File(directoryName).mkdir();
+        }
+    }
 	/**
 	 *  Creates a new documentation file for a problem.
 	 */
 	public void makeNewDocFile(String newNumber)
 	{
 		String fileName = "Problem " + newNumber + ".txt";
-		if (checkExisting(fileName))
+		if (checkExistingInDir(fileName))
 		{
 			System.out.println("File already exists!");
 		}
@@ -80,9 +91,21 @@ public class FilingCabinet
 		}
 	}
 	/**
-	 *  Checks if a file of the given fileName already exists in the directory.
+     * Checks if a directory or file exists.
+     */
+    public boolean checkExisting(String directoryName)
+    {
+        if (new File(directoryName).exists())
+        {
+            return true;
+        }
+        return false;
+    }
+	/**
+	 * Checks if a file of the given fileName already exists 
+	 * in the directory.
 	 */ 
-	private boolean checkExisting(String fileName)
+	private boolean checkExistingInDir(String fileName)
 	{
 		try 
 		{
@@ -97,7 +120,7 @@ public class FilingCabinet
 		return true;
 	}
 	/**
-	 *  Creates a new PrintWriter to print to a new doc file.
+	 * Creates a new PrintWriter to print to a new doc file.
 	 */
 	public PrintWriter createDocFileWriter(String fileName)
 	{
@@ -114,13 +137,18 @@ public class FilingCabinet
 		return printer;
 	}
 	/**
-	 *  Prints out a documentation file with the given name.
+	 * Prints out a documentation file with the given name.
+	 * @throws FileNotFoundException
 	 */
-	public void printFile(String fileName)
+	public void printFile(String fileName) throws FileNotFoundException
 	{
 		printLines(20);
 		System.out.println(fileName);
 		printLines(20);
+		if (!checkExistingInDir(fileName))
+		{
+		    throw new FileNotFoundException("Can't print file that doesn't exist!");
+		}
 		Scanner out = this.createScannerForFile(fileName);
 		while (out.hasNext())
 		{

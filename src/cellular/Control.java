@@ -3,7 +3,9 @@ package cellular;
 import java.util.Scanner;
 
 import java.util.Map;
+import java.io.FileNotFoundException;
 import java.util.HashMap;
+
 public class Control
 {
 	private static Map<String, Program> programs;
@@ -11,7 +13,7 @@ public class Control
 	{
 		programs = new HashMap<String, Program>();
 		FilingCabinet filer = new FilingCabinet("text/");
-		filer.printFile("welcome.txt");
+		Messages.displayWelcomeText();
 		String[] commands = new String[10];
 		commands[0] = "";
 		while (!commands[0].equals("exit"))
@@ -98,7 +100,7 @@ public class Control
 				System.out.println("Unrecognized Command!");	
 			}
 		}
-		filer.printFile("exit.txt");
+		Messages.displayExitText();
 		System.exit(0);
 	}
 	/**

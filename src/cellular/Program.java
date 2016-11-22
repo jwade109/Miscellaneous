@@ -10,14 +10,15 @@ import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class Program
 {
 	private String name;
 	private final long WAIT_TIME = 50;
+	private FilingCabinet programFiler;
 	private String type;
-	private final FilingCabinet gridFiler = new FilingCabinet(
-		"saves/");
 	private Map<String, Box> city;
 	/**
 	 *  Creates a Program with a given name.
@@ -27,6 +28,7 @@ public class Program
 		this.name = name;
 		this.type = type;
 		city = new HashMap<String, Box>();
+		programFiler = new FilingCabinet();
 		System.out.println("Created program " + name);
 	}
 	/**
@@ -116,6 +118,11 @@ public class Program
 		}
 		else
 		{
+		    // Checking that the /saves folder exists
+		    if ()
+		    {
+		        // Create a new saves file?
+		    }
 			// Getting the FileWriter output.
 			String fileName = "saves/" + name + "_" + boxName + ".txt";
 			Writer writer = this.createWriter(fileName);
