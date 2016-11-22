@@ -16,7 +16,7 @@ import java.util.ArrayList;
 public class ChunkArray<T>
 {
     private final int chunkSize = 50;
-
+    
     private ArrayList<Chunk> chunks;
 
     /**
@@ -25,6 +25,7 @@ public class ChunkArray<T>
     public ChunkArray()
     {
         chunks = new ArrayList<Chunk>();
+        chunks.add(new Chunk(0, 0));
     }
 
     /**
@@ -38,13 +39,7 @@ public class ChunkArray<T>
     {
         int[] clx = toCL(x);
         int[] cly = toCL(y);
-        Chunk c = getChunk(clx[0], cly[0]);
-        T data = c.getEntry(clx[1], cly[1]);
-        if (data == null && c.isEmpty())
-        {
-            chunks.remove(c);
-        }
-        return data;
+        return getChunk(clx[0], cly[0]).getEntry(clx[1], cly[1]);
     }
 
     /**
@@ -78,12 +73,7 @@ public class ChunkArray<T>
         int[] clx = toCL(x);
         int[] cly = toCL(y);
         T data = getEntry(x, y);
-        Chunk c = getChunk(clx[0], cly[0]);
-        c.setEntry(null, clx[1], cly[1]);
-        if (c.isEmpty())
-        {
-            chunks.remove(c);
-        }
+        getChunk(clx[0], cly[0]).setEntry(null, clx[1], cly[1]);
         return data;
     }
 
@@ -124,7 +114,7 @@ public class ChunkArray<T>
         int max = 0;
         for (int i = 0; i < chunks.size(); i++)
         {
-            int y = chunks.get(i).getX();
+            int y = chunks.get(i).getY();
             if (y < min)
             {
                 min = y;
