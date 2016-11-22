@@ -1,6 +1,6 @@
-package dataideas;
+package chunk;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 
 /**
  * A data structure that contains a LinkedList of Chunks. Chunks are
@@ -17,14 +17,14 @@ public class ChunkArray<T>
 {
     private final int chunkSize = 50;
 
-    private LinkedList<Chunk> chunks;
+    private ArrayList<Chunk> chunks;
 
     /**
      * Constructs a new ChunkArray.
      */
     public ChunkArray()
     {
-        chunks = new LinkedList<Chunk>();
+        chunks = new ArrayList<Chunk>();
     }
 
     /**
@@ -38,7 +38,13 @@ public class ChunkArray<T>
     {
         int[] clx = toCL(x);
         int[] cly = toCL(y);
-        return getChunk(clx[0], cly[0]).getEntry(clx[1], cly[1]);
+        Chunk c = getChunk(clx[0], cly[0]);
+        T data = c.getEntry(clx[1], cly[1]);
+        if (data == null && c.isEmpty())
+        {
+            chunks.remove(c);
+        }
+        return data;
     }
 
     /**
@@ -58,6 +64,27 @@ public class ChunkArray<T>
         int[] clx = toCL(x);
         int[] cly = toCL(y);
         getChunk(clx[0], cly[0]).setEntry(data, clx[1], cly[1]);
+    }
+
+    /**
+     * Removes the entry stored at a given coordinate.
+     * 
+     * @param x The x coordinate.
+     * @param y The y coordinate.
+     * @return The removed object; null if no object was removed.
+     */
+    public T remove(int x, int y)
+    {
+        int[] clx = toCL(x);
+        int[] cly = toCL(y);
+        T data = getEntry(x, y);
+        Chunk c = getChunk(clx[0], cly[0]);
+        c.setEntry(null, clx[1], cly[1]);
+        if (c.isEmpty())
+        {
+            chunks.remove(c);
+        }
+        return data;
     }
 
     /**
@@ -82,12 +109,14 @@ public class ChunkArray<T>
                 max = x;
             }
         }
-        return new int[] { min * chunkSize, (max+1) * chunkSize };
+        return new int[] { min * chunkSize, (max + 1) * chunkSize };
     }
 
     /**
      * Gets the smallest and largest y-coordinates of the ChunkArray, such that
      * all entries' y-coordinates will be contained in the range.
+     * 
+     * @return the range of the ChunkArray.
      */
     public int[] getRange()
     {
@@ -95,7 +124,7 @@ public class ChunkArray<T>
         int max = 0;
         for (int i = 0; i < chunks.size(); i++)
         {
-            int y = chunks.get(i).getY();
+            int y = chunks.get(i).getX();
             if (y < min)
             {
                 min = y;
@@ -105,19 +134,18 @@ public class ChunkArray<T>
                 max = y;
             }
         }
-        return new int[] { min * chunkSize, (max+1) * chunkSize };
+        return new int[] { min * chunkSize, (max + 1) * chunkSize };
     }
 
     public void clear()
     {
-        chunks = new LinkedList<Chunk>();
+        chunks = new ArrayList<Chunk>();
     }
 
     /**
      * A helper method which gets the chunk at a specified location. If the
      * Chunk does not already exist, this method creates a new one, adds it to
-     * the ChunkArray, and returns it. This method also removes any empty Chunks
-     * during its pass through all the Chunks in the ChunkArray.
+     * the ChunkArray, and returns it.
      * 
      * @param x The x coordinate of the Chunk.
      * @param y The y coordinate of the Chunk.

@@ -31,7 +31,6 @@ public class Main
     private int[] newTranslate = { 0, 0 };
     private int[] mousePos = { 0, 0 };
     private boolean moving = false;
-    private int dir = 0;
 
     public static void main(String[] args)
     {
@@ -125,14 +124,8 @@ public class Main
 
             if (Math.floorMod(t, tick) == 0)
             {
-                if (k == 0)
-                    dir = 1;
-                else if (k == steps)
-                    dir = -1;
-
-                if (dir == 1)
+                if (k < steps)
                 {
-
                     if (board.getCellState(ant.getX(), ant.getY()))
                     {
                         ant.turnLeft();
@@ -143,22 +136,8 @@ public class Main
                     }
                     board.invertCell(ant.getX(), ant.getY(), 1);
                     ant.move();
+                    k++;
                 }
-                else
-                {
-                    ant.reverse();
-                    board.invertCell(ant.getX(), ant.getY(), -1);
-                    if (board.getCellState(ant.getX(), ant.getY()))
-                    {
-                        ant.turnRight();
-                    }
-                    else
-                    {
-                        ant.turnRight();
-                    }
-                }
-
-                k += dir;
 
             }
 
@@ -274,6 +253,18 @@ public class Main
                             buffer + cellSize * j + translate[1]
                                     + newTranslate[1] + cellSize / 4,
                             cellSize / 2, cellSize / 2);
+                    if (i == board.domain()[0] || i == board.domain()[1] - 1
+                            || j == board.range()[0]
+                            || j == board.range()[1] - 1)
+                    {
+                        g.setColor(Color.RED);
+                        g.drawRect(
+                                buffer + cellSize * i + translate[0]
+                                        + newTranslate[0],
+                                buffer + cellSize * j + translate[1]
+                                        + newTranslate[1],
+                                cellSize, cellSize);
+                    }
                 }
             }
 

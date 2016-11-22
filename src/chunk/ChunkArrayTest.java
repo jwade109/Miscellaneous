@@ -1,4 +1,4 @@
-package dataideas;
+package chunk;
 
 import static org.junit.Assert.*;
 import org.junit.Before;

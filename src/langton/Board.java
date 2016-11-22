@@ -1,6 +1,6 @@
 package langton;
 
-import dataideas.ChunkArray;
+import chunk.ChunkArray;
 
 public class Board
 {
