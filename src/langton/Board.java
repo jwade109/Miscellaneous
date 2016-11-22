@@ -16,7 +16,6 @@ public class Board
         count = new ChunkArray<Integer>();
     }
 
-    // returns the value in a given cell
     public boolean getCellState(int x, int y)
     {
         if (state.getEntry(x, y) == null)
@@ -35,7 +34,6 @@ public class Board
         return count.getEntry(x, y);
     }
 
-    // a method which sets the cells to any integer value
     public void setCellState(boolean val, int x, int y)
     {
         state.setEntry(val, x, y);
@@ -44,26 +42,27 @@ public class Board
     public int invertCell(int x, int y, int z)
     {
         state.setEntry(!getCellState(x, y), x, y);
-        
+
         count.setEntry(getCellCount(x, y) + z, x, y);
-        
+
         return count.getEntry(x, y);
     }
 
-    // prints the board onto the console in a visually unappealing way.
-    public String toString()
+    public int[] domain()
     {
-        throw new UnsupportedOperationException();
+        int[] stateDomain = state.getDomain();
+        int[] countDomain = count.getDomain();
+        int low = Math.min(stateDomain[0], countDomain[0]);
+        int high = Math.max(stateDomain[1], countDomain[1]);
+        return new int[] { low, high };
     }
-
-    public String toCountString()
+    
+    public int[] range()
     {
-        throw new UnsupportedOperationException();
+        int[] stateRange = state.getRange();
+        int[] countRange = count.getRange();
+        int low = Math.min(stateRange[0], countRange[0]);
+        int high = Math.max(stateRange[1], countRange[1]);
+        return new int[] { low, high };
     }
-
-    public int getLargestCount()
-    {
-        throw new UnsupportedOperationException();
-    }
-
 }

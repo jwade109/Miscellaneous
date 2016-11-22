@@ -22,13 +22,13 @@ public class Main
     private Ant ant;
     private int frameWidth = 1300;
     private int frameHeight = 1300;
-    private int cellSize = 20;
+    private int cellSize = 50;
     private int tick = 1; // milliseconds: 20 ms = 50 fps
     private int k = 0;
     private int steps = 12000;
     private int[] origin = { 0, 0 };
-    private int[] newTranslate = { frameWidth/2 , frameHeight/2 };
-    private int[] translate = { 0, 0 };
+    private int[] translate = { frameWidth / 2, frameHeight / 2 };
+    private int[] newTranslate = { 0, 0 };
     private int[] mousePos = { 0, 0 };
     private boolean moving = false;
     private int dir = 0;
@@ -179,10 +179,8 @@ public class Main
 
     private void updateFrame(JFrame f)
     {
-        if (getTrueWidth(f) > (getTrueHeight(f)))
-            frameHeight = getTrueHeight(f);
-        else
-            frameWidth = f.getWidth();
+        translate[0] += (getTrueWidth(f) - frameWidth) / 2;
+        translate[1] += (getTrueHeight(f) - frameHeight) / 2;
 
         frameWidth = getTrueWidth(f);
         frameHeight = getTrueHeight(f);
@@ -245,13 +243,20 @@ public class Main
             g.setColor(Color.WHITE);
             g.fillRect(0, 0, 2 * frameWidth, 2 * frameHeight);
 
-            for (int i = -100; i < 100; i++)
+            for (int i = board.domain()[0]; i < board.domain()[1]; i++)
             {
-                for (int j = -100; j < 100; j++)
+                for (int j = board.range()[0]; j < board.range()[1]; j++)
                 {
-                    g.setColor(new Color(255 - board.getCellCount(i, j) * 6,
-                            255 - board.getCellCount(i, j) * 6,
-                            255 - board.getCellCount(i, j) * 6));
+                    try
+                    {
+                        g.setColor(new Color(255 - board.getCellCount(i, j) * 6,
+                                255 - board.getCellCount(i, j) * 6,
+                                255 - board.getCellCount(i, j) * 6));
+                    }
+                    catch (IllegalArgumentException e)
+                    {
+                        g.setColor(Color.BLACK);
+                    }
                     g.fillRect(
                             buffer + cellSize * i + translate[0]
                                     + newTranslate[0],

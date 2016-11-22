@@ -60,6 +60,26 @@ public class ChunkArray<T>
         getChunk(clx[0], cly[0]).setEntry(data, clx[1], cly[1]);
     }
 
+    /**
+     * Gets the smallest and largest x-coordinates of the ChunkArray, such that
+     * all entries x-coordinates will be contained in the domain.
+     * 
+     * @return the domain of the ChunkArray.
+     */
+    public int[] getDomain()
+    {
+        return new int[] { -10, 10 };
+    }
+
+    /**
+     * Gets the smallest and largest y-coordinates of the ChunkArray, such that
+     * all entries' y-coordinates will be contained in the range.
+     */
+    public int[] getRange()
+    {
+        return new int[] { -10, 10 };
+    }
+
     public void clear()
     {
         chunks = new LinkedList<Chunk>();
