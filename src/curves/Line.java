@@ -38,7 +38,16 @@ public class Line
         
         int[] oa = otherLine.getLoc();
         
-        return oa[0] == a[0] && oa[1] == a[1] && oa[2] == a[2] && oa[3] == a[3];
+        if (oa[0] == a[0] && oa[1] == a[1] && oa[2] == a[2] && oa[3] == a[3])
+        {
+            return true;
+        }
+        if (oa[0] == a[2] && oa[1] == a[3] && oa[2] == a[0] && oa[3] == a[1])
+        {
+            return true;
+        }
+        
+        return false;
     }
     
     public String toString()

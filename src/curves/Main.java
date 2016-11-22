@@ -17,19 +17,19 @@ public class Main
     private JFrame f;
     private ArrayList<CurveAnt> ants;
     private ArrayList<Line> lines;
+    private int maxStep;
+    private int tick;
 
     private int lineSize = 40;
-    private int frameHeight = 1300;
-    private int frameWidth = 1300;
-    private final int order = 7;
-    private int tick = 1; // milliseconds: 20 ms = 50 fps
-    private int maxStep;
-
+    private int frameWidth = 2200;
+    private int frameHeight = 1700;
+    private final int order = 15;
+    private final int runTime = 4000;
     private int k = 0;
-    private int[] origin = {0, 0};
-    private int[] newTranslate = {0, 0};
-    private int[] translate = {600, 700};
-    private int[] mousePos = {0, 0};
+    private int[] origin = { 0, 0 };
+    private int[] newTranslate = { 0, 0 };
+    private int[] translate = { frameWidth/2, frameHeight/2 };
+    private int[] mousePos = { 0, 0 };
     private boolean moving = false;
 
     public static void main(String[] args)
@@ -40,15 +40,22 @@ public class Main
     public void start()
     {
         ants = new ArrayList<CurveAnt>();
-        ants.add(new CurveAnt(new ExampleCurve(), order, Color.BLACK));
+        ants.add(new CurveAnt(0, 0, new DragonCurve(), order, Direction.NORTH,
+                Color.BLACK));
+        
+        ants.add(new CurveAnt(-50, 20, new DragonCurve(), order, Direction.SOUTH,
+                Color.BLACK));
 
-        maxStep = new ExampleCurve().generate(order).length();
+        maxStep = new DragonCurve().generate(order).length();
+        tick = (int)((double)runTime/(double)maxStep) + 1;
 
-        f = new JFrame("Dragon Curve (Iteration " + order + ")");
+        f = new JFrame("Turtle Graphics (" + ants.size() + " actors)");
         lines = new ArrayList<Line>();
 
         f.setSize(frameWidth, frameHeight + 45);
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        updateFrame(f);
 
         f.addMouseListener(new MouseListener()
         {
@@ -124,19 +131,16 @@ public class Main
             {
                 for (int i = 0; i < ants.size(); i++)
                 {
-                    if (k > 300 * i)
+                    Line a = ants.get(i).next();
+                    if (a != null)
                     {
-                        Line a = ants.get(i).next();
-                        if (a != null)
+                        if (lines.contains(a))
                         {
-                            if (i % 2 == 0)
-                            {
-                                lines.add(a);
-                            }
-                            else
-                            {
-                                lines.remove(a);
-                            }
+                            lines.remove(a);
+                        }
+                        else
+                        {
+                            lines.add(a);
                         }
                     }
                 }
@@ -171,10 +175,8 @@ public class Main
 
     private void updateFrame(JFrame f)
     {
-        if (getTrueWidth(f) > (getTrueHeight(f)))
-            frameHeight = getTrueHeight(f);
-        else
-            frameWidth = f.getWidth();
+        translate[0] += (getTrueWidth(f) - frameWidth) / 2;
+        translate[1] += (getTrueHeight(f) - frameHeight) / 2;
 
         frameWidth = getTrueWidth(f);
         frameHeight = getTrueHeight(f);
@@ -184,14 +186,14 @@ public class Main
     {
         int x = MouseInfo.getPointerInfo().getLocation().x - f.getX() - 13;
         int y = MouseInfo.getPointerInfo().getLocation().y - f.getY() - 13;
-        int[] pos = {x, y};
+        int[] pos = { x, y };
         return pos;
     }
 
     private double[] getMousePercent()
     {
         int[] mousePos = getMousePos();
-        double[] percents = {0, 0};
+        double[] percents = { 0, 0 };
         percents[0] = (double) mousePos[0] / frameWidth;
         percents[1] = (double) mousePos[1] / frameHeight;
 
@@ -208,12 +210,12 @@ public class Main
 
     private int getTrueHeight(JFrame f)
     {
-        return f.getHeight() - 45;
+        return f.getHeight() - 75;
     }
 
     private int getTrueWidth(JFrame f)
     {
-        return f.getWidth();
+        return f.getWidth() - 30;
     }
 
     class DrawPanel extends JPanel
@@ -227,50 +229,65 @@ public class Main
 
         public void paintComponent(Graphics g)
         {
-
-            int buffer = 50;
-            int edge = 25;
+            int buffer = 30;
             int shadowOffset = 8;
-
+            int loadHeight = 7;
+            
             g.setColor(new Color(230, 230, 230));
             g.fillRect(0, 0, 2 * frameWidth, 2 * frameHeight);
 
             g.setColor(Color.WHITE);
             g.fillRect(0, 0, 2 * frameWidth, 2 * frameHeight);
 
+            if (k < maxStep)
+            {
+                
+            }
+            
             g.setColor(Color.BLUE);
             for (int i = 0; i < lines.size(); i++)
             {
-                drawThickLine(g, lines.get(i));
+                try
+                {
+                    drawThickLine(g, lines.get(i));
+                }
+                catch (Exception e)
+                {
+                    
+                }
             }
 
             g.setColor(new Color(230, 230, 230));
             g.fillRect(0, 0, buffer, 2 * frameHeight);
             g.fillRect(0, 0, 2 * frameHeight, buffer);
-            g.fillRect(frameWidth - buffer - edge, 0, frameWidth,
+            g.fillRect(frameWidth - buffer, 0, frameWidth,
                     2 * frameHeight);
-            g.fillRect(0, frameHeight - buffer - edge, 2 * frameWidth,
+            g.fillRect(0, frameHeight - buffer, 2 * frameWidth,
                     frameHeight);
 
             g.setColor(Color.GRAY);
-            g.fillRect(frameWidth - buffer - edge, buffer + shadowOffset,
-                    shadowOffset, frameHeight - 2 * buffer - edge);
-            g.fillRect(buffer + shadowOffset, frameHeight - buffer - edge,
-                    frameWidth - 2 * buffer - edge, shadowOffset);
+            g.fillRect(frameWidth - buffer, buffer + shadowOffset,
+                    shadowOffset, frameHeight - 2 * buffer);
+            g.fillRect(buffer + shadowOffset, frameHeight - buffer,
+                    frameWidth - 2 * buffer, shadowOffset);
+
+            int loadWidth = (int) ((((double) (k)) / maxStep) * (frameWidth - 2 * buffer));
+
+            g.setColor(Color.BLUE);
+            g.fillRect(buffer, frameHeight - loadHeight - buffer,
+                    loadWidth, loadHeight);
 
             g.setColor(Color.BLACK);
-            g.drawRect(buffer, buffer, frameWidth - 2 * buffer - edge,
-                    frameHeight - 2 * buffer - edge);
+            g.drawRect(buffer, buffer, frameWidth - 2 * buffer,
+                    frameHeight - 2 * buffer);
 
             mousePos = getMousePos();
             double[] percents = getMousePercent();
             g.setColor(Color.GRAY);
-            g.drawString(
-                    "Step: " + k + " of " + maxStep + " Tick: " + tick
-                            + " Zoom: " + (lineSize / 40.0) + " Mouse: "
-                            + mousePos[0] + " " + mousePos[1] + " Translate: "
-                            + newTranslate[0] + " " + newTranslate[1] + " "
-                            + translate[0] + " " + translate[1],
+            g.drawString("Step: " + k + " of " + maxStep + " Tick: " + tick
+                    + " Zoom: " + (lineSize / 40.0) + " Mouse: " + mousePos[0]
+                    + " " + mousePos[1] + " Translate: " + newTranslate[0] + " "
+                    + newTranslate[1] + " " + translate[0] + " " + translate[1],
                     buffer + 10, buffer + 20);
             g.drawString("Window: " + frameWidth + " " + frameHeight,
                     buffer + 10, buffer + 40);
@@ -279,8 +296,15 @@ public class Main
                             + " "
                             + (double) Math.round(percents[1] * 100) / 100,
                     buffer + 10, buffer + 60);
-            g.drawString("Zoom and pan!", frameWidth - buffer - edge - 90,
+            g.drawString("Zoom and pan!", frameWidth - buffer - 90,
                     buffer + 20);
+            
+            /* DIAGNOSTIC GRAPHICS
+            g.setColor(Color.RED);
+            g.drawOval(frameWidth/2 - 10, frameHeight/2 - 10, 20, 20);
+            g.drawLine(0, 0, frameWidth, frameHeight);
+            g.drawLine(frameWidth, 0, 0, frameHeight);
+            */
         }
 
     }
@@ -288,7 +312,6 @@ public class Main
     private void drawThickLine(Graphics g, Line line)
     {
         int[] a = line.getLoc();
-
         g.setColor(line.getColor());
 
         if (a[0] < a[2]) // moving to the right

@@ -12,12 +12,12 @@ public class CurveAnt
     private boolean done;
     private Color color;
 
-    public CurveAnt(Curve curve, int order, Color color)
+    public CurveAnt(int x, int y, Curve curve, int order, Direction dir, Color color)
     {
         sequence = curve.generate(order);
-        x = 0;
-        y = 0;
-        dir = Direction.NORTH;
+        this.x = x;
+        this.y = y;
+        this.dir = dir;
         step = 0;
         done = false;
         this.color = color;
