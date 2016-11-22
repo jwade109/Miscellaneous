@@ -43,7 +43,7 @@ public class FilingCabinet
     public static void createDirectory(String directoryName)
     {
         FilingCabinet filer = new FilingCabinet("/");
-        if (!filer.checkExisting(directoryName))
+        if (!filer.checkExists(directoryName))
         {
             new File(directoryName).mkdir();
         }
@@ -93,9 +93,9 @@ public class FilingCabinet
 	/**
      * Checks if a directory or file exists.
      */
-    public boolean checkExisting(String directoryName)
+    public boolean checkExists(String name)
     {
-        if (new File(directoryName).exists())
+        if (new File(name).exists())
         {
             return true;
         }
@@ -158,7 +158,7 @@ public class FilingCabinet
 		printLines(20);
 	}
 	/**
-	 *  Creates a scanner that reads a file.
+	 * Creates a scanner that reads a file.
 	 */
 	public Scanner createScannerForFile(String fileName)
 	{
@@ -176,7 +176,7 @@ public class FilingCabinet
 		return out;
 	}
 	/**
-	 *  Helper method that makes some lines in the command terminal.
+	 * Helper method that makes some lines in the command terminal.
 	 */
 	private void printLines(int numLines)
 	{

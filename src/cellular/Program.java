@@ -118,11 +118,6 @@ public class Program
 		}
 		else
 		{
-		    // Checking that the /saves folder exists
-		    if ()
-		    {
-		        // Create a new saves file?
-		    }
 			// Getting the FileWriter output.
 			String fileName = "saves/" + name + "_" + boxName + ".txt";
 			Writer writer = this.createWriter(fileName);

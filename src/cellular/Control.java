@@ -3,16 +3,18 @@ package cellular;
 import java.util.Scanner;
 
 import java.util.Map;
-import java.io.FileNotFoundException;
 import java.util.HashMap;
 
 public class Control
 {
 	private static Map<String, Program> programs;
+	/**
+	 * Interprets commands into actions,
+	 * based on user input in the command line.
+	 */
 	public static void main()
 	{
 		programs = new HashMap<String, Program>();
-		FilingCabinet filer = new FilingCabinet("text/");
 		Messages.displayWelcomeText();
 		String[] commands = new String[10];
 		commands[0] = "";
@@ -104,7 +106,7 @@ public class Control
 		System.exit(0);
 	}
 	/**
-	 *  Creates a new program and adds it to the list.
+	 * Creates a new program and adds it to the list.
 	 */
 	public static void createProgram(String[] input)
 	{
@@ -129,7 +131,7 @@ public class Control
 		}
 	}
 	/**
-	 *  Creates a new Box for a given program with a given name.
+	 * Creates a new Box for a given program with a given name.
 	 */
 	public static void createBox(String[] input)
 	{
@@ -147,7 +149,7 @@ public class Control
 		}
 	}
 	/**
-	 *  Runs a grid in the specified program.
+	 * Runs a grid in the specified program.
 	 */
 	public static void run(String input[])
 	{
@@ -161,7 +163,7 @@ public class Control
 		}
 	}
 	/**
-	 *  Saves a Grid to a file.
+	 * Saves a Grid to a file.
 	 */
 	public static void save(String[] input)
 	{
@@ -175,7 +177,7 @@ public class Control
 		}
 	}
 	/**
-	 *  Loads a Grid from a file into a new Grid.
+	 * Loads a Grid from a file into a new Grid.
 	 */
 	public static void load(String[] input)
 	{
