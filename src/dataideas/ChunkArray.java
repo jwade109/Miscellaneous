@@ -68,7 +68,21 @@ public class ChunkArray<T>
      */
     public int[] getDomain()
     {
-        return new int[] { -10, 10 };
+        int min = 0;
+        int max = 0;
+        for (int i = 0; i < chunks.size(); i++)
+        {
+            int x = chunks.get(i).getX();
+            if (x < min)
+            {
+                min = x;
+            }
+            if (x > max)
+            {
+                max = x;
+            }
+        }
+        return new int[] { min * chunkSize, (max+1) * chunkSize };
     }
 
     /**
@@ -77,7 +91,21 @@ public class ChunkArray<T>
      */
     public int[] getRange()
     {
-        return new int[] { -10, 10 };
+        int min = 0;
+        int max = 0;
+        for (int i = 0; i < chunks.size(); i++)
+        {
+            int y = chunks.get(i).getY();
+            if (y < min)
+            {
+                min = y;
+            }
+            if (y > max)
+            {
+                max = y;
+            }
+        }
+        return new int[] { min * chunkSize, (max+1) * chunkSize };
     }
 
     public void clear()
