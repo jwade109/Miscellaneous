@@ -13,7 +13,7 @@ package vector;
  * 
  * @param T     The type this vector grid holds as data.
  */
-public class AbstractFilledVectorGrid<T>
+public class FilledVectorGrid<T>
 {
     /**
      * Shrinks a direction of the grid towards the origin.

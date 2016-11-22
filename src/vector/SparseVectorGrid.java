@@ -11,7 +11,7 @@ package vector;
  * 
  * @param T     The type for this vector grid to hold.
  */
-public class AbstractSparseVectorGrid<T> // extends AbstractVectorGrid<T>
+public class SparseVectorGrid<T> // extends AbstractVectorGrid<T>
 {
 	// TODO
 }
