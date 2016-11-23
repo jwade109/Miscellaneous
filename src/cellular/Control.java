@@ -35,9 +35,7 @@ public class Control
 			while (reader.hasNext())
 			{
 				index++;
-				commands[index] = reader.next();
-				// To make capitalization less annoying.
-				commands[index].toLowerCase();
+				commands[index] = reader.next().toLowerCase();
 			}
 			if (commands[0] == null
 				|| commands[0] == "")
@@ -100,7 +98,7 @@ public class Control
 			}
 			else if (commands[0].equals("help"))
 			{
-			    
+			    help(commands);
 			}
 			else if (commands[0].equals("exit"))
 			{
@@ -191,7 +189,34 @@ public class Control
 	 */
 	public static void help(String[] input)
 	{
-	    Messages.displayHelpText();
+	    if (input[1] == null)
+	    {
+	        Messages.displayHelpText();
+	    }
+	    else if (input[1].equals("exit"))
+	    {
+	        Messages.displayHelpExitText();
+	    }
+	    else if (input[1].equals("createprogram"))
+        {
+            Messages.displayHelpCreateProgramText();
+        }
+	    else if (input[1].equals("createBox"))
+	    {
+	        Messages.displayHelpCreateBoxText();
+	    }
+	    else if (input[1].equals("run"))
+        {
+            Messages.displayHelpRunText();
+        }
+	    else if (input[1].equals("save"))
+        {
+            Messages.displayHelpSaveText();
+        }
+	    else if (input[1].equals("load"))
+        {
+            Messages.displayHelpLoadText();
+        }
 	}
 	/**
 	 * Loads a Grid from a file into a new Grid.
