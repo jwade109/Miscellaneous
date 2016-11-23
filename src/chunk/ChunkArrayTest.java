@@ -1,10 +1,11 @@
 package chunk;
 
-import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ChunkArrayTest
+import junit.framework.TestCase;
+
+public class ChunkArrayTest extends TestCase
 {
     /**
      * A ChunkArray for the tests.

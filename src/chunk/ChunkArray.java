@@ -15,8 +15,8 @@ import java.util.ArrayList;
  */
 public class ChunkArray<T>
 {
-    private final int chunkSize = 50;
-    
+    private final int chunkSize = 24;
+
     private ArrayList<Chunk> chunks;
 
     /**
@@ -39,7 +39,9 @@ public class ChunkArray<T>
     {
         int[] clx = toCL(x);
         int[] cly = toCL(y);
-        return getChunk(clx[0], cly[0]).getEntry(clx[1], cly[1]);
+        T data = getChunk(clx[0], cly[0]).getEntry(clx[1], cly[1]);
+        removeEmptyChunks();
+        return data;
     }
 
     /**
@@ -73,12 +75,16 @@ public class ChunkArray<T>
         int[] clx = toCL(x);
         int[] cly = toCL(y);
         T data = getEntry(x, y);
-        Chunk chunk = getChunk(clx[0], cly[0]);
+        /*
+	Chunk chunk = getChunk(clx[0], cly[0]);
         chunk.setEntry(null, clx[1], cly[1]);
         if (getChunk(clx[0], cly[0]).isEmpty())
         {
             chunks.remove(chunk);
         }
+	*/
+        getChunk(clx[0], cly[0]).setEntry(null, clx[1], cly[1]);
+        removeEmptyChunks();
         return data;
     }
 
@@ -132,9 +138,41 @@ public class ChunkArray<T>
         return new int[] { min * chunkSize, (max + 1) * chunkSize };
     }
 
+    /**
+     * Removes all entries in the ChunkArray.
+     */
     public void clear()
     {
         chunks = new ArrayList<Chunk>();
+    }
+
+    /**
+     * Gets a human-readable String representation of the contents of the
+     * ChunkArray.
+     * 
+     * @return a String.
+     */
+    public String toString()
+    {
+        StringBuilder out = new StringBuilder("[");
+
+        for (int i = 0; i < chunks.size(); i++)
+        {
+            out.append("[");
+            out.append(chunks.get(i).getX());
+            out.append(", ");
+            out.append(chunks.get(i).getY());
+            out.append(", ");
+            out.append(chunks.get(i).getSize());
+            out.append("], ");
+        }
+
+        if (chunks.size() > 0)
+        {
+            out.delete(out.length() - 2, out.length());
+        }
+        out.append("]");
+        return out.toString();
     }
 
     /**
@@ -158,6 +196,21 @@ public class ChunkArray<T>
         Chunk c = new Chunk(x, y);
         chunks.add(c);
         return c;
+    }
+    
+    /**
+     * Helper method that removes empty chunks.
+     */
+    private void removeEmptyChunks()
+    {
+        for (int i = 0; i < chunks.size(); i++)
+        {
+            if (chunks.get(i).isEmpty())
+            {
+                chunks.remove(chunks.get(i));
+                i--;
+            }
+        }
     }
 
     /**
@@ -207,6 +260,7 @@ public class ChunkArray<T>
         int x;
         int y;
         T[][] grid;
+        int size;
 
         /**
          * Creates an empty Chunk at the specified location.
@@ -220,6 +274,7 @@ public class ChunkArray<T>
             this.x = x;
             this.y = y;
             grid = (T[][]) new Object[chunkSize][chunkSize];
+            size = 0;
         }
 
         /**
@@ -263,7 +318,20 @@ public class ChunkArray<T>
          */
         public void setEntry(T data, int x, int y)
         {
+            if (grid[x][y] == null && data != null)
+            {
+                size++;
+            }
+            else if (grid[x][y] != null && data == null)
+            {
+                size--;
+            }
             grid[x][y] = data;
+        }
+        
+        public int getSize()
+        {
+            return size;
         }
 
         /**
@@ -273,17 +341,7 @@ public class ChunkArray<T>
          */
         public boolean isEmpty()
         {
-            for (int i = 0; i < chunkSize; i++)
-            {
-                for (int j = 0; j < chunkSize; j++)
-                {
-                    if (grid[i][j] != null)
-                    {
-                        return false;
-                    }
-                }
-            }
-            return true;
+            return size == 0;
         }
     }
 }
