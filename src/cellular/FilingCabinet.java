@@ -4,9 +4,10 @@ import java.io.File;
 
 import java.lang.Exception;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.Scanner;
 import java.io.PrintWriter;
+
+import java.io.UnsupportedEncodingException;
 
 public class FilingCabinet
 {
@@ -150,10 +151,15 @@ public class FilingCabinet
 		{
 			printer = new PrintWriter(pathToFiles + fileName, "UTF-8");
 		}
-		catch (Exception ex) 
+		catch (FileNotFoundException ex)
 		{
 			ex.printStackTrace();
 			printer = null;
+		}
+		catch (UnsupportedEncodingException exception)
+		{
+		    exception.printStackTrace();
+		    printer = null;
 		}
 		return printer;
 	}

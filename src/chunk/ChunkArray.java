@@ -73,7 +73,12 @@ public class ChunkArray<T>
         int[] clx = toCL(x);
         int[] cly = toCL(y);
         T data = getEntry(x, y);
-        getChunk(clx[0], cly[0]).setEntry(null, clx[1], cly[1]);
+        Chunk chunk = getChunk(clx[0], cly[0]);
+        chunk.setEntry(null, clx[1], cly[1]);
+        if (getChunk(clx[0], cly[0]).isEmpty())
+        {
+            chunks.remove(chunk);
+        }
         return data;
     }
 
