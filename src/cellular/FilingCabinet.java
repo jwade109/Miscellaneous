@@ -25,7 +25,6 @@ public class FilingCabinet
             .getLocation().getPath());
         // The jar file that is executing this program is called file.
         // parent is the file directory above file.
-        System.out.println(file);
         // String parent = file.getParent();
         String parent = file.getParent();
         pathToFiles = parent.replaceAll("%20", " ") 

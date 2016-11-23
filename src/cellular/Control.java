@@ -36,6 +36,8 @@ public class Control
 			{
 				index++;
 				commands[index] = reader.next();
+				// To make capitalization less annoying.
+				commands[index].toLowerCase();
 			}
 			if (commands[0] == null
 				|| commands[0] == "")
@@ -44,7 +46,7 @@ public class Control
 			}
 			reader.close();
 			// Interpret the commands into action
-			if (commands[0].equals("createBox"))
+			if (commands[0].equals("createbox"))
 			{
 				if (index < 4)
 				{
@@ -55,7 +57,7 @@ public class Control
 					createBox(commands);
 				}
 			}
-			else if (commands[0].equals("createProgram"))
+			else if (commands[0].equals("createprogram"))
 			{
 				if (index < 2)
 				{
@@ -95,6 +97,10 @@ public class Control
 				{
 					save(commands);	
 				}
+			}
+			else if (commands[0].equals("help"))
+			{
+			    
 			}
 			else if (commands[0].equals("exit"))
 			{
@@ -179,6 +185,13 @@ public class Control
 		{
 			System.out.println("Program not found");
 		}
+	}
+	/**
+	 * Displays the help message.
+	 */
+	public static void help(String[] input)
+	{
+	    Messages.displayHelpText();
 	}
 	/**
 	 * Loads a Grid from a file into a new Grid.

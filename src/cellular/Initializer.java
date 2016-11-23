@@ -20,7 +20,6 @@ public class Initializer
     public static void initialize()
     {
         FilingCabinet checker = new FilingCabinet();
-        System.out.println(checker.getPathToFiles());
         boolean missingDir = false;
         if (!checker.checkExists("resources/images"))
         {

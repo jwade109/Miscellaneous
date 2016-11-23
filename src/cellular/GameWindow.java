@@ -16,7 +16,7 @@ public class GameWindow extends JPanel
 	private int maxState;
 	private BufferedImage[] pictures;
 	/**
-	 *  Creates a new GameWindow with a Grid to get data from.
+	 * Creates a new GameWindow with a Grid to get data from.
 	 */
 	public GameWindow(Grid place, int maxState, int cellDim, String type)
 	{
@@ -24,7 +24,7 @@ public class GameWindow extends JPanel
 		this.cellDim = cellDim;
 		block = place;
 		this.cellDim = cellDim;
-		imager = new FilingCabinet("resources/" + type + "/cells/");
+		imager = new FilingCabinet("resources/images/" + type + "/cells/");
 		pictures = new BufferedImage[maxState];
 		for (int i = 0; i < maxState; i++)
 		{
@@ -32,7 +32,7 @@ public class GameWindow extends JPanel
 		}
 	}
 	/**
-	 *  Paints the whole window at every repaint() call.
+	 * Paints the whole window at every repaint() call.
 	 */
 	@Override
 	public void paintComponent(Graphics g)
@@ -49,7 +49,7 @@ public class GameWindow extends JPanel
 		}
 	}
 	/**
-	 *  Creates a BufferedImage from a file name.
+	 * Creates a BufferedImage from a file name.
 	 */
 	private BufferedImage createImageFromFile(String filename)
 	{
@@ -67,7 +67,7 @@ public class GameWindow extends JPanel
 	// The following method is here because I took it from online to understand
 	// the writers involved.
 	/**
-	 *  Writes a BufferedImage to a file.
+	 * Writes a BufferedImage to a file.
 	 */
 	public void writeToFile(BufferedImage img, String filename)
 	{
