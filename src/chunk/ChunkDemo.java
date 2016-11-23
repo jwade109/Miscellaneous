@@ -52,7 +52,7 @@ public class ChunkDemo
     {
         grid = new ChunkArray<Integer>();
 
-        f = new JFrame("Langton's Ant");
+        f = new JFrame("Chunk Demo");
 
         f.setSize(frameWidth, frameHeight + 45);
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -120,6 +120,8 @@ public class ChunkDemo
 
         while (true)
         {
+            // THIS MAY BE MULTITHREADED ALSO!!!
+            // BEWARE THE MULTITHREADSSSSS
             updateFrame(f);
 
             if (moving)
@@ -160,11 +162,13 @@ public class ChunkDemo
 
             }
 
+            // The likely culprit of ConcurrentModificationException.
+            // This needs to be handled carefully.
             p.repaint();
-
+            
             try
             {
-                Thread.sleep(1);
+                Thread.sleep(tick);
             }
             catch (InterruptedException e1)
             {
@@ -238,9 +242,11 @@ public class ChunkDemo
             g.fillRect(0, 0, 2 * frameWidth, 2 * frameHeight);
 
             g.setColor(Color.BLACK);
-            for (int i = grid.getDomain()[0]; i < grid.getDomain()[1]; i++)
+            int upperX = grid.getDomain()[1];
+            int upperY = grid.getRange()[1];
+            for (int i = grid.getDomain()[0]; i < upperX; i++)
             {
-                for (int j = grid.getRange()[0]; j < grid.getRange()[1]; j++)
+                for (int j = grid.getRange()[0]; j < upperY; j++)
                 {
                     if (grid.getEntry(i, j) != null)
                     {

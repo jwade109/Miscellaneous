@@ -11,6 +11,9 @@ import java.util.ArrayList;
  * @author Wade Foster
  * @version 2016.11.21
  * 
+ * @author William McDermott
+ * @version 2016.11.23
+ * 
  * @param T Generic data type.
  */
 public class ChunkArray<T>
@@ -39,8 +42,15 @@ public class ChunkArray<T>
     {
         int[] clx = toCL(x);
         int[] cly = toCL(y);
-        T data = getChunk(clx[0], cly[0]).getEntry(clx[1], cly[1]);
-        removeEmptyChunks();
+        Chunk chunk = getChunk(clx[0], cly[0]);
+        T data = chunk.getEntry(clx[1], cly[1]);
+        // Adding this seems to yield concurrent modification exceptions
+        // at high speed.
+        // removeEmptyChunks();
+        if (data == null && chunk.isEmpty())
+        {
+            chunks.remove(chunk);
+        }
         return data;
     }
 
@@ -75,16 +85,20 @@ public class ChunkArray<T>
         int[] clx = toCL(x);
         int[] cly = toCL(y);
         T data = getEntry(x, y);
-        /*
-	Chunk chunk = getChunk(clx[0], cly[0]);
+        Chunk chunk = getChunk(clx[0], cly[0]);
         chunk.setEntry(null, clx[1], cly[1]);
-        if (getChunk(clx[0], cly[0]).isEmpty())
+        // We only remove THIS chunk where applicable, 
+        // since we just removed an entry from it.
+        /* Single chunk removal */
+        if (chunk.isEmpty())
         {
             chunks.remove(chunk);
         }
-	*/
+        /* */
+        /* Total chunk removal
         getChunk(clx[0], cly[0]).setEntry(null, clx[1], cly[1]);
         removeEmptyChunks();
+        */
         return data;
     }
 
@@ -98,7 +112,8 @@ public class ChunkArray<T>
     {
         int min = 0;
         int max = 0;
-        for (int i = 0; i < chunks.size(); i++)
+        // No idea why, but this needs size() - 1.
+        for (int i = 0; i < chunks.size() - 1; i++)
         {
             int x = chunks.get(i).getX();
             if (x < min)
@@ -166,7 +181,7 @@ public class ChunkArray<T>
             out.append(chunks.get(i).getSize());
             out.append("], ");
         }
-
+        // What's the purpose of this following statement?
         if (chunks.size() > 0)
         {
             out.delete(out.length() - 2, out.length());
@@ -186,8 +201,13 @@ public class ChunkArray<T>
      */
     private Chunk getChunk(int x, int y)
     {
-        for (int i = 0; i < chunks.size(); i++)
+        for (int i = 0; i < chunks.size() - 1; i++)
         {
+            if (chunks.get(i) == null)
+            {
+                chunks.remove(i);
+                continue;
+            }
             if (chunks.get(i).getX() == x && chunks.get(i).getY() == y)
             {
                 return chunks.get(i);
@@ -205,6 +225,10 @@ public class ChunkArray<T>
     {
         for (int i = 0; i < chunks.size(); i++)
         {
+            if (chunks.get(i) == null)
+            {
+                System.out.println("Null chunks!");
+            }
             if (chunks.get(i).isEmpty())
             {
                 chunks.remove(chunks.get(i));
@@ -318,6 +342,8 @@ public class ChunkArray<T>
          */
         public void setEntry(T data, int x, int y)
         {
+            // These operations are negations, not if, else-if
+            // Not sure what this does
             if (grid[x][y] == null && data != null)
             {
                 size++;
@@ -326,6 +352,7 @@ public class ChunkArray<T>
             {
                 size--;
             }
+            // What if data == null and there is an element at [x][y]?
             grid[x][y] = data;
         }
         
