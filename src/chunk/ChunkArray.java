@@ -18,6 +18,8 @@ import java.util.ArrayList;
  */
 public class ChunkArray<T>
 {
+    // I wonder if we can test for optimal size.
+    // 50 is too big, 5 is too small.
     private final int chunkSize = 24;
 
     private ArrayList<Chunk> chunks;
@@ -113,7 +115,7 @@ public class ChunkArray<T>
         int min = 0;
         int max = 0;
         // No idea why, but this needs size() - 1.
-        for (int i = 0; i < chunks.size() - 1; i++)
+        for (int i = 0; i < chunks.size(); i++)
         {
             int x = chunks.get(i).getX();
             if (x < min)
@@ -201,11 +203,11 @@ public class ChunkArray<T>
      */
     private Chunk getChunk(int x, int y)
     {
-        for (int i = 0; i < chunks.size() - 1; i++)
+        for (int i = 0; i < chunks.size(); i++)
         {
             if (chunks.get(i) == null)
             {
-                chunks.remove(i);
+                System.out.println("Null Chunk at index: " + i);
                 continue;
             }
             if (chunks.get(i).getX() == x && chunks.get(i).getY() == y)
@@ -253,7 +255,7 @@ public class ChunkArray<T>
         {
             ac = 0;
         }
-        if (a >= chunkSize)
+        else if (a >= chunkSize)
         {
             ac = a / chunkSize;
         }
@@ -278,6 +280,9 @@ public class ChunkArray<T>
      * 
      * @author Wade Foster
      * @version 2016.11.21
+     * 
+     * Added Comments - William
+     * @version 2016.11.23
      */
     private class Chunk
     {
@@ -342,8 +347,6 @@ public class ChunkArray<T>
          */
         public void setEntry(T data, int x, int y)
         {
-            // These operations are negations, not if, else-if
-            // Not sure what this does
             if (grid[x][y] == null && data != null)
             {
                 size++;
@@ -352,7 +355,6 @@ public class ChunkArray<T>
             {
                 size--;
             }
-            // What if data == null and there is an element at [x][y]?
             grid[x][y] = data;
         }
         

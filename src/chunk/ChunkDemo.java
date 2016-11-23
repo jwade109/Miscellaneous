@@ -163,7 +163,8 @@ public class ChunkDemo
             }
 
             // The likely culprit of ConcurrentModificationException.
-            // This needs to be handled carefully.
+            // This needs to be handled carefully ... or just avoided.
+            // It multi-threads!
             p.repaint();
             
             try
