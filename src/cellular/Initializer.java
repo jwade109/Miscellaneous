@@ -20,18 +20,26 @@ public class Initializer
     public static void initialize()
     {
         FilingCabinet checker = new FilingCabinet();
-        if (!checker.checkExists("resources"))
+        System.out.println(checker.getPathToFiles());
+        boolean missingDir = false;
+        if (!checker.checkExists("images"))
         {
-            FilingCabinet.createDirectory(
+            FilingCabinet.createDirectories(
                 checker.getPathToFiles() + 
-                File.pathSeparator + "/resources");
+                File.separator + "images");
+            missingDir = true;
         }
         if (!checker.checkExists("saves"))
         {
-            FilingCabinet.createDirectory(
+            FilingCabinet.createDirectories(
                 checker.getPathToFiles() + 
-                File.pathSeparator + "saves");
+                File.separator + "saves");
+            missingDir = true;
         }
-        System.out.println(checker.getPathToFiles());
+        if (missingDir)
+        {
+            Messages.displayMissingDirectoryText();
+            System.exit(0);
+        }
     }
 }

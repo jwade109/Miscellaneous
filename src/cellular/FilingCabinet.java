@@ -4,7 +4,7 @@ import java.io.File;
 
 import java.lang.Exception;
 import java.io.FileNotFoundException;
-
+import java.io.IOException;
 import java.util.Scanner;
 import java.io.PrintWriter;
 
@@ -25,8 +25,11 @@ public class FilingCabinet
             .getLocation().getPath());
         // The jar file that is executing this program is called file.
         // parent is the file directory above file.
-        String absolute = file.getAbsolutePath();
-        pathToFiles = absolute.toString().replaceAll("%20", " ");
+        System.out.println(file);
+        // String parent = file.getParent();
+        String parent = file.getParent();
+        pathToFiles = parent.replaceAll("%20", " ") 
+            + File.separator + "resources" + File.separator;
     }
     /**
      * Gets the pathToFiles string.
@@ -53,6 +56,18 @@ public class FilingCabinet
         if (!filer.checkExists(filePath))
         {
             new File(filePath).mkdir();
+        }
+    }
+    /**
+     * Creates a new set of directories from a filePath.
+     * Only executes when the directory does not already exist.
+     */
+    public static void createDirectories(String filePath)
+    {
+        FilingCabinet filer = new FilingCabinet("/");
+        if (!filer.checkExists(filePath))
+        {
+            new File(filePath).mkdirs();
         }
     }
 	/**

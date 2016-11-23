@@ -3,7 +3,7 @@ package cellular;
 import java.util.Map;
 import java.util.HashMap;
 
-// import java.io.PrintWriter;
+import java.io.PrintWriter;
 
 import java.io.Writer;
 import java.io.BufferedWriter;
@@ -118,12 +118,11 @@ public class Program
 		{
 			// Getting the FileWriter output.
 			String fileName = "saves/" + name + "_" + boxName + ".txt";
-			Writer writer = this.createWriter(fileName);
+			PrintWriter writer = programFiler.createDocFileWriter(fileName);
 			
 			// Getting the Grid
 			Grid input = city.get(boxName).getGrid();
-		
-			// Writing
+
 			// Header
 			this.append(writer, "Type=" + type + "\n");
 			this.append(writer, "X=" + 
@@ -141,15 +140,7 @@ public class Program
 				}
 				this.append(writer, "\n");
 			}
-			try 
-			{
-				writer.close();
-			}
-			catch (IOException ex)
-			{
-				ex.printStackTrace();
-				System.out.println("Writer close failed!");
-			}
+			writer.close();
 		}
 	}
 	/**

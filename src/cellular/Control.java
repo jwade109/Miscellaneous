@@ -173,7 +173,7 @@ public class Control
 	{
 		if (programs.containsKey(input[1]))
 		{
-			programs.get(input[1]).saveToFile(input[2]); // saveFile could work
+			programs.get(input[1]).saveToFile(input[2]);
 		}
 		else
 		{
