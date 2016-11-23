@@ -19,7 +19,7 @@ public class Program
 	private String type;
 	private Map<String, Box> city;
 	/**
-	 *  Creates a Program with a given name.
+	 * Creates a Program with a given name.
 	 */
 	public Program(String name, String type)
 	{
@@ -30,7 +30,7 @@ public class Program
 		System.out.println("Created program " + name);
 	}
 	/**
-	 *  Returns the name of the program.
+	 * Returns the name of the program.
 	 */
 	public String getName()
 	{
@@ -44,7 +44,7 @@ public class Program
 		return city.containsKey(name);
 	}
 	/**
-	 *  Renames a Box to a new name.
+	 * Renames a Box to a new name.
 	 */
 	public void renameBox(String boxName, String newName)
 	{
@@ -54,7 +54,7 @@ public class Program
 		city.put(newName, b);
 	}
 	/**
-	 *  Creates a blank Box for this program, having specific dimensions.
+	 * Creates a blank Box for this program, having specific dimensions.
 	 */
 	public void addBox(String name, int X, int Y)
 	{
@@ -68,14 +68,14 @@ public class Program
 		}
 	}
 	/**
-	 *  Creates a Box from a file and adds it to the field.
+	 * Creates a Box from a file and adds it to the field.
 	 */
 	public void addBox(String boxName, String filename)
 	{
 		// Fill in method once a syntax is decided for files.
 	}
 	/**
-	 *  Ticks a Box forward one step.
+	 * Ticks a Box forward one step.
 	 */
 	/*
 	public void tickBox(String boxName)
@@ -91,7 +91,7 @@ public class Program
 	}
 	*/
 	/**
-	 *  Runs the tick method of a Box many times to make it animate.
+	 * Runs the tick method of a Box many times to make it animate.
 	 */
 	public void run(String boxName, int number)
 	{
@@ -106,7 +106,7 @@ public class Program
 		}
 	}
 	/**
-	 *  Saves the given Box's Grid field to a file.
+	 * Saves the given Box's Grid field to a file.
 	 */
 	public void saveToFile(String boxName)
 	{
@@ -117,7 +117,8 @@ public class Program
 		else
 		{
 			// Getting the FileWriter output.
-			String fileName = "saves/" + name + "_" + boxName + ".txt";
+			String fileName = "resources/saves/" + name + "_" 
+			    + boxName + ".txt";
 			PrintWriter writer = programFiler.createDocFileWriter(fileName);
 			
 			// Getting the Grid
@@ -144,7 +145,7 @@ public class Program
 		}
 	}
 	/**
-	 *  Returns a FileWriter to write to a given String FileName.
+	 * Returns a FileWriter to write to a given String FileName.
 	 */
 	private Writer createWriter(String fileName)
 	{
@@ -163,7 +164,7 @@ public class Program
 		return writer;
 	}
 	/**
-	 *  Appends a String of information to a FileWriter's output.
+	 * Appends a String of information to a FileWriter's output.
 	 */
 	private void append(Writer writer, String info)
 	{
@@ -177,7 +178,7 @@ public class Program
 		}
 	}
 	/**
-	 *  Loads a Grid into the Program from a file.
+	 * Loads a Grid into the Program from a file.
 	 */
 	public void loadFromFile(String fileName)
 	{

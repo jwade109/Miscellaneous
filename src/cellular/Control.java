@@ -149,7 +149,7 @@ public class Control
 		}
 		else
 		{
-			System.out.println("Name taken!");
+			System.out.println("Program not found!");
 		}
 	}
 	/**

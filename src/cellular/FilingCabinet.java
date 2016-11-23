@@ -169,7 +169,8 @@ public class FilingCabinet
 		printLines(20);
 		if (!checkExistingInDir(fileName))
 		{
-		    throw new FileNotFoundException("Can't print file that doesn't exist!");
+		    throw new FileNotFoundException(
+		        "Can't print file that doesn't exist!");
 		}
 		Scanner out = this.createScannerForFile(fileName);
 		while (out.hasNext())

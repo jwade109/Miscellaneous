@@ -22,14 +22,14 @@ public class Initializer
         FilingCabinet checker = new FilingCabinet();
         System.out.println(checker.getPathToFiles());
         boolean missingDir = false;
-        if (!checker.checkExists("images"))
+        if (!checker.checkExists("resources/images"))
         {
             FilingCabinet.createDirectories(
                 checker.getPathToFiles() + 
                 File.separator + "images");
             missingDir = true;
         }
-        if (!checker.checkExists("saves"))
+        if (!checker.checkExists("resources/saves"))
         {
             FilingCabinet.createDirectories(
                 checker.getPathToFiles() + 
