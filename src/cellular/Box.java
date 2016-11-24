@@ -1,6 +1,6 @@
 package cellular;
 
-import javax.swing.*;
+import javax.swing.JTextField;
 import javax.swing.JFrame;
 
 public class Box
@@ -20,31 +20,14 @@ public class Box
 		this.width = width;
 		this.height = height;
 		this.waitTime = waitTime;
-		int maxState = 0;
-		switch (type)
-		{
-		case "life":
-			maxState = 2;
-			cellDim = 4;
-			break;
-		case "ant":
-			maxState = 10;
-			cellDim = 8;
-			break;
-		case "test":
-			maxState = 12;
-			cellDim = 8;
-			break;
-		case "wire":
-			maxState = 4;
-			cellDim = 4;
-		}
+		Profile profile = ProfileManager.getProfile(type);
+		this.cellDim = profile.getCellSize();
 		place = new Grid(width, height, type);
 		view = new JFrame(name);
 		// The following closes all the windows together...
 		view.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		// Adding the game panel
-		game = new GameWindow(place, maxState, cellDim, type);
+		game = new GameWindow(place, type);
 		view.add(game);
 		// Painting and revealing.
 		view.pack();

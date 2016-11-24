@@ -1,6 +1,7 @@
 package chunk;
 
 import java.util.ArrayList;
+import java.util.Observable;
 
 /**
  * A data structure that contains an ArrayList of Chunks. Chunks are
@@ -8,15 +9,17 @@ import java.util.ArrayList;
  * location in a plane, and are implemented as an inner class. This structure
  * uses Chunks to create a functionally infinite 2D array of generics.
  * 
+ * ChunkArray extends Observable so that it can 
+ * 
  * @author Wade Foster
  * @version 2016.11.24
  * 
  * @author William McDermott
- * @version 2016.11.23
+ * @version 2016.11.24
  * 
  * @param T Generic data type.
  */
-public class ChunkArray<T>
+public class ChunkArray<T> extends Observable
 {
     private final int chunkSize = 24;
 

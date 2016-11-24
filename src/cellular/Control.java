@@ -201,7 +201,7 @@ public class Control
         {
             Messages.displayHelpCreateProgramText();
         }
-	    else if (input[1].equals("createBox"))
+	    else if (input[1].equals("createbox"))
 	    {
 	        Messages.displayHelpCreateBoxText();
 	    }
@@ -217,6 +217,10 @@ public class Control
         {
             Messages.displayHelpLoadText();
         }
+	    else if (input[1].equals("help"))
+	    {
+	        Messages.displayHelpCommandText();
+	    }
 	}
 	/**
 	 * Loads a Grid from a file into a new Grid.

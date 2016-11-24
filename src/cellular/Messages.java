@@ -5,7 +5,7 @@ package cellular;
  * These are not error messages, but various user messages the program can use.
  * 
  * @author William McDermott
- * @version 2016.11.22
+ * @version 2016.11.24
  */
 public class Messages
 {
@@ -48,6 +48,7 @@ public class Messages
         = "help <optional: command name> : Returns the list of usable"
             + " commands, or if a command was put in, the information"
             + " for that specific command.\n";
+    
     public static final String HELP_TEXT
         = "The following are usable commands: \n"
             + EXIT_COMMAND_TEXT
@@ -92,45 +93,52 @@ public class Messages
     }
     
     /**
-     * Displays a list of usable commands in the interface.
+     * Displays the exit command instructions.
      */
     public static void displayHelpExitText()
     {
         System.out.println(EXIT_COMMAND_TEXT);
     }
     /**
-     * Displays a list of usable commands in the interface.
+     * Displays the createProgram command instructions.
      */
     public static void displayHelpCreateProgramText()
     {
         System.out.println(CREATE_PROGRAM_COMMAND_TEXT);
     }
     /**
-     * Displays a list of usable commands in the interface.
+     * Displays the createBox command instructions.
      */
     public static void displayHelpCreateBoxText()
     {
         System.out.println(CREATE_BOX_COMMAND_TEXT);
     }
     /**
-     * Displays a list of usable commands in the interface.
+     * Displays the run command instructions.
      */
     public static void displayHelpRunText()
     {
         System.out.println(RUN_COMMAND_TEXT);
     }
     /**
-     * Displays a list of usable commands in the interface.
+     * Displays the load command instructions.
      */
     public static void displayHelpLoadText()
     {
         System.out.println(LOAD_COMMAND_TEXT);
     }
     /**
-     * Displays a list of usable commands in the interface.
+     * Displays the save command instructions.
      */
     public static void displayHelpSaveText()
     {
         System.out.println(SAVE_COMMAND_TEXT);
+    }
+    /**
+     * Displays the help command instructions.
+     */
+    public static void displayHelpCommandText()
+    {
+        System.out.println(HELP_COMMAND_TEXT);
     }
 }

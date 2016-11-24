@@ -1,11 +1,14 @@
 package cellular;
 
 /**
+ * The back end structure that represents the grid of Cell objects.
+ * This object's sole purpose is to compute the next state of the automata,
+ * for an entire grid of cells. Because the cells are bounded, this is actually
+ * a bit difficult, since edges and corners need to be considered.
  * 
  * @author William McDermott
  * @version 2016.11.24
  */
-
 public class Grid
 {
     private Cell[][] tiles;
@@ -29,7 +32,15 @@ public class Grid
                 tiles[i][j] = new Cell();
             }
         }
-        // DEFAULT GRID SET UPS
+        this.intializeDebugDemo(dimX, dimY, type);
+    }
+
+    /**
+     * The debug demos of the different automata.
+     */
+    public void intializeDebugDemo(int dimX, int dimY, String type)
+    {
+     // DEFAULT GRID SET UPS
         // Test requires no default set up.
         // DEBUG FOR LIFE
         // A GLIDER.
@@ -64,7 +75,6 @@ public class Grid
             tiles[10][11].setState(1);
         }
     }
-
 
     /**
      * Returns the state of a Cell.

@@ -19,6 +19,8 @@ public class Initializer
      */
     public static void initialize()
     {
+        // This ensures the profiles get put in properly.
+        new ProfileManager();
         FilingCabinet checker = new FilingCabinet();
         boolean missingDir = false;
         if (!checker.checkExists("resources/images"))
