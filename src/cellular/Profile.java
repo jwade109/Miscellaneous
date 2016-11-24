@@ -20,6 +20,8 @@ public class Profile
      */
     private final int cellSize;
     
+    // Let's try and put an Engine in here too!
+    
     /**
      * Creates a new Profile object.
      * @param maxState  The maxState of this object.
