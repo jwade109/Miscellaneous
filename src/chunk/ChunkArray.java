@@ -3,13 +3,13 @@ package chunk;
 import java.util.ArrayList;
 
 /**
- * A data structure that contains a LinkedList of Chunks. Chunks are
+ * A data structure that contains an ArrayList of Chunks. Chunks are
  * encapsulated 2D generic arrays which store an x and y value indicating their
  * location in a plane, and are implemented as an inner class. This structure
  * uses Chunks to create a functionally infinite 2D array of generics.
  * 
  * @author Wade Foster
- * @version 2016.11.21
+ * @version 2016.11.24
  * 
  * @author William McDermott
  * @version 2016.11.23
@@ -18,8 +18,6 @@ import java.util.ArrayList;
  */
 public class ChunkArray<T>
 {
-    // I wonder if we can test for optimal size.
-    // 50 is too big, 5 is too small.
     private final int chunkSize = 24;
 
     private ArrayList<Chunk> chunks;
@@ -30,7 +28,6 @@ public class ChunkArray<T>
     public ChunkArray()
     {
         chunks = new ArrayList<Chunk>();
-        chunks.add(new Chunk(0, 0));
     }
 
     /**
@@ -46,9 +43,6 @@ public class ChunkArray<T>
         int[] cly = toCL(y);
         Chunk chunk = getChunk(clx[0], cly[0]);
         T data = chunk.getEntry(clx[1], cly[1]);
-        // Adding this seems to yield concurrent modification exceptions
-        // at high speed.
-        // removeEmptyChunks();
         if (data == null && chunk.isEmpty())
         {
             chunks.remove(chunk);
@@ -89,18 +83,10 @@ public class ChunkArray<T>
         T data = getEntry(x, y);
         Chunk chunk = getChunk(clx[0], cly[0]);
         chunk.setEntry(null, clx[1], cly[1]);
-        // We only remove THIS chunk where applicable, 
-        // since we just removed an entry from it.
-        /* Single chunk removal */
         if (chunk.isEmpty())
         {
             chunks.remove(chunk);
         }
-        /* */
-        /* Total chunk removal
-        getChunk(clx[0], cly[0]).setEntry(null, clx[1], cly[1]);
-        removeEmptyChunks();
-        */
         return data;
     }
 
@@ -110,11 +96,10 @@ public class ChunkArray<T>
      * 
      * @return the domain of the ChunkArray.
      */
-    public int[] getDomain()
+    public int[] domain()
     {
         int min = 0;
         int max = 0;
-        // No idea why, but this needs size() - 1.
         for (int i = 0; i < chunks.size(); i++)
         {
             int x = chunks.get(i).getX();
@@ -136,7 +121,7 @@ public class ChunkArray<T>
      * 
      * @return the range of the ChunkArray.
      */
-    public int[] getRange()
+    public int[] range()
     {
         int min = 0;
         int max = 0;
@@ -164,6 +149,21 @@ public class ChunkArray<T>
     }
 
     /**
+     * Gets the number of elements stored in the ChunkArray.
+     * 
+     * @return the number of non-null elements.
+     */
+    public int size()
+    {
+        int size = 0;
+        for (int i = 0; i < chunks.size(); i++)
+        {
+            size += chunks.get(i).getSize();
+        }
+        return size;
+    }
+
+    /**
      * Gets a human-readable String representation of the contents of the
      * ChunkArray.
      * 
@@ -171,24 +171,11 @@ public class ChunkArray<T>
      */
     public String toString()
     {
-        StringBuilder out = new StringBuilder("[");
-
-        for (int i = 0; i < chunks.size(); i++)
-        {
-            out.append("[");
-            out.append(chunks.get(i).getX());
-            out.append(", ");
-            out.append(chunks.get(i).getY());
-            out.append(", ");
-            out.append(chunks.get(i).getSize());
-            out.append("], ");
-        }
-        // What's the purpose of this following statement?
-        if (chunks.size() > 0)
-        {
-            out.delete(out.length() - 2, out.length());
-        }
-        out.append("]");
+        StringBuilder out = new StringBuilder("ChunkArray contains ");
+        out.append(size());
+        out.append(" elements in ");
+        out.append(chunks.size());
+        out.append(" chunks.");
         return out.toString();
     }
 
@@ -205,11 +192,6 @@ public class ChunkArray<T>
     {
         for (int i = 0; i < chunks.size(); i++)
         {
-            if (chunks.get(i) == null)
-            {
-                System.out.println("Null Chunk at index: " + i);
-                continue;
-            }
             if (chunks.get(i).getX() == x && chunks.get(i).getY() == y)
             {
                 return chunks.get(i);
@@ -218,25 +200,6 @@ public class ChunkArray<T>
         Chunk c = new Chunk(x, y);
         chunks.add(c);
         return c;
-    }
-    
-    /**
-     * Helper method that removes empty chunks.
-     */
-    private void removeEmptyChunks()
-    {
-        for (int i = 0; i < chunks.size(); i++)
-        {
-            if (chunks.get(i) == null)
-            {
-                System.out.println("Null chunks!");
-            }
-            if (chunks.get(i).isEmpty())
-            {
-                chunks.remove(chunks.get(i));
-                i--;
-            }
-        }
     }
 
     /**
@@ -280,9 +243,6 @@ public class ChunkArray<T>
      * 
      * @author Wade Foster
      * @version 2016.11.21
-     * 
-     * Added Comments - William
-     * @version 2016.11.23
      */
     private class Chunk
     {
@@ -357,7 +317,12 @@ public class ChunkArray<T>
             }
             grid[x][y] = data;
         }
-        
+
+        /**
+         * Gets the number of entries in this Chunk.
+         * 
+         * @return the size of this Chunk.
+         */
         public int getSize()
         {
             return size;

@@ -50,8 +50,8 @@ public class Board
 
     public int[] domain()
     {
-        int[] stateDomain = state.getDomain();
-        int[] countDomain = count.getDomain();
+        int[] stateDomain = state.domain();
+        int[] countDomain = count.domain();
         int low = Math.min(stateDomain[0], countDomain[0]);
         int high = Math.max(stateDomain[1], countDomain[1]);
         return new int[] { low, high };
@@ -59,8 +59,8 @@ public class Board
     
     public int[] range()
     {
-        int[] stateRange = state.getRange();
-        int[] countRange = count.getRange();
+        int[] stateRange = state.range();
+        int[] countRange = count.range();
         int low = Math.min(stateRange[0], countRange[0]);
         int high = Math.max(stateRange[1], countRange[1]);
         return new int[] { low, high };

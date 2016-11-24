@@ -177,10 +177,10 @@ public class SpiralViewer
             g.setColor(Color.BLACK);
             try
             {
-                for (int i = spiral.getDomain()[0]; i < spiral.getDomain()[1]; i++)
+                for (int i = spiral.domain()[0]; i < spiral.domain()[1]; i++)
                 {
-                    for (int j = spiral.getRange()[0]; j < spiral
-                            .getRange()[1]; j++)
+                    for (int j = spiral.range()[0]; j < spiral
+                            .range()[1]; j++)
                     {
                         Boolean isPrime = spiral.getEntry(i, j);
                         if (isPrime != null && isPrime)

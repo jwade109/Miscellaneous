@@ -244,11 +244,11 @@ public class ChunkDemo
             g.fillRect(0, 0, 2 * frameWidth, 2 * frameHeight);
 
             g.setColor(Color.BLACK);
-            int upperX = grid.getDomain()[1];
-            int upperY = grid.getRange()[1];
-            for (int i = grid.getDomain()[0]; i < upperX; i++)
+            int upperX = grid.domain()[1];
+            int upperY = grid.range()[1];
+            for (int i = grid.domain()[0]; i < upperX; i++)
             {
-                for (int j = grid.getRange()[0]; j < upperY; j++)
+                for (int j = grid.range()[0]; j < upperY; j++)
                 {
                     if (grid.getEntry(i, j) != null)
                     {
