@@ -2,9 +2,9 @@ package cellular;
 
 public class TestEngine extends Engine
 {
-	public TestEngine(int states)
+	public TestEngine()
 	{
-		super(states);
+		super(11);
 	}
 	/**
 	 *  Computes the nextState of the Cell from the rule for this type.

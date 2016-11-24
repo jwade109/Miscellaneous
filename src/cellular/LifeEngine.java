@@ -2,9 +2,9 @@ package cellular;
 
 public class LifeEngine extends Engine
 {
-	public LifeEngine(int states)
+	public LifeEngine()
 	{
-		super(states);
+		super(1);
 	}
 	/**
 	 *  Computes the next state of the Cell from the rule for this type.

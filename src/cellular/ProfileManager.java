@@ -4,32 +4,36 @@ import java.util.Map;
 import java.util.HashMap;
 
 /**
- * Controls the creation and management of different profiles.
- * TODO
+ * Controls the creation and management of different automata profiles.
+ * This class serves to 
  * 
  * @author William McDermott
- * @version 2016.11.23
+ * @version 2016.11.24
  */
 public class ProfileManager
 {
     /**
      * The map that contains the profiles.
      */
-    private Map<String, Profile> profiles;
-    
+    private static Map<String, Profile> profiles;
+
+
     /**
      * Creates a new ProfileManager for this interface.
      */
     public ProfileManager()
     {
         profiles = new HashMap<String, Profile>();
+        this.initializeProfiles();
     }
-    
+
+
     /**
      * Gets a profile given its name.
-     * @return  The name of the profile.
+     * 
+     * @return The name of the profile.
      */
-    public Profile getProfile(String name)
+    public static Profile getProfile(String name)
     {
         if (profiles.containsKey(name))
         {
@@ -37,15 +41,26 @@ public class ProfileManager
         }
         return null;
     }
-    
+
+
     /**
      * Initializes the list of standard automata and their profiles.
      */
-    public void initializeProfiles()
+    private void initializeProfiles()
     {
-        profiles.put("ant", new Profile(9, 8));
-        profiles.put("life", new Profile(1, 4));
-        profiles.put("test", new Profile(11, 8));
-        profiles.put("wire", new Profile(3, 4));
+        profiles.put("ant", new Profile(9, 8, new AntEngine()));
+        profiles.put("life", new Profile(1, 4, new LifeEngine()));
+        profiles.put("test", new Profile(11, 8, new TestEngine()));
+        profiles.put("wire", new Profile(3, 4, new WireEngine()));
+    }
+
+    /**
+     * Searches for other automata in the resources folder, and new Engine class
+     * files, to allow users to add automata. This isn't so bad with the updated
+     * FilingCabinet class.
+     */
+    private void intializeUserProfiles()
+    {
+        // TODO
     }
 }

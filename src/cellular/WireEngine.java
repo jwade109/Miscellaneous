@@ -2,9 +2,9 @@ package cellular;
 
 public class WireEngine extends Engine
 {
-	public WireEngine(int states)
+	public WireEngine()
 	{
-		super(states);
+		super(3);
 	}
 	/**
 	 *  Computes the next state of a Cell based on the WireWorld automata.

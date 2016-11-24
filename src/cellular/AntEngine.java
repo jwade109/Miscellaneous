@@ -2,9 +2,9 @@ package cellular;
 
 public class AntEngine extends Engine
 {
-	public AntEngine(int states)
+	public AntEngine()
 	{
-		super(states);
+		super(9);
 	}
 	/**
 	 *  Finds the next state of the Ant with the rules of Langton's Ant.
