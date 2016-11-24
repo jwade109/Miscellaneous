@@ -3,12 +3,8 @@ package cellular;
 import javax.swing.*;
 import javax.swing.JFrame;
 
-import java.util.Timer;
-import java.util.TimerTask;
-
 public class Box
 {
-	private String name;
 	private JFrame view;
 	private Grid place;
 	private GameWindow game;
@@ -21,7 +17,6 @@ public class Box
 	 */
 	public Box(String name, int width, int height, String type, long waitTime)
 	{
-		this.name = name;
 		this.width = width;
 		this.height = height;
 		this.waitTime = waitTime;
@@ -74,7 +69,7 @@ public class Box
 			width * cellDim, 20 + height * cellDim);
 		try
 		{
-			Thread.currentThread().sleep(waitTime);
+			Thread.sleep(waitTime);
 		}
 		catch (InterruptedException ex)
 		{
@@ -103,7 +98,6 @@ public class Box
 	 */
 	public void setName(String name)
 	{
-		this.name = name;
 		JTextField newName = new JTextField(name);
 		view.setTitle(newName.getText());
 	}

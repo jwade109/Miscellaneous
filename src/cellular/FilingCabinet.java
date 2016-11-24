@@ -2,7 +2,6 @@ package cellular;
 
 import java.io.File;
 
-import java.lang.Exception;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 import java.io.PrintWriter;

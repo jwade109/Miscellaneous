@@ -13,14 +13,14 @@ public class GameWindow extends JPanel
 	private Grid block;
 	private FilingCabinet imager;
 	private int cellDim;
-	private int maxState;
 	private BufferedImage[] pictures;
+	private static final long serialVersionUID = 42L;
 	/**
 	 * Creates a new GameWindow with a Grid to get data from.
 	 */
 	public GameWindow(Grid place, int maxState, int cellDim, String type)
 	{
-		this.maxState = maxState;
+	    // The maxState can be accessed by the length of pictures[].
 		this.cellDim = cellDim;
 		block = place;
 		this.cellDim = cellDim;

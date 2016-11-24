@@ -169,6 +169,7 @@ public class ChunkDemo
             
             try
             {
+                // Previously Thread.sleep(1);
                 Thread.sleep(tick);
             }
             catch (InterruptedException e1)
