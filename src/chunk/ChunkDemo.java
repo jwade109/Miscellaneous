@@ -10,7 +10,11 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import javax.swing.JPanel;
 
-public class ChunkDemo
+// Observable stuff?
+import java.util.Observer;
+import java.util.Observable;
+
+public class ChunkDemo implements Observer
 {
     private DrawPanel p;
     private JFrame f;
@@ -48,10 +52,22 @@ public class ChunkDemo
         }
     }
 
+    /**
+     * Just a routine test to see what happens.
+     */
+    @Override
+    public void update(Observable o, Object arg)
+    {
+        // Filler
+        System.out.println("Updated!");
+    }
+    
     public void start()
     {
         grid = new ChunkArray<Integer>();
-
+        
+        grid.addObserver(this);
+        
         f = new JFrame("Chunk Demo");
 
         f.setSize(frameWidth, frameHeight + 45);
@@ -236,7 +252,7 @@ public class ChunkDemo
             int edge = 25;
             int shadowOffset = 8;
             int stopWidth = 50;
-
+            
             g.setColor(new Color(230, 230, 230));
             g.fillRect(0, 0, 2 * frameWidth, 2 * frameHeight);
 
@@ -246,6 +262,8 @@ public class ChunkDemo
             g.setColor(Color.BLACK);
             int upperX = grid.domain()[1];
             int upperY = grid.range()[1];
+            // Using Observable, this could update based on each pixel's 
+            // change, instead of updating everything every time.
             for (int i = grid.domain()[0]; i < upperX; i++)
             {
                 for (int j = grid.range()[0]; j < upperY; j++)

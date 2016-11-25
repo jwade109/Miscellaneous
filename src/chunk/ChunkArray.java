@@ -70,6 +70,10 @@ public class ChunkArray<T> extends Observable
         int[] clx = toCL(x);
         int[] cly = toCL(y);
         getChunk(clx[0], cly[0]).setEntry(data, clx[1], cly[1]);
+        
+        this.setChanged();
+        this.notifyObservers();
+        
     }
 
     /**
@@ -90,6 +94,9 @@ public class ChunkArray<T> extends Observable
         {
             chunks.remove(chunk);
         }
+        
+        this.setChanged();
+        
         return data;
     }
 
@@ -149,6 +156,8 @@ public class ChunkArray<T> extends Observable
     public void clear()
     {
         chunks = new ArrayList<Chunk>();
+        
+        this.setChanged();
     }
 
     /**
