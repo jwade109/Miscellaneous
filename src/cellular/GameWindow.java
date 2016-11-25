@@ -7,9 +7,6 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageWriter;
 import java.io.IOException;
 
-import java.util.Observer;
-import java.util.Observable;
-
 public class GameWindow extends JPanel
 {
     private Grid block;

@@ -58,6 +58,7 @@ public class ProfileManager
         profiles.put("life", new Profile(1, 4, new LifeEngine()));
         profiles.put("test", new Profile(11, 8, new TestEngine()));
         profiles.put("wire", new Profile(3, 4, new WireEngine()));
+        this.intializeUserProfiles();
     }
 
 

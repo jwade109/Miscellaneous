@@ -7,7 +7,7 @@ import java.io.PrintWriter;
 public class Program
 {
     private String name;
-    private final long WAIT_TIME = 15;
+    private final long WAIT_TIME = 0; // SO FAST
     private FilingCabinet programFiler;
     private String type;
     private Map<String, Box> city;
@@ -59,6 +59,7 @@ public class Program
     /**
      * Creates a blank Box for this program, having specific dimensions.
      */
+    // NEEDS TO BE EDITED FOR CHUNKARRAY
     public void addBox(String name, int X, int Y)
     {
         if (!city.containsKey(name))
@@ -101,6 +102,7 @@ public class Program
     /**
      * Saves the given Box's Grid field to a file.
      */
+    // NEEDS TO BE EDITED FOR CHUNKARRAY
     public void saveToFile(String boxName)
     {
         if (!city.containsKey(boxName))
