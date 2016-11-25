@@ -1,5 +1,7 @@
 package cellular;
 
+import java.util.Observable;
+
 /**
  * The back end structure that represents the grid of Cell objects.
  * This object's sole purpose is to compute the next state of the automata,
@@ -9,12 +11,11 @@ package cellular;
  * @author William McDermott
  * @version 2016.11.24
  */
-public class Grid
+public class Grid extends Observable
 {
     private Cell[][] tiles;
     private int generation;
     private Engine runner;
-
 
     /**
      * Creates a new Grid with the given dimensions, and the given
@@ -158,6 +159,8 @@ public class Grid
                 tiles[i][j].setToNext();
             }
         }
+        this.setChanged();
+        this.notifyObservers();
     }
 
 

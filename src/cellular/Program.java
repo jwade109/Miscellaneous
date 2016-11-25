@@ -7,7 +7,7 @@ import java.io.PrintWriter;
 public class Program
 {
     private String name;
-    private final long WAIT_TIME = 50;
+    private final long WAIT_TIME = 15;
     private FilingCabinet programFiler;
     private String type;
     private Map<String, Box> city;

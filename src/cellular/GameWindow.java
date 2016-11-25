@@ -7,6 +7,9 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageWriter;
 import java.io.IOException;
 
+import java.util.Observer;
+import java.util.Observable;
+
 public class GameWindow extends JPanel
 {
     private Grid block;
@@ -33,7 +36,7 @@ public class GameWindow extends JPanel
             pictures[i] = createImageFromFile("cell" + i + ".png");
         }
     }
-
+    
 
     /**
      * Paints the whole window at every repaint() call.
