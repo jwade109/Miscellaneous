@@ -8,44 +8,35 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.util.Observable;
+import java.util.Observer;
 
 import javax.swing.JPanel;
 
-import curves.Direction;
-
-public class Main
+public class LangtonAntWindow implements Observer
 {
-
     private DrawPanel p;
     private JFrame f;
-    private Board board;
+    private LangtonGrid grid;
     private Ant ant;
+    
     private int frameWidth = 1300;
     private int frameHeight = 1300;
     private int cellSize = 50;
-    private int tick = 1; // milliseconds: 20 ms = 50 fps
-    private int k = 0;
-    private int steps = 12000;
+    private int maxSteps;
     private int[] origin = { 0, 0 };
     private int[] translate = { frameWidth / 2, frameHeight / 2 };
     private int[] newTranslate = { 0, 0 };
     private int[] mousePos = { 0, 0 };
     private boolean moving = false;
 
-    public static void main(String[] args)
+    public LangtonAntWindow(LangtonGrid grid, Ant ant, int maxSteps)
     {
-        Main m = new Main();
-        m.start();
-    }
-
-    public void start()
-    {
-
-        board = new Board();
-        ant = new Ant(0, 0, Direction.NORTH);
+        this.maxSteps = maxSteps;
+        this.grid = grid;
+        this.ant = ant;
 
         f = new JFrame("Langton's Ant");
-
         f.setSize(frameWidth, frameHeight + 45);
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -97,65 +88,40 @@ public class Main
         p = new DrawPanel();
 
         f.getContentPane().add(p);
-
-        try
-        {
-            Thread.sleep(tick);
-        }
-        catch (InterruptedException e1)
-        {
-            e1.printStackTrace();
-        }
-
-        int t = 0;
-
-        while (true)
-        {
-
-            updateFrame(f);
-
-            p.repaint();
-
-            if (moving)
-            {
-                newTranslate[0] = mousePos[0] - origin[0];
-                newTranslate[1] = mousePos[1] - origin[1];
-            }
-
-            if (Math.floorMod(t, tick) == 0)
-            {
-                if (k < steps)
-                {
-                    if (board.getCellState(ant.getX(), ant.getY()))
-                    {
-                        ant.turnLeft();
-                    }
-                    else
-                    {
-                        ant.turnRight();
-                    }
-                    board.invertCell(ant.getX(), ant.getY(), 1);
-                    ant.move();
-                    k++;
-                }
-
-            }
-
-            t++;
-
-            try
-            {
-                Thread.sleep(1);
-            }
-            catch (InterruptedException e1)
-            {
-                e1.printStackTrace();
-            }
-
-        }
-
     }
 
+    public void tick(int t)
+    {
+        updateFrame(f);
+
+        p.repaint();
+
+        if (moving)
+        {
+            newTranslate[0] = mousePos[0] - origin[0];
+            newTranslate[1] = mousePos[1] - origin[1];
+        }
+
+        if (Math.floorMod(t, tick) == 0)
+        {
+            if (k < maxSteps)
+            {
+                if (grid.getCellState(ant.getX(), ant.getY()))
+                {
+                    ant.turnLeft();
+                }
+                else
+                {
+                    ant.turnRight();
+                }
+                grid.invertCell(ant.getX(), ant.getY(), 1);
+                ant.move();
+                k++;
+            }
+
+        }
+    }
+    
     private void updateFrame(JFrame f)
     {
         translate[0] += (getTrueWidth(f) - frameWidth) / 2;
@@ -222,20 +188,14 @@ public class Main
             g.setColor(Color.WHITE);
             g.fillRect(0, 0, 2 * frameWidth, 2 * frameHeight);
 
-            for (int i = board.domain()[0]; i < board.domain()[1]; i++)
+            for (int i = grid.domain()[0]; i < grid.domain()[1]; i++)
             {
-                for (int j = board.range()[0]; j < board.range()[1]; j++)
+                for (int j = grid.range()[0]; j < grid.range()[1]; j++)
                 {
-                    try
-                    {
-                        g.setColor(new Color(255 - board.getCellCount(i, j) * 6,
-                                255 - board.getCellCount(i, j) * 6,
-                                255 - board.getCellCount(i, j) * 6));
-                    }
-                    catch (IllegalArgumentException e)
-                    {
-                        g.setColor(Color.BLACK);
-                    }
+                    g.setColor(new Color(255 - grid.getCellCount(i, j) * 6,
+                            255 - grid.getCellCount(i, j) * 6,
+                            255 - grid.getCellCount(i, j) * 6));
+                    
                     g.fillRect(
                             buffer + cellSize * i + translate[0]
                                     + newTranslate[0],
@@ -243,7 +203,7 @@ public class Main
                                     + newTranslate[1],
                             cellSize, cellSize);
 
-                    if (board.getCellState(i, j))
+                    if (grid.getCellState(i, j))
                         g.setColor(Color.BLACK);
                     else
                         g.setColor(Color.WHITE);
@@ -253,9 +213,9 @@ public class Main
                             buffer + cellSize * j + translate[1]
                                     + newTranslate[1] + cellSize / 4,
                             cellSize / 2, cellSize / 2);
-                    if (i == board.domain()[0] || i == board.domain()[1] - 1
-                            || j == board.range()[0]
-                            || j == board.range()[1] - 1)
+                    if (i == grid.domain()[0] || i == grid.domain()[1] - 1
+                            || j == grid.range()[0]
+                            || j == grid.range()[1] - 1)
                     {
                         g.setColor(Color.RED);
                         g.drawRect(
@@ -325,7 +285,7 @@ public class Main
             double[] percents = getMousePercent();
             g.setColor(Color.GRAY);
             g.drawString(
-                    "Step: " + k + " of " + steps + " Mouse: " + mousePos[0]
+                    "Step: " + k + " of " + maxSteps + " Mouse: " + mousePos[0]
                             + " " + mousePos[1] + " Translate: "
                             + newTranslate[0] + " " + newTranslate[1] + " "
                             + translate[0] + " " + translate[1],
@@ -341,5 +301,10 @@ public class Main
                     buffer + 20);
         }
 
+    }
+
+    public void update(Observable o, Object arg)
+    {
+        System.out.println("-");
     }
 }

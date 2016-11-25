@@ -1,8 +1,9 @@
 package langton;
 
+import java.util.Observable;
 import chunk.ChunkArray;
 
-public class Board
+public class LangtonGrid extends Observable
 {
     private static ChunkArray<Boolean> state;
     private static ChunkArray<Integer> count;
@@ -10,7 +11,7 @@ public class Board
     /**
      * Creates a new Board object.
      */
-    public Board()
+    public LangtonGrid()
     {
         state = new ChunkArray<Boolean>();
         count = new ChunkArray<Integer>();
@@ -36,15 +37,18 @@ public class Board
 
     public void setCellState(boolean val, int x, int y)
     {
+        if (val != state.getEntry(x, y))
+        {
+            notifyObservers();
+        }
         state.setEntry(val, x, y);
     }
 
     public int invertCell(int x, int y, int z)
     {
         state.setEntry(!getCellState(x, y), x, y);
-
         count.setEntry(getCellCount(x, y) + z, x, y);
-
+        notifyObservers();
         return count.getEntry(x, y);
     }
 
@@ -56,7 +60,7 @@ public class Board
         int high = Math.max(stateDomain[1], countDomain[1]);
         return new int[] { low, high };
     }
-    
+
     public int[] range()
     {
         int[] stateRange = state.range();
