@@ -1,8 +1,8 @@
 package ulam;
 
 import chunk.ChunkArray;
-import curves.Direction;
 import langton.Ant;
+import lindenmayer.Direction;
 
 public class Spiral
 {

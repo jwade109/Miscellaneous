@@ -1,4 +1,4 @@
-package curves;
+package lindenmayer;
 
 import java.awt.Color;
 
@@ -7,13 +7,16 @@ public class CurveAnt
     private int x;
     private int y;
     private Direction dir;
+    private LCurve curve;
     private String sequence;
     private int step;
     private boolean done;
     private Color color;
+    private String splash;
 
-    public CurveAnt(int x, int y, Curve curve, int order, Direction dir, Color color)
+    public CurveAnt(int x, int y, LCurve curve, int order, Direction dir, Color color)
     {
+        this.curve = curve;
         sequence = curve.generate(order);
         this.x = x;
         this.y = y;
@@ -21,34 +24,55 @@ public class CurveAnt
         step = 0;
         done = false;
         this.color = color;
+        splash = "NEW ANT FACING " + dir + " at (" + x + ", " + y + ")";
     }
 
     public Line next()
     {
-        if (step == sequence.length())
+        if (step >= sequence.length())
         {
             done = true;
+            splash = "DONE";
             return null;
         }
-        if (sequence.substring(step, step + 1).equals("1"))
+        
+        Action action = curve.getAction(sequence.substring(step, step + 1));
+        step++;
+        
+        if (action == Action.FORWARD)
         {
-            Line a = move();
-            turnRight();
-            step++;
-            return a;
+            move();
+            splash = "MOVED FORWARD";
         }
-        else if (sequence.substring(step, step + 1).equals("0"))
+        else if (action == Action.BACKWARD)
         {
-            Line a = move();
             turnLeft();
-            step++;
-            return a;
+            turnLeft();
+            move();
+            turnLeft();
+            turnLeft();
+            splash = "MOVED BACKWARD";
         }
-        else
+        else if (action == Action.TURNLEFT)
         {
-            System.out.println("Something broke!");
-            return null;
+            turnLeft();
+            splash = "TURNED LEFT";
         }
+        else if (action == Action.TURNRIGHT)
+        {
+            turnRight();
+            splash = "TURNED RIGHT";
+        }
+        else if (action == Action.DRAW)
+        {
+            splash = "DREW A LINE";
+            return move();
+        }
+        else if (action == Action.WAIT)
+        {
+            splash = "DID NOTHING";
+        }
+        return null;
     }
 
     public int getSteps()
@@ -56,7 +80,7 @@ public class CurveAnt
         return sequence.length();
     }
 
-    public boolean getDone()
+    public boolean isDone()
     {
         return done;
     }
@@ -76,6 +100,11 @@ public class CurveAnt
         return dir;
     }
 
+    public String splash()
+    {
+        return splash;
+    }
+    
     public void setX(int x)
     {
         this.x = x;

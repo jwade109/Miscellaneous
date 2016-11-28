@@ -1,6 +1,6 @@
 package langton;
 
-import curves.Direction;
+import lindenmayer.Direction;
 
 public class Ant
 {

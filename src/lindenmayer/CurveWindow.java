@@ -1,4 +1,4 @@
-package curves;
+package lindenmayer;
 
 import javax.swing.JFrame;
 import java.awt.Color;
@@ -11,7 +11,7 @@ import java.awt.event.MouseWheelListener;
 import java.util.ArrayList;
 import javax.swing.JPanel;
 
-public class Main
+public class CurveWindow
 {
     private DrawPanel p;
     private JFrame f;
@@ -28,26 +28,19 @@ public class Main
     private int k = 0;
     private int[] origin = { 0, 0 };
     private int[] newTranslate = { 0, 0 };
-    private int[] translate = { frameWidth/2, frameHeight/2 };
+    private int[] translate = { frameWidth / 2, frameHeight / 2 };
     private int[] mousePos = { 0, 0 };
     private boolean moving = false;
+    private boolean ALLSTOP = true;
 
-    public static void main(String[] args)
+    public void showWindow()
     {
-        new Main().start();
-    }
-
-    public void start()
-    {
+        LCurve curve = new DragonCurve();
         ants = new ArrayList<CurveAnt>();
-        ants.add(new CurveAnt(0, 0, new DragonCurve(), order, Direction.NORTH,
-                Color.BLACK));
-        
-        ants.add(new CurveAnt(-50, 20, new DragonCurve(), order, Direction.SOUTH,
-                Color.BLACK));
+        ants.add(new CurveAnt(0, 0, curve, order, Direction.EAST, Color.BLACK));
 
-        maxStep = new DragonCurve().generate(order).length();
-        tick = (int)((double)runTime/(double)maxStep) + 1;
+        maxStep = curve.generate(order).length();
+        tick = (int) ((double) runTime / (double) maxStep) + 1;
 
         f = new JFrame("Turtle Graphics (" + ants.size() + " actors)");
         lines = new ArrayList<Line>();
@@ -62,6 +55,8 @@ public class Main
 
             public void mouseClicked(MouseEvent e)
             {
+                ALLSTOP = !ALLSTOP;
+                System.out.println("STOP");
             }
 
             public void mouseEntered(MouseEvent e)
@@ -127,38 +122,43 @@ public class Main
                 newTranslate[1] = mousePos[1] - origin[1];
             }
 
-            if (Math.floorMod(t, tick) == 0)
+            if (!ALLSTOP)
             {
-                for (int i = 0; i < ants.size(); i++)
-                {
-                    Line a = ants.get(i).next();
-                    if (a != null)
-                    {
-                        if (lines.contains(a))
-                        {
-                            lines.remove(a);
-                        }
-                        else
-                        {
-                            lines.add(a);
-                        }
-                    }
-                }
-                boolean done = true;
-                for (CurveAnt ant : ants)
-                {
-                    if (!ant.getDone())
-                    {
-                        done = false;
-                    }
-                }
-                if (!done)
-                {
-                    k++;
-                }
-            }
 
-            t++;
+                if (Math.floorMod(t, tick) == 0)
+                {
+                    for (int i = 0; i < ants.size(); i++)
+                    {
+                        Line a = ants.get(i).next();
+                        if (a != null)
+                        {
+                            if (lines.contains(a))
+                            {
+                                lines.remove(a);
+                            }
+                            else
+                            {
+                                lines.add(a);
+                            }
+                        }
+                    }
+                    boolean done = true;
+                    for (CurveAnt ant : ants)
+                    {
+                        if (!ant.isDone())
+                        {
+                            done = false;
+                        }
+                    }
+                    if (!done)
+                    {
+                        k++;
+                    }
+                }
+
+                t++;
+
+            }
 
             try
             {
@@ -232,7 +232,7 @@ public class Main
             int buffer = 30;
             int shadowOffset = 8;
             int loadHeight = 7;
-            
+
             g.setColor(new Color(230, 230, 230));
             g.fillRect(0, 0, 2 * frameWidth, 2 * frameHeight);
 
@@ -241,9 +241,9 @@ public class Main
 
             if (k < maxStep)
             {
-                
+
             }
-            
+
             g.setColor(Color.BLUE);
             for (int i = 0; i < lines.size(); i++)
             {
@@ -253,29 +253,28 @@ public class Main
                 }
                 catch (Exception e)
                 {
-                    
+
                 }
             }
 
             g.setColor(new Color(230, 230, 230));
             g.fillRect(0, 0, buffer, 2 * frameHeight);
             g.fillRect(0, 0, 2 * frameHeight, buffer);
-            g.fillRect(frameWidth - buffer, 0, frameWidth,
-                    2 * frameHeight);
-            g.fillRect(0, frameHeight - buffer, 2 * frameWidth,
-                    frameHeight);
+            g.fillRect(frameWidth - buffer, 0, frameWidth, 2 * frameHeight);
+            g.fillRect(0, frameHeight - buffer, 2 * frameWidth, frameHeight);
 
             g.setColor(Color.GRAY);
-            g.fillRect(frameWidth - buffer, buffer + shadowOffset,
-                    shadowOffset, frameHeight - 2 * buffer);
+            g.fillRect(frameWidth - buffer, buffer + shadowOffset, shadowOffset,
+                    frameHeight - 2 * buffer);
             g.fillRect(buffer + shadowOffset, frameHeight - buffer,
                     frameWidth - 2 * buffer, shadowOffset);
 
-            int loadWidth = (int) ((((double) (k)) / maxStep) * (frameWidth - 2 * buffer));
+            int loadWidth = (int) ((((double) (k)) / maxStep)
+                    * (frameWidth - 2 * buffer));
 
             g.setColor(Color.BLUE);
-            g.fillRect(buffer, frameHeight - loadHeight - buffer,
-                    loadWidth, loadHeight);
+            g.fillRect(buffer, frameHeight - loadHeight - buffer, loadWidth,
+                    loadHeight);
 
             g.setColor(Color.BLACK);
             g.drawRect(buffer, buffer, frameWidth - 2 * buffer,
@@ -284,11 +283,12 @@ public class Main
             mousePos = getMousePos();
             double[] percents = getMousePercent();
             g.setColor(Color.GRAY);
-            g.drawString("Step: " + k + " of " + maxStep + " Tick: " + tick
-                    + " Zoom: " + (lineSize / 40.0) + " Mouse: " + mousePos[0]
-                    + " " + mousePos[1] + " Translate: " + newTranslate[0] + " "
-                    + newTranslate[1] + " " + translate[0] + " " + translate[1],
-                    buffer + 10, buffer + 20);
+            g.drawString("Paused: " + ALLSTOP + " Step: " + k + " of " + maxStep
+                    + " Tick: " + tick + " Zoom: " + (lineSize / 40.0)
+                    + " Mouse: " + mousePos[0] + " " + mousePos[1]
+                    + " Translate: " + newTranslate[0] + " " + newTranslate[1]
+                    + " " + translate[0] + " " + translate[1], buffer + 10,
+                    buffer + 20);
             g.drawString("Window: " + frameWidth + " " + frameHeight,
                     buffer + 10, buffer + 40);
             g.drawString(
@@ -298,13 +298,13 @@ public class Main
                     buffer + 10, buffer + 60);
             g.drawString("Zoom and pan!", frameWidth - buffer - 90,
                     buffer + 20);
-            
-            /* DIAGNOSTIC GRAPHICS
-            g.setColor(Color.RED);
-            g.drawOval(frameWidth/2 - 10, frameHeight/2 - 10, 20, 20);
-            g.drawLine(0, 0, frameWidth, frameHeight);
-            g.drawLine(frameWidth, 0, 0, frameHeight);
-            */
+
+            /*
+             * DIAGNOSTIC GRAPHICS g.setColor(Color.RED);
+             * g.drawOval(frameWidth/2 - 10, frameHeight/2 - 10, 20, 20);
+             * g.drawLine(0, 0, frameWidth, frameHeight); g.drawLine(frameWidth,
+             * 0, 0, frameHeight);
+             */
         }
 
     }

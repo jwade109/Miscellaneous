@@ -1,4 +1,4 @@
-package curves;
+package lindenmayer;
 
 public interface Curve
 {

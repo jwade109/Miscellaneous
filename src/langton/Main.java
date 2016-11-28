@@ -11,7 +11,7 @@ import java.awt.event.MouseWheelListener;
 
 import javax.swing.JPanel;
 
-import curves.Direction;
+import lindenmayer.Direction;
 
 public class Main
 {
