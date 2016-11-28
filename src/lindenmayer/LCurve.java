@@ -4,18 +4,20 @@ import java.util.ArrayList;
 
 public class LCurve
 {
+    private String name;
     private int angle;
     private String axiom;
     private ArrayList<LRule> rules;
-    private AntRule[] antRules;
+    private ArrayList<AntRule> antRules;
 
     public LCurve(int angle, String axiom, LRule rule)
     {
+        name = "LCurve";
         this.angle = angle;
         this.axiom = axiom;
         rules = new ArrayList<LRule>();
         rules.add(rule);
-        antRules = new AntRule[6];
+        antRules = new ArrayList<AntRule>();
     }
 
     public LCurve(int angle, String axiom, LRule rule1, LRule rule2)
@@ -25,7 +27,7 @@ public class LCurve
         rules.add(rule1);
         rules.add(rule2);
         this.axiom = axiom;
-        antRules = new AntRule[6];
+        antRules = new ArrayList<AntRule>();
     }
 
     public LCurve(int angle, String axiom, ArrayList<LRule> rules)
@@ -33,42 +35,43 @@ public class LCurve
         this.angle = angle;
         this.rules = rules;
         this.axiom = axiom;
-        antRules = new AntRule[6];
+        antRules = new ArrayList<AntRule>();
     }
 
     public void addAntRule(String input, Action action)
     {
-        int i = 5;
-        switch (action)
+        boolean contains = false;
+        for (int i = 0; i < antRules.size(); i++)
         {
-            case FORWARD:
-                i = 0;
-                break;
-            case BACKWARD:
-                i = 1;
-                break;
-            case TURNLEFT:
-                i = 2;
-                break;
-            case TURNRIGHT:
-                i = 3;
-                break;
-            case DRAW:
-                i = 4;
-                break;
-            case WAIT:
-                i = 5;
+            if (input.equals(antRules.get(i).getInput()))
+            {
+                antRules.get(i).setAction(action);
+                contains = true;
+            }
         }
-        antRules[i] = new AntRule(input, action);
+        if (!contains)
+        {
+            antRules.add(new AntRule(input, action));
+        }
+    }
+    
+    public String getName()
+    {
+        return name;
+    }
+    
+    protected void setName(String name)
+    {
+        this.name = name;
     }
     
     public Action getAction(String string)
     {
-        for (int i = 0; i < antRules.length; i++)
+        for (int i = 0; i < antRules.size(); i++)
         {
-            if (antRules[i] != null && antRules[i].canApply(string))
+            if (antRules.get(i) != null && antRules.get(i).canApply(string))
             {
-                return antRules[i].getAction();
+                return antRules.get(i).getAction();
             }
         }
         return Action.WAIT;
@@ -138,11 +141,11 @@ public class LCurve
             out.append(", ");
         }
         out.append("\n");
-        for (int i = 0; i < antRules.length; i++)
+        for (int i = 0; i < antRules.size(); i++)
         {
-            if (antRules[i] != null)
+            if (antRules.get(i) != null)
             {
-                out.append(antRules[i].toString());
+                out.append(antRules.get(i).toString());
                 out.append(", ");
             }
         }

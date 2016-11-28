@@ -9,5 +9,6 @@ public class SquareCurve extends LCurve
         addAntRule("-", Action.TURNLEFT);
         addAntRule("A", Action.DRAW);
         addAntRule("C", Action.FORWARD);
+        setName("Square Curve");
     }
 }

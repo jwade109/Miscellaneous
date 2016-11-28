@@ -8,5 +8,6 @@ public class KochCurve extends LCurve
         addAntRule("F", Action.DRAW);
         addAntRule("+", Action.TURNLEFT);
         addAntRule("-", Action.TURNRIGHT);
+        setName("KochCurve");
     }
 }

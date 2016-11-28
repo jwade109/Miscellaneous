@@ -4,6 +4,9 @@ public class CurveLauncher
 {
     public static void main(String[] args)
     {
-        new CurveWindow().showWindow(new CrescentCurve(), 8);
+        CurveWindow curve = new CurveWindow(new KochCurve(), 7);
+        curve.setErasing(true);
+        curve.setVisibility(true);
+        curve.start(0);
     }
 }

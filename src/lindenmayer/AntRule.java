@@ -21,6 +21,11 @@ public class AntRule
         return action;
     }
     
+    public void setAction(Action action)
+    {
+        this.action = action;
+    }
+    
     public boolean canApply(String instruction)
     {
         return instruction.equals(input);

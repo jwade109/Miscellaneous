@@ -20,27 +20,26 @@ public class CurveWindow
     private int maxStep;
     private int tick;
 
-    private int lineSize = 40;
+    private int scaleable = 40;
     private int frameWidth = 2200;
     private int frameHeight = 1700;
-    private final int runTime = 4000;
     private int k = 0;
-    private int[] origin = { 0, 0 };
-    private int[] newTranslate = { 0, 0 };
-    private int[] translate = { frameWidth / 2, frameHeight / 2 };
-    private int[] mousePos = { 0, 0 };
+    private int[] origin = {0, 0};
+    private int[] newTranslate = {0, 0};
+    private int[] translate = {frameWidth / 2, frameHeight / 2};
+    private int[] mousePos = {0, 0};
     private boolean moving = false;
+    private boolean antEraser = false;
     private boolean ALLSTOP = true;
 
-    public void showWindow(LCurve curve, int order)
+    public CurveWindow(LCurve curve, int order)
     {
         ants = new ArrayList<CurveAnt>();
         ants.add(new CurveAnt(0, 0, curve, order, Direction.EAST, Color.BLACK));
 
         maxStep = curve.generate(order).length();
-        tick = (int) ((double) runTime / (double) maxStep) + 1;
 
-        f = new JFrame("Turtle Graphics (" + ants.size() + " actors)");
+        f = new JFrame(curve.getName() + " Order " + order);
         lines = new ArrayList<Line>();
 
         f.setSize(frameWidth, frameHeight + 45);
@@ -54,6 +53,11 @@ public class CurveWindow
             public void mouseClicked(MouseEvent e)
             {
                 ALLSTOP = !ALLSTOP;
+                if (ALLSTOP)
+                {
+                    translate = new int[] {frameWidth / 2, frameHeight / 2};
+                    scaleable = 40;
+                }
             }
 
             public void mouseEntered(MouseEvent e)
@@ -85,32 +89,37 @@ public class CurveWindow
         {
             public void mouseWheelMoved(MouseWheelEvent e)
             {
-                lineSize -= e.getWheelRotation();
+                int ds = -e.getWheelRotation();
+                scaleable += ds;
+                scaleable = Math.max(1, scaleable);
+                if (scaleable > 1)
+                {
+                    int[] per = getMouseTranslateRel();
+                    translate[0] -= per[0] * ds;
+                    translate[1] -= per[1] * ds;
+                }
             }
         });
-
-        f.setVisible(true);
 
         p = new DrawPanel();
 
         f.getContentPane().add(p);
+    }
 
-        try
+    public void start(int tick)
+    {
+        if (tick < 0)
         {
-            Thread.sleep(tick);
+            throw new IllegalArgumentException("tick length must be positive");
         }
-        catch (InterruptedException e1)
-        {
-            e1.printStackTrace();
-        }
+
+        setVisibility(true);
 
         int t = 0;
 
         while (true)
         {
-
             updateFrame(f);
-
             p.repaint();
 
             if (moving)
@@ -122,7 +131,7 @@ public class CurveWindow
             if (!ALLSTOP)
             {
 
-                if (Math.floorMod(t, tick) == 0)
+                if (tick == 0 || Math.floorMod(t, Math.max(1, tick)) == 0)
                 {
                     for (int i = 0; i < ants.size(); i++)
                     {
@@ -132,6 +141,10 @@ public class CurveWindow
                             if (!lines.contains(a))
                             {
                                 lines.add(a);
+                            }
+                            else if (antEraser)
+                            {
+                                lines.remove(a);
                             }
                         }
                     }
@@ -153,17 +166,28 @@ public class CurveWindow
 
             }
 
-//            try
-//            {
-//                Thread.sleep(1);
-//            }
-//            catch (InterruptedException e1)
-//            {
-//                e1.printStackTrace();
-//            }
-
+            if (tick > 0)
+            {
+                try
+                {
+                    Thread.sleep(1);
+                }
+                catch (InterruptedException e1)
+                {
+                    e1.printStackTrace();
+                }
+            }
         }
+    }
 
+    public void setErasing(boolean state)
+    {
+        antEraser = state;
+    }
+
+    public void setVisibility(boolean visible)
+    {
+        f.setVisible(visible);
     }
 
     private void updateFrame(JFrame f)
@@ -178,27 +202,30 @@ public class CurveWindow
     private int[] getMousePos()
     {
         int x = MouseInfo.getPointerInfo().getLocation().x - f.getX() - 13;
-        int y = MouseInfo.getPointerInfo().getLocation().y - f.getY() - 13;
-        int[] pos = { x, y };
-        return pos;
+        int y = MouseInfo.getPointerInfo().getLocation().y - f.getY() - 60;
+        return new int[] {x, y};
     }
 
-    private double[] getMousePercent()
+    private double[] getMouseRel()
     {
         int[] mousePos = getMousePos();
-        double[] percents = { 0, 0 };
-        percents[0] = (double) mousePos[0] / frameWidth;
-        percents[1] = (double) mousePos[1] / frameHeight;
-
-        for (int i = 0; i < 2; i++)
-        {
-            if (percents[i] < 0)
-                percents[i] = 0;
-            if (percents[i] > 1)
-                percents[i] = 1;
-        }
-
+        double[] percents = new double[2];
+        percents[0] = (double) (mousePos[0] - frameWidth / 2)
+                / (frameWidth / 2);
+        percents[1] = (double) (mousePos[1] - frameHeight / 2)
+                / (frameHeight / 2);
         return percents;
+    }
+
+    private int[] getMouseTranslateRel()
+    {
+        int[] mousePos = getMousePos();
+        int dx = Math.round(100 * (mousePos[0] - translate[0] - newTranslate[0])
+                / frameWidth);
+        int dy = Math.round(100 * (mousePos[1] - translate[1] - newTranslate[1])
+                / frameHeight);
+
+        return new int[] {dx, dy};
     }
 
     private int getTrueHeight(JFrame f)
@@ -274,10 +301,11 @@ public class CurveWindow
                     frameHeight - 2 * buffer);
 
             mousePos = getMousePos();
-            double[] percents = getMousePercent();
+            double[] rel = getMouseRel();
+            int[] trel = getMouseTranslateRel();
             g.setColor(Color.GRAY);
             g.drawString("Paused: " + ALLSTOP + " Step: " + k + " of " + maxStep
-                    + " Tick: " + tick + " Zoom: " + (lineSize / 40.0)
+                    + " Tick: " + tick + " Zoom: " + (scaleable / 40.0)
                     + " Mouse: " + mousePos[0] + " " + mousePos[1]
                     + " Translate: " + newTranslate[0] + " " + newTranslate[1]
                     + " " + translate[0] + " " + translate[1], buffer + 10,
@@ -285,17 +313,38 @@ public class CurveWindow
             g.drawString("Window: " + frameWidth + " " + frameHeight,
                     buffer + 10, buffer + 40);
             g.drawString(
-                    "Scaling: " + (double) Math.round(percents[0] * 100) / 100
-                            + " "
-                            + (double) Math.round(percents[1] * 100) / 100,
+                    "Mouse rel pos: " + (double) Math.round(rel[0] * 100) / 100
+                            + " " + (double) Math.round(rel[1] * 100) / 100,
                     buffer + 10, buffer + 60);
+            g.drawString(
+                    "Mouse trel pos: "
+                            + (double) Math.round(trel[0] * 100) / 100 + " "
+                            + (double) Math.round(trel[1] * 100) / 100,
+                    buffer + 10, buffer + 80);
 
-            /*
-             * DIAGNOSTIC GRAPHICS g.setColor(Color.RED);
-             * g.drawOval(frameWidth/2 - 10, frameHeight/2 - 10, 20, 20);
-             * g.drawLine(0, 0, frameWidth, frameHeight); g.drawLine(frameWidth,
-             * 0, 0, frameHeight);
-             */
+            // DIAGNOSTIC GRAPHICS
+            g.setColor(Color.RED);
+            g.drawOval(frameWidth / 2 - 10, frameHeight / 2 - 10, 20, 20);
+            g.drawLine(0, 0, frameWidth, frameHeight);
+            g.drawLine(frameWidth, 0, 0, frameHeight);
+            g.drawOval(translate[0] + newTranslate[0] - 10,
+                    translate[1] + newTranslate[1] - 10, 20, 20);
+            g.drawOval(translate[0] + newTranslate[0] - 10 - scaleable,
+                    translate[1] + newTranslate[1] - 10, 20, 20);
+            g.drawOval(translate[0] + newTranslate[0] - 10 + scaleable,
+                    translate[1] + newTranslate[1] - 10, 20, 20);
+            g.drawOval(translate[0] + newTranslate[0] - 10,
+                    translate[1] + newTranslate[1] - 10 - scaleable, 20, 20);
+            g.drawOval(translate[0] + newTranslate[0] - 10,
+                    translate[1] + newTranslate[1] - 10 + scaleable, 20, 20);
+            g.drawOval(translate[0] + newTranslate[0] - 10 - scaleable,
+                    translate[1] + newTranslate[1] - 10 - scaleable, 20, 20);
+            g.drawOval(translate[0] + newTranslate[0] - 10 + scaleable,
+                    translate[1] + newTranslate[1] - 10 - scaleable, 20, 20);
+            g.drawOval(translate[0] + newTranslate[0] - 10 - scaleable,
+                    translate[1] + newTranslate[1] - 10 + scaleable, 20, 20);
+            g.drawOval(translate[0] + newTranslate[0] - 10 + scaleable,
+                    translate[1] + newTranslate[1] - 10 + scaleable, 20, 20);
         }
 
     }
@@ -308,42 +357,42 @@ public class CurveWindow
         if (a[0] < a[2]) // moving to the right
         {
             g.fillRect(
-                    lineSize * a[0] + translate[0] + newTranslate[0]
-                            - lineSize / 6,
-                    lineSize * a[1] + translate[1] + newTranslate[1]
-                            - lineSize / 6,
-                    lineSize * a[2] - lineSize * a[0] + lineSize / 3 + 1,
-                    lineSize / 3 + 1);
+                    scaleable * a[0] + translate[0] + newTranslate[0]
+                            - scaleable / 6,
+                    scaleable * a[1] + translate[1] + newTranslate[1]
+                            - scaleable / 6,
+                    scaleable * a[2] - scaleable * a[0] + scaleable / 3 + 1,
+                    scaleable / 3 + 1);
         }
         if (a[2] < a[0]) // moving to the left
         {
             g.fillRect(
-                    lineSize * a[2] + translate[0] + newTranslate[0]
-                            - lineSize / 6,
-                    lineSize * a[1] + translate[1] + newTranslate[1]
-                            - lineSize / 6,
-                    lineSize * a[0] - lineSize * a[2] + lineSize / 3 + 1,
-                    lineSize / 3 + 1);
+                    scaleable * a[2] + translate[0] + newTranslate[0]
+                            - scaleable / 6,
+                    scaleable * a[1] + translate[1] + newTranslate[1]
+                            - scaleable / 6,
+                    scaleable * a[0] - scaleable * a[2] + scaleable / 3 + 1,
+                    scaleable / 3 + 1);
         }
         if (a[1] < a[3]) // moving up
         {
             g.fillRect(
-                    lineSize * a[0] + translate[0] + newTranslate[0]
-                            - lineSize / 6,
-                    lineSize * a[1] + translate[1] + newTranslate[1]
-                            - lineSize / 6,
-                    lineSize / 3 + 1,
-                    lineSize * a[3] - lineSize * a[1] + lineSize / 3 + 1);
+                    scaleable * a[0] + translate[0] + newTranslate[0]
+                            - scaleable / 6,
+                    scaleable * a[1] + translate[1] + newTranslate[1]
+                            - scaleable / 6,
+                    scaleable / 3 + 1,
+                    scaleable * a[3] - scaleable * a[1] + scaleable / 3 + 1);
         }
         if (a[3] < a[1]) // moving down
         {
             g.fillRect(
-                    lineSize * a[0] + translate[0] + newTranslate[0]
-                            - lineSize / 6,
-                    lineSize * a[3] + translate[1] + newTranslate[1]
-                            - lineSize / 6,
-                    lineSize / 3 + 1,
-                    lineSize * a[1] - lineSize * a[3] + lineSize / 3 + 1);
+                    scaleable * a[0] + translate[0] + newTranslate[0]
+                            - scaleable / 6,
+                    scaleable * a[3] + translate[1] + newTranslate[1]
+                            - scaleable / 6,
+                    scaleable / 3 + 1,
+                    scaleable * a[1] - scaleable * a[3] + scaleable / 3 + 1);
         }
     }
 }

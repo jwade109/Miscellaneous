@@ -8,5 +8,6 @@ public class CrescentCurve extends LCurve
         addAntRule("A", Action.DRAW);
         addAntRule("+", Action.TURNLEFT);
         addAntRule("-", Action.TURNRIGHT);
+        setName("Crescent Curve");
     }
 }
