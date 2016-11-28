@@ -23,7 +23,6 @@ public class CurveWindow
     private int lineSize = 40;
     private int frameWidth = 2200;
     private int frameHeight = 1700;
-    private final int order = 15;
     private final int runTime = 4000;
     private int k = 0;
     private int[] origin = { 0, 0 };
@@ -33,9 +32,8 @@ public class CurveWindow
     private boolean moving = false;
     private boolean ALLSTOP = true;
 
-    public void showWindow()
+    public void showWindow(LCurve curve, int order)
     {
-        LCurve curve = new DragonCurve();
         ants = new ArrayList<CurveAnt>();
         ants.add(new CurveAnt(0, 0, curve, order, Direction.EAST, Color.BLACK));
 
@@ -56,7 +54,6 @@ public class CurveWindow
             public void mouseClicked(MouseEvent e)
             {
                 ALLSTOP = !ALLSTOP;
-                System.out.println("STOP");
             }
 
             public void mouseEntered(MouseEvent e)
@@ -132,11 +129,7 @@ public class CurveWindow
                         Line a = ants.get(i).next();
                         if (a != null)
                         {
-                            if (lines.contains(a))
-                            {
-                                lines.remove(a);
-                            }
-                            else
+                            if (!lines.contains(a))
                             {
                                 lines.add(a);
                             }
@@ -160,14 +153,14 @@ public class CurveWindow
 
             }
 
-            try
-            {
-                Thread.sleep(1);
-            }
-            catch (InterruptedException e1)
-            {
-                e1.printStackTrace();
-            }
+//            try
+//            {
+//                Thread.sleep(1);
+//            }
+//            catch (InterruptedException e1)
+//            {
+//                e1.printStackTrace();
+//            }
 
         }
 
@@ -296,8 +289,6 @@ public class CurveWindow
                             + " "
                             + (double) Math.round(percents[1] * 100) / 100,
                     buffer + 10, buffer + 60);
-            g.drawString("Zoom and pan!", frameWidth - buffer - 90,
-                    buffer + 20);
 
             /*
              * DIAGNOSTIC GRAPHICS g.setColor(Color.RED);

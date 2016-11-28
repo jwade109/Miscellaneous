@@ -114,6 +114,16 @@ public class LCurve
         return generate(order).length();
     }
     
+    public int[] lengths(int maxOrder)
+    {
+        int[] lengths = new int[maxOrder + 1];
+        for (int i = 0; i <= maxOrder; i++)
+        {
+            lengths[i] = length(i);
+        }
+        return lengths;
+    }
+    
     public String toString()
     {
         StringBuilder out = new StringBuilder("LCurve: angle = ");
