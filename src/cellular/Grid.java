@@ -41,18 +41,29 @@ public class Grid extends Observable
      */
     public void intializeDebugDemo(int dimX, int dimY, String type)
     {
-     // DEFAULT GRID SET UPS
+        // DEFAULT GRID SET UPS
         // Test requires no default set up.
         // DEBUG FOR LIFE
-        // A GLIDER.
         if ("life".equals(type))
         {
+            // A GLIDER.
+            /*
             tiles[2][2] = new Cell(1);
             tiles[3][3] = new Cell(1);
             for (int i = 0; i < 3; i++)
             {
                 tiles[i + 1][4] = new Cell(1);
             }
+            */
+            // R PENTOMINO
+            int middleX = dimX / 2;
+            int middleY = dimY / 2;
+            for (int i = -1; i < 2; i++)
+            {
+                tiles[middleX][middleY + i] = new Cell(1);
+            }
+            tiles[middleX + 1][middleY + 1] = new Cell(1);
+            tiles[middleX - 1][middleY] = new Cell(1);
         }
         // DEBUG FOR LANGTON'S ANT
         // THE ANT ALONE.

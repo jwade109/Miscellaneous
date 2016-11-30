@@ -118,10 +118,7 @@ public class Control
 	 */
 	public static void createProgram(String[] input)
 	{
-		if (!(input[2].equals("life")
-			|| input[2].equals("ant")
-			|| input[2].equals("test")
-			|| input[2].equals("wire")))
+	    if (ProfileManager.getProfile(input[2]) == null)
 		{
 			System.out.println("No automata of that type!");
 		}
