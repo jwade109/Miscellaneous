@@ -165,28 +165,9 @@ public class CurveAnt
     
     public void turnLeft()
     {
-        switch (dir)
-        {
-            case NORTH:
-            {
-                dir = Direction.WEST;
-                break;
-            }
-            case EAST:
-            {
-                dir = Direction.NORTH;
-                break;
-            }
-            case SOUTH:
-            {
-                dir = Direction.EAST;
-                break;
-            }
-            case WEST:
-            {
-                dir = Direction.SOUTH;
-            }
-        }
+        turnRight();
+        turnRight();
+        turnRight();
     }
 
     public Line move()
