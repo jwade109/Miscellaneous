@@ -53,11 +53,6 @@ public class CurveWindow
             public void mouseClicked(MouseEvent e)
             {
                 ALLSTOP = !ALLSTOP;
-                if (ALLSTOP)
-                {
-                    translate = new int[] {frameWidth / 2, frameHeight / 2};
-                    scaleable = 40;
-                }
             }
 
             public void mouseEntered(MouseEvent e)
@@ -323,28 +318,28 @@ public class CurveWindow
                     buffer + 10, buffer + 80);
 
             // DIAGNOSTIC GRAPHICS
-            g.setColor(Color.RED);
-            g.drawOval(frameWidth / 2 - 10, frameHeight / 2 - 10, 20, 20);
-            g.drawLine(0, 0, frameWidth, frameHeight);
-            g.drawLine(frameWidth, 0, 0, frameHeight);
-            g.drawOval(translate[0] + newTranslate[0] - 10,
-                    translate[1] + newTranslate[1] - 10, 20, 20);
-            g.drawOval(translate[0] + newTranslate[0] - 10 - scaleable,
-                    translate[1] + newTranslate[1] - 10, 20, 20);
-            g.drawOval(translate[0] + newTranslate[0] - 10 + scaleable,
-                    translate[1] + newTranslate[1] - 10, 20, 20);
-            g.drawOval(translate[0] + newTranslate[0] - 10,
-                    translate[1] + newTranslate[1] - 10 - scaleable, 20, 20);
-            g.drawOval(translate[0] + newTranslate[0] - 10,
-                    translate[1] + newTranslate[1] - 10 + scaleable, 20, 20);
-            g.drawOval(translate[0] + newTranslate[0] - 10 - scaleable,
-                    translate[1] + newTranslate[1] - 10 - scaleable, 20, 20);
-            g.drawOval(translate[0] + newTranslate[0] - 10 + scaleable,
-                    translate[1] + newTranslate[1] - 10 - scaleable, 20, 20);
-            g.drawOval(translate[0] + newTranslate[0] - 10 - scaleable,
-                    translate[1] + newTranslate[1] - 10 + scaleable, 20, 20);
-            g.drawOval(translate[0] + newTranslate[0] - 10 + scaleable,
-                    translate[1] + newTranslate[1] - 10 + scaleable, 20, 20);
+            // g.setColor(Color.RED);
+            // g.drawOval(frameWidth / 2 - 10, frameHeight / 2 - 10, 20, 20);
+            // g.drawLine(0, 0, frameWidth, frameHeight);
+            // g.drawLine(frameWidth, 0, 0, frameHeight);
+            // g.drawOval(translate[0] + newTranslate[0] - 10,
+            // translate[1] + newTranslate[1] - 10, 20, 20);
+            // g.drawOval(translate[0] + newTranslate[0] - 10 - scaleable,
+            // translate[1] + newTranslate[1] - 10, 20, 20);
+            // g.drawOval(translate[0] + newTranslate[0] - 10 + scaleable,
+            // translate[1] + newTranslate[1] - 10, 20, 20);
+            // g.drawOval(translate[0] + newTranslate[0] - 10,
+            // translate[1] + newTranslate[1] - 10 - scaleable, 20, 20);
+            // g.drawOval(translate[0] + newTranslate[0] - 10,
+            // translate[1] + newTranslate[1] - 10 + scaleable, 20, 20);
+            // g.drawOval(translate[0] + newTranslate[0] - 10 - scaleable,
+            // translate[1] + newTranslate[1] - 10 - scaleable, 20, 20);
+            // g.drawOval(translate[0] + newTranslate[0] - 10 + scaleable,
+            // translate[1] + newTranslate[1] - 10 - scaleable, 20, 20);
+            // g.drawOval(translate[0] + newTranslate[0] - 10 - scaleable,
+            // translate[1] + newTranslate[1] - 10 + scaleable, 20, 20);
+            // g.drawOval(translate[0] + newTranslate[0] - 10 + scaleable,
+            // translate[1] + newTranslate[1] - 10 + scaleable, 20, 20);
         }
 
     }
