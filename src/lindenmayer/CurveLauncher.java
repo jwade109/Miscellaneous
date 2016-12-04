@@ -5,8 +5,8 @@ public class CurveLauncher
     public static void main(String[] args)
     {
         CurveWindow curve = new CurveWindow(
-            new FastSierpinskiTriangleCurve(), 12);
-        curve.setErasing(true);
+            new WilliamTestCurve(), 9);
+        curve.setErasing(false);
         curve.setVisibility(true);
         curve.start(0);
     }
