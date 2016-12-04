@@ -4,16 +4,16 @@ import java.awt.Color;
 
 public class Line
 {
-    private int[] a;
+    private double[] a;
     private Color color;
     
-    public Line(int[] a, Color color)
+    public Line(double[] ds, Color color)
     {
-        this.a = a;
+        this.a = ds;
         this.color = color;
     }
     
-    public int[] getLoc()
+    public double[] getLoc()
     {
         return a;
     }
@@ -36,7 +36,7 @@ public class Line
         
         Line otherLine = (Line) other;
         
-        int[] oa = otherLine.getLoc();
+        double[] oa = otherLine.getLoc();
         
         if (oa[0] == a[0] && oa[1] == a[1] && oa[2] == a[2] && oa[3] == a[3])
         {

@@ -2,11 +2,11 @@ package lindenmayer;
 
 import java.awt.Color;
 
-public class CurveAnt
+public class Turtle
 {
-    private int x;
-    private int y;
-    private Direction dir;
+    private double x;
+    private double y;
+    private int angle;
     private LCurve curve;
     private String sequence;
     private int step;
@@ -14,18 +14,18 @@ public class CurveAnt
     private Color color;
     private String splash;
 
-    public CurveAnt(int x, int y, LCurve curve, int order, Direction dir,
+    public Turtle(int x, int y, LCurve curve, int order, int angle,
             Color color)
     {
         this.curve = curve;
         sequence = curve.generate(order);
         this.x = x;
         this.y = y;
-        this.dir = dir;
+        this.angle = angle;
         step = 0;
         done = false;
         this.color = color;
-        splash = "NEW ANT FACING " + dir + " at (" + x + ", " + y + ")";
+        splash = "NEW ANT FACING " + angle + " at (" + x + ", " + y + ")";
     }
 
     public Line next()
@@ -47,22 +47,20 @@ public class CurveAnt
         }
         else if (action == Action.BACKWARD)
         {
-            turnLeft();
-            turnLeft();
+            angle = (angle + 180) % 360;
             move();
-            turnLeft();
-            turnLeft();
+            angle = (angle + 180) % 360;
             splash = "MOVED BACKWARD";
         }
         else if (action == Action.TURNLEFT)
         {
             turnLeft();
-            splash = "TURNED LEFT";
+            splash = "TURNED LEFT - Angle = " + angle;
         }
         else if (action == Action.TURNRIGHT)
         {
             turnRight();
-            splash = "TURNED RIGHT";
+            splash = "TURNED RIGHT - Angle = " + angle;
         }
         else if (action == Action.DRAW)
         {
@@ -86,19 +84,19 @@ public class CurveAnt
         return done;
     }
 
-    public int getX()
+    public double getX()
     {
         return x;
     }
 
-    public int getY()
+    public double getY()
     {
         return y;
     }
 
-    public Direction getDir()
+    public int getAngle()
     {
-        return dir;
+        return angle;
     }
 
     public String splash()
@@ -116,12 +114,12 @@ public class CurveAnt
         this.y = y;
     }
 
-    public void setDir(Direction dir)
+    public void setAngle(int angle)
     {
-        this.dir = dir;
+        this.angle = angle;
     }
 
-    public void shift(int dx, int dy)
+    public void shift(double dx, double dy)
     {
         x += dx;
         y += dy;
@@ -139,69 +137,23 @@ public class CurveAnt
 
     public void turnRight()
     {
-        switch (dir)
-        {
-            case NORTH:
-            {
-                dir = Direction.EAST;
-                break;
-            }
-            case EAST:
-            {
-                dir = Direction.SOUTH;
-                break;
-            }
-            case SOUTH:
-            {
-                dir = Direction.WEST;
-                break;
-            }
-            case WEST:
-            {
-                dir = Direction.NORTH;
-            }
-
-        }
+        angle = (angle - curve.getAngle()) % 360;
     }
 
     public void turnLeft()
     {
-        turnRight();
-        turnRight();
-        turnRight();
+        angle = (angle + curve.getAngle()) % 360;
     }
 
     public Line move()
     {
-        int xi = x;
-        int yi = y;
+        double xi = x;
+        double yi = y;
 
-        switch (dir)
-        {
-            case NORTH:
-            {
-                y--;
-                break;
-            }
-            case EAST:
-            {
-                x++;
-                break;
-            }
-            case SOUTH:
-            {
-                y++;
-                break;
-            }
-            case WEST:
-            {
-                x--;
-                break;
-            }
-        }
+        shift(Math.sin(Math.toRadians(angle)), Math.cos(Math.toRadians(angle)));
 
-        int xf = x;
-        int yf = y;
+        double xf = x;
+        double yf = y;
 
         return new Line(new double[] {xi, yi, xf, yf}, color);
     }

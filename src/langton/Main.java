@@ -23,7 +23,7 @@ public class Main
     private int frameWidth = 1300;
     private int frameHeight = 1300;
     private int cellSize = 50;
-    private int tick = 1; // milliseconds: 20 ms = 50 fps
+    private int tick = 30; // milliseconds: 20 ms = 50 fps
     private int k = 0;
     private int steps = 12000;
     private int[] origin = { 0, 0 };

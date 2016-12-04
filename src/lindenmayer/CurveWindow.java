@@ -1,9 +1,13 @@
 package lindenmayer;
 
 import javax.swing.JFrame;
+
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.MouseInfo;
+import java.awt.Stroke;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseWheelEvent;
@@ -15,7 +19,7 @@ public class CurveWindow
 {
     private DrawPanel p;
     private JFrame f;
-    private ArrayList<CurveAnt> ants;
+    private ArrayList<Turtle> turtles;
     private ArrayList<Line> lines;
     private int maxStep;
     private int tick;
@@ -34,8 +38,8 @@ public class CurveWindow
 
     public CurveWindow(LCurve curve, int order)
     {
-        ants = new ArrayList<CurveAnt>();
-        ants.add(new CurveAnt(0, 0, curve, order, Direction.EAST, Color.BLACK));
+        turtles = new ArrayList<Turtle>();
+        turtles.add(new Turtle(0, 0, curve, order, 0, Color.BLACK));
 
         maxStep = curve.generate(order).length();
 
@@ -128,9 +132,9 @@ public class CurveWindow
 
                 if (tick == 0 || Math.floorMod(t, Math.max(1, tick)) == 0)
                 {
-                    for (int i = 0; i < ants.size(); i++)
+                    for (int i = 0; i < turtles.size(); i++)
                     {
-                        Line a = ants.get(i).next();
+                        Line a = turtles.get(i).next();
                         if (a != null)
                         {
                             if (!lines.contains(a))
@@ -144,7 +148,7 @@ public class CurveWindow
                         }
                     }
                     boolean done = true;
-                    for (CurveAnt ant : ants)
+                    for (Turtle ant : turtles)
                     {
                         if (!ant.isDone())
                         {
@@ -196,8 +200,17 @@ public class CurveWindow
 
     private int[] getMousePos()
     {
-        int x = MouseInfo.getPointerInfo().getLocation().x - f.getX() - 13;
-        int y = MouseInfo.getPointerInfo().getLocation().y - f.getY() - 60;
+        int x = 0;
+        int y = 0;
+        try
+        {
+            x = MouseInfo.getPointerInfo().getLocation().x - f.getX() - 13;
+            y = MouseInfo.getPointerInfo().getLocation().y - f.getY() - 60;
+        }
+        catch (NullPointerException e)
+        {
+            System.out.println(e.toString());
+        }
         return new int[] {x, y};
     }
 
@@ -244,6 +257,9 @@ public class CurveWindow
 
         public void paintComponent(Graphics g)
         {
+            Graphics2D g2 = (Graphics2D) g;
+            g2.setStroke(new BasicStroke(3));
+
             int buffer = 30;
             int shadowOffset = 8;
             int loadHeight = 7;
@@ -264,7 +280,7 @@ public class CurveWindow
             {
                 try
                 {
-                    drawThickLine(g, lines.get(i));
+                    drawThickLine(g2, lines.get(i));
                 }
                 catch (Exception e)
                 {
@@ -344,50 +360,14 @@ public class CurveWindow
 
     }
 
-    private void drawThickLine(Graphics g, Line line)
+    private void drawThickLine(Graphics2D g, Line line)
     {
-        int[] a = line.getLoc();
+        double[] a = line.getLoc();
         g.setColor(line.getColor());
 
-        if (a[0] < a[2]) // moving to the right
-        {
-            g.fillRect(
-                    scaleable * a[0] + translate[0] + newTranslate[0]
-                            - scaleable / 6,
-                    scaleable * a[1] + translate[1] + newTranslate[1]
-                            - scaleable / 6,
-                    scaleable * a[2] - scaleable * a[0] + scaleable / 3 + 1,
-                    scaleable / 3 + 1);
-        }
-        if (a[2] < a[0]) // moving to the left
-        {
-            g.fillRect(
-                    scaleable * a[2] + translate[0] + newTranslate[0]
-                            - scaleable / 6,
-                    scaleable * a[1] + translate[1] + newTranslate[1]
-                            - scaleable / 6,
-                    scaleable * a[0] - scaleable * a[2] + scaleable / 3 + 1,
-                    scaleable / 3 + 1);
-        }
-        if (a[1] < a[3]) // moving up
-        {
-            g.fillRect(
-                    scaleable * a[0] + translate[0] + newTranslate[0]
-                            - scaleable / 6,
-                    scaleable * a[1] + translate[1] + newTranslate[1]
-                            - scaleable / 6,
-                    scaleable / 3 + 1,
-                    scaleable * a[3] - scaleable * a[1] + scaleable / 3 + 1);
-        }
-        if (a[3] < a[1]) // moving down
-        {
-            g.fillRect(
-                    scaleable * a[0] + translate[0] + newTranslate[0]
-                            - scaleable / 6,
-                    scaleable * a[3] + translate[1] + newTranslate[1]
-                            - scaleable / 6,
-                    scaleable / 3 + 1,
-                    scaleable * a[1] - scaleable * a[3] + scaleable / 3 + 1);
-        }
+        g.drawLine((int) (scaleable * a[0] + translate[0] + newTranslate[0]),
+                (int) (scaleable * a[1] + translate[1] + newTranslate[1]),
+                (int) (scaleable * a[2] + translate[0] + newTranslate[0]),
+                (int) (scaleable * a[3] + translate[1] + newTranslate[1]));
     }
 }

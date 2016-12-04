@@ -21,7 +21,7 @@ public class SpiralViewer
     private int frameWidth = 1300;
     private int frameHeight = 1300;
     private int cellSize = 20;
-    private int spiralWidth = 200;
+    private int spiralWidth = 400;
     private int[] origin = { 0, 0 };
     private int[] translate = { frameWidth / 2, frameHeight / 2 };
     private int[] newTranslate = { 0, 0 };
