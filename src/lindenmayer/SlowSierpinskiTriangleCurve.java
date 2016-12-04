@@ -14,6 +14,6 @@ public class SlowSierpinskiTriangleCurve extends LCurve
         addAntRule("L", Action.TURNLEFT);
         addAntRule("R", Action.TURNRIGHT);
         addAntRule(">", Action.DRAW);
-        setName("Sierpinski Curve");
+        setName("Sierpinski Triangle");
     }
 }
