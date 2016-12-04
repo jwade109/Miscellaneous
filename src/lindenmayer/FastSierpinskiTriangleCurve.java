@@ -7,9 +7,9 @@ public class FastSierpinskiTriangleCurve extends LCurve
      */
     public FastSierpinskiTriangleCurve()
     {
-        super(90, "X",
-            new LRule("X", ""),
-            new LRule("Y", "Y>L>X>RY"));
+        super(5, "X",
+            new LRule("X", "Y>RX>RX"),
+            new LRule("Y", "Y>LY"));
         addAntRule("X", Action.DRAW);
         addAntRule("L", Action.TURNLEFT);
         addAntRule("R", Action.TURNRIGHT);

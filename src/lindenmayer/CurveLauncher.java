@@ -5,7 +5,7 @@ public class CurveLauncher
     public static void main(String[] args)
     {
         CurveWindow curve = new CurveWindow(
-            new HexagonalSierpinskiTriangle(), 5);
+            new FastSierpinskiTriangleCurve(), 12);
         curve.setErasing(true);
         curve.setVisibility(true);
         curve.start(0);
