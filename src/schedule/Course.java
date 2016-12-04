@@ -136,6 +136,17 @@ public class Course
     }
 
     /**
+     * Gets the number of dependencies (the number of prerequisites and
+     * corequisites) of this Course.
+     * 
+     * @return The number of dependencies.
+     */
+    public int dependencies()
+    {
+        return prereqs.size() + coreqs.size();
+    }
+
+    /**
      * Gets a String representation of this Course.
      * 
      * @return a String.
