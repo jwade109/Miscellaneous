@@ -83,12 +83,12 @@ public class Course
     /**
      * Gets all the prerequisite Courses for this Course, sorted.
      * 
-     * @return an Object[] of Courses.
+     * @return an ArrayList of Courses.
      */
-    public Object[] getPrereqs()
+    public ArrayList<Course> getPrereqs()
     {
         prereqs.sort(new CourseComparator());
-        return prereqs.toArray();
+        return prereqs;
     }
 
     /**
@@ -116,12 +116,12 @@ public class Course
     /**
      * Gets all the corequisite Courses for this Course, sorted.
      * 
-     * @return an Object[] of Courses.
+     * @return an ArrayList of Courses.
      */
-    public Object[] getCoreqs()
+    public ArrayList<Course> getCoreqs()
     {
         coreqs.sort(new CourseComparator());
-        return coreqs.toArray();
+        return coreqs;
     }
 
     /**
@@ -151,7 +151,7 @@ public class Course
      * 
      * @return a String.
      */
-    public String toString()
+    public String toFullString()
     {
         StringBuilder out = new StringBuilder(toStringHelper(this));
         if (prereqs.size() > 0)
@@ -189,6 +189,11 @@ public class Course
         out.append(c.credits());
         out.append(")]");
         return out.toString();
+    }
+    
+    public String toString()
+    {
+        return toStringHelper(this);
     }
 
     /**

@@ -8,70 +8,83 @@ public class Schedule implements ScheduleInterface
      * A List of all of the roots of this Schedule - i.e., all of the Courses
      * which have zero, or already satisfied, prerequisites.
      */
-    private ArrayList<CNode> root;
+    private CNode root;
 
+    /**
+     * Constructs a new Schedule object.
+     */
     public Schedule()
     {
         clear();
     }
 
     /**
-     * Adds a Course to the Schedule. Throws an RequisitesException if the
-     * Course that's added lists a pre or corequisite which is not already in
-     * the Schedule.
+     * Adds a Course to the Schedule. Throws a RequisiteException if the Course
+     * that's added lists a pre or corequisite which is not already in the
+     * Schedule.
      * 
      * @param c The course to add.
      * @throws IllegalArgumentException
      * @throws DuplicateItemException
-     * @throws RequisitesException
+     * @throws RequisiteException
      */
-    public void add(Course c)
+    public void add(Course newCourse)
     {
         // course is null, throw an exception
-        if (c == null)
+        if (newCourse == null)
         {
             throw new IllegalArgumentException("Course cannot be null");
         }
         // course is already in the schedule, throw exception
-        if (contains(c))
+        if (contains(newCourse))
         {
             throw new DuplicateItemException("Cannot store duplicate courses");
         }
         // course has no dependencies, it can be added as a root
-        if (c.dependencies() == 0)
+        if (newCourse.dependencies() == 0)
         {
-            root.add(new CNode(c));
+            root.addPre(new CNode(newCourse));
         }
         else
         {
             // check if all dependencies are met
             ArrayList<Course> unsatisfied = new ArrayList<Course>();
             // check if all prereqs are already in the schedule
-            for (Object pre : c.getPrereqs())
+            for (Course pre : newCourse.getPrereqs())
             {
-                if (!contains((Course) pre))
+                if (!contains(pre))
                 {
-                    unsatisfied.add((Course) pre);
+                    unsatisfied.add((pre));
                 }
             }
             // check if all coreqs are already in the schedule
-            for (Object co : c.getCoreqs())
+            for (Course co : newCourse.getCoreqs())
             {
-                if (!contains((Course) co))
+                if (!contains(co))
                 {
-                    unsatisfied.add((Course) co);
+                    unsatisfied.add(co);
                 }
             }
             // if they are... do something
             if (unsatisfied.isEmpty())
             {
-                // recursive method?
-                throw new UnsupportedOperationException("Not implemented yet");
+                CNode newNode = new CNode(newCourse);
+                for (Course pre : newCourse.getPrereqs())
+                {
+                    CNode preNode = findNode(root, pre);
+                    preNode.addPre(newNode);
+                }
+                for (Course co : newCourse.getCoreqs())
+                {
+                    CNode coNode = findNode(root, co);
+                    coNode.addCo(newNode);
+                }
             }
             // some required ancestors are not present, throw an exception
             else
             {
-                StringBuilder out = new StringBuilder("Can't add - unmet requisites:\n");
+                StringBuilder out = new StringBuilder(
+                        "Can't add - unmet requisites:\n");
                 for (Course uns : unsatisfied)
                 {
                     out.append(uns.toString());
@@ -83,11 +96,46 @@ public class Schedule implements ScheduleInterface
         }
     }
 
+    /**
+     * Removes a Course from the Schedule. Throws a RequisiteException if the
+     * Course is a requisite for another Course - that is, if the Course is not
+     * a leaf for the Schedule.
+     * 
+     * @return True if removed successfully, false otherwise.
+     * @throws RequisiteException
+     */
     @Override
     public boolean remove(Course c)
     {
-        // TODO Auto-generated method stub
-        return false;
+        if (c == null)
+        {
+            throw new IllegalArgumentException("Can't remove a null Course");
+        }
+        CNode toRemove = findNode(root, c);
+        if (toRemove == null)
+        {
+            return false;
+        }
+        if (!toRemove.isLeaf())
+        {
+            throw new RequisiteException("Removal would create unsatisfied dependency");
+        }
+        if (toRemove.isRoot())
+        {
+            root.removePre(toRemove);
+            return true;
+        }
+        for (Course pre : c.getPrereqs())
+        {
+            CNode parent = findNode(root, pre);
+            parent.removePre(toRemove);
+        }
+        for (Course co : c.getCoreqs())
+        {
+            CNode parent = findNode(root, co);
+            parent.removeCo(toRemove);
+        }
+        return true;
     }
 
     /**
@@ -109,20 +157,30 @@ public class Schedule implements ScheduleInterface
      */
     public Course find(Course c)
     {
-        for (CNode node : root)
+        CNode foundNode = findNode(root, c);
+        if (foundNode == null)
         {
-            if (c.equals(node.getCourse()))
-            {
-                return node.getCourse();
-            }
-            CNode found = findNode(node, c);
-            if (found != null)
-            {
-                return found.getCourse();
-            }
+            return null;
         }
-        return null;
-        
+        return foundNode.getCourse();
+    }
+
+    /**
+     * Gets a list of all Courses which must come after, or during, this Course.
+     * In other words, returns all Courses for which this Course is a pre or co
+     * requisite. This is a dynamic return, since Courses can be added as this
+     * Course's dependent.
+     * 
+     * @param parent The Course to inspect.
+     * @return All Courses which depend upon parent.
+     */
+    public ArrayList<Course> getDependents(Course parent)
+    {
+        ArrayList<Course> list = new ArrayList<Course>();
+        list = toCourseList(findNode(root, parent), list);
+        list.sort(new CourseComparator());
+        list.remove(parent);
+        return list;
     }
 
     /**
@@ -138,14 +196,14 @@ public class Schedule implements ScheduleInterface
         {
             return parent;
         }
-        for (CNode node : parent.getPredependents())
+        for (CNode node : parent.getPre())
         {
             if (findNode(node, c) != null)
             {
                 return findNode(node, c);
             }
         }
-        for (CNode node : parent.getCodependents())
+        for (CNode node : parent.getCo())
         {
             if (findNode(node, c) != null)
             {
@@ -162,34 +220,37 @@ public class Schedule implements ScheduleInterface
      */
     public int size()
     {
-        int n = 0;
-        for (CNode c : root)
-        {
-            n += size(c);
-        }
-        return n;
+        return toCourseList().size();
     }
 
-    /**
-     * A recursive helper method which determines the size of a subtree given
-     * its topmost CNode. Note that the returned value includes the root itself,
-     * such that a root with zero children will return 1.
-     * 
-     * @param root The top of the subtree.
-     * @return The number of children of the root plus 1.
-     */
-    private int size(CNode parent)
+    public ArrayList<Course> toCourseList()
     {
-        int n = 1;
-        for (CNode c : parent.getPredependents())
+        ArrayList<Course> list = new ArrayList<Course>();
+        list = toCourseList(root, list);
+        list.sort(new CourseComparator());
+        return list;
+    }
+
+    private ArrayList<Course> toCourseList(CNode root, ArrayList<Course> list)
+    {
+        Course rootCourse = root.getCourse();
+        if (rootCourse != null && !list.contains(rootCourse))
         {
-            n += size(c);
+            list.add(root.getCourse());
         }
-        for (CNode c : parent.getCodependents())
+        if (root.isLeaf())
         {
-            n += size(c);
+            return list;
         }
-        return n;
+        for (CNode pre : root.getPre())
+        {
+            list = toCourseList(pre, list);
+        }
+        for (CNode co : root.getCo())
+        {
+            list = toCourseList(co, list);
+        }
+        return list;
     }
 
     /**
@@ -197,7 +258,7 @@ public class Schedule implements ScheduleInterface
      */
     public void clear()
     {
-        root = new ArrayList<CNode>();
+        root = new CNode(null);
     }
 
     /**
@@ -250,21 +311,11 @@ public class Schedule implements ScheduleInterface
         }
 
         /**
-         * Sets the Course stored by this CNode.
-         * 
-         * @param c The Course to be stored.
-         */
-        public void setCourse(Course c)
-        {
-            course = c;
-        }
-
-        /**
          * Returns a list of all predependent courses of this CNode's course.
          * 
          * @return An ArrayList of CNodes.
          */
-        public ArrayList<CNode> getPredependents()
+        public ArrayList<CNode> getPre()
         {
             return predependents;
         }
@@ -274,7 +325,7 @@ public class Schedule implements ScheduleInterface
          * 
          * @return An ArrayList of CNodes.
          */
-        public ArrayList<CNode> getCodependents()
+        public ArrayList<CNode> getCo()
         {
             return codependents;
         }
@@ -284,7 +335,7 @@ public class Schedule implements ScheduleInterface
          * 
          * @param node The node to be added.
          */
-        public void addPredependent(CNode node)
+        public void addPre(CNode node)
         {
             predependents.add(node);
         }
@@ -294,7 +345,7 @@ public class Schedule implements ScheduleInterface
          * 
          * @param node The node to be added.
          */
-        public void addCodependent(CNode node)
+        public void addCo(CNode node)
         {
             codependents.add(node);
         }
@@ -305,7 +356,7 @@ public class Schedule implements ScheduleInterface
          * @param node The CNode to be removed.
          * @return True if successful, false if otherwise.
          */
-        public boolean removePredependent(CNode node)
+        public boolean removePre(CNode node)
         {
             return predependents.remove(node);
         }
@@ -316,7 +367,7 @@ public class Schedule implements ScheduleInterface
          * @param node The CNode to be removed.
          * @return True if successful, false if otherwise.
          */
-        public boolean removeCodependent(CNode node)
+        public boolean removeCo(CNode node)
         {
             return codependents.remove(node);
         }
@@ -329,6 +380,30 @@ public class Schedule implements ScheduleInterface
         public int dependents()
         {
             return predependents.size() + codependents.size();
+        }
+
+        /**
+         * Checks whether this CNode is a "root" of the Schedule. CNodes are
+         * considered roots the Course they contain lists no pre or
+         * corequisites.
+         * 
+         * @return Whether this CNode is a root.
+         */
+        public boolean isRoot()
+        {
+            return course.dependencies() == 0;
+        }
+
+        /**
+         * Checks whether this CNode is a "leaf" of the Schedule. CNodes are
+         * considered leaves the Course they contain is not a co or prerequisite
+         * of any other course on the schedule.
+         * 
+         * @return Whether this CNode is a leaf.
+         */
+        public boolean isLeaf()
+        {
+            return dependents() == 0;
         }
     }
 

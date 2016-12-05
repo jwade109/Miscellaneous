@@ -96,34 +96,53 @@ public class CourseTest extends TestCase
         assertEquals(statics, courses.get(2));
     }
 
-    public void testPreCoreqs()
+    public void testPrereqs()
     {
         aero.addPrereq(statics);
         aero.addPrereq(comp);
         aero.addPrereq(reality);
 
-        aero.addCoreq(statics);
-        aero.addCoreq(comp);
-        aero.addCoreq(reality);
-
-        Object[] p = aero.getPrereqs();
-        assertTrue(comp.equals(p[0]));
-        assertTrue(statics.equals(p[1]));
-        assertTrue(reality.equals(p[2]));
+        ArrayList<Course> p = aero.getPrereqs();
+        assertTrue(comp.equals(p.get(0)));
+        assertTrue(statics.equals(p.get(1)));
+        assertTrue(reality.equals(p.get(2)));
 
         assertTrue(aero.removePrereq(statics));
         assertTrue(aero.removePrereq(reality));
         assertFalse(aero.removePrereq(aero));
-        assertTrue(comp.equals(aero.getPrereqs()[0]));
-
-        Object[] c = aero.getCoreqs();
-        assertTrue(comp.equals(c[0]));
-        assertTrue(statics.equals(c[1]));
-        assertTrue(reality.equals(c[2]));
+        assertTrue(comp.equals(aero.getPrereqs().get(0)));
+    }
+    
+    public void testCoreqs()
+    {
+        aero.addCoreq(statics);
+        aero.addCoreq(comp);
+        aero.addCoreq(reality);
+        
+        ArrayList<Course> c = aero.getCoreqs();
+        assertTrue(comp.equals(c.get(0)));
+        assertTrue(statics.equals(c.get(1)));
+        assertTrue(reality.equals(c.get(2)));
 
         assertTrue(aero.removeCoreq(statics));
         assertTrue(aero.removeCoreq(reality));
         assertFalse(aero.removeCoreq(aero));
-        assertTrue(comp.equals(aero.getCoreqs()[0]));
+        assertTrue(comp.equals(aero.getCoreqs().get(0)));
+    }
+    
+    public void testDependencies()
+    {
+        assertEquals(0, aero.dependencies());
+        
+        aero.addPrereq(statics);
+        aero.addPrereq(comp);
+        
+        assertEquals(2, aero.dependencies());
+        
+        aero.addCoreq(statics);
+        aero.addCoreq(comp);
+        aero.addCoreq(reality);
+        
+        assertEquals(5, aero.dependencies());
     }
 }
