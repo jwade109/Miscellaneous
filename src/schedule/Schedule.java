@@ -1,8 +1,20 @@
 package schedule;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
-public class Schedule implements ScheduleInterface
+/**
+ * Schedule is a data structure which stores Course objects as members of a
+ * directed graph. This graph has two types of vertices, which represent
+ * prerequisite courses and corequisite courses. Courses at the top of the tree
+ * represent those with no unsatisfied prerequisites - i.e., Courses which can
+ * be taken immediately. This structure is used to generate an optimal
+ * class-taking order.
+ * 
+ * @author Wade Foster
+ * @version 2016.12.4
+ */
+public class Schedule implements Iterable<Course>
 {
     /**
      * A List of all of the roots of this Schedule - i.e., all of the Courses
@@ -104,7 +116,6 @@ public class Schedule implements ScheduleInterface
      * @return True if removed successfully, false otherwise.
      * @throws RequisiteException
      */
-    @Override
     public boolean remove(Course c)
     {
         if (c == null)
@@ -118,7 +129,8 @@ public class Schedule implements ScheduleInterface
         }
         if (!toRemove.isLeaf())
         {
-            throw new RequisiteException("Removal would create unsatisfied dependency");
+            throw new RequisiteException(
+                    "Removal would create unsatisfied dependency");
         }
         if (toRemove.isRoot())
         {
@@ -407,4 +419,8 @@ public class Schedule implements ScheduleInterface
         }
     }
 
+    public Iterator<Course> iterator()
+    {
+        return toCourseList().iterator();
+    }
 }

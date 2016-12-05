@@ -67,6 +67,26 @@ public class Turtle
             splash = "DREW A LINE";
             return move();
         }
+        else if (action == Action.NORTH)
+        {
+            angle = 90;
+            splash = "SET FACING NORTH";
+        }
+        else if (action == Action.EAST)
+        {
+            angle = 0;
+            splash = "SET FACING EAST";
+        }
+        else if (action == Action.WEST)
+        {
+            angle = 180;
+            splash = "SET FACING WEST";
+        }
+        else if (action == Action.SOUTH)
+        {
+            angle = 270;
+            splash = "SET FACING SOUTH";
+        }
         else if (action == Action.WAIT)
         {
             splash = "DID NOTHING";
@@ -150,7 +170,7 @@ public class Turtle
         double xi = x;
         double yi = y;
 
-        shift(Math.sin(Math.toRadians(angle)), Math.cos(Math.toRadians(angle)));
+        shift(Math.cos(Math.toRadians(angle)), -Math.sin(Math.toRadians(angle)));
 
         double xf = x;
         double yf = y;

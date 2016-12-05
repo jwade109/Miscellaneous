@@ -7,7 +7,6 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.MouseInfo;
-import java.awt.Stroke;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseWheelEvent;
@@ -36,12 +35,15 @@ public class CurveWindow
     private boolean antEraser = false;
     private boolean ALLSTOP = true;
 
-    public CurveWindow(LCurve curve, int order)
+    public CurveWindow(LCurve curve, int order, int ants)
     {
         turtles = new ArrayList<Turtle>();
-        turtles.add(new Turtle(0, 0, curve, order, 0, Color.BLACK));
-
-        maxStep = curve.generate(order).length();
+        for (int i = 0; i < ants; i++)
+        {
+            Turtle t = new Turtle(0, 0, curve, order, 0, Color.BLACK);
+            turtles.add(t);
+            maxStep = Math.max(t.getSteps(), maxStep);
+        }
 
         f = new JFrame(curve.getName() + " Order " + order);
         lines = new ArrayList<Line>();

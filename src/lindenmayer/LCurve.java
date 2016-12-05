@@ -7,30 +7,30 @@ public class LCurve
     private String name;
     private int angle;
     private String axiom;
-    private ArrayList<LRule> rules;
+    private ArrayList<StochasticRule> rules;
     private ArrayList<AntRule> antRules;
 
-    public LCurve(int angle, String axiom, LRule rule)
+    public LCurve(int angle, String axiom, StochasticRule rule)
     {
         name = "LCurve";
         this.angle = angle;
         this.axiom = axiom;
-        rules = new ArrayList<LRule>();
+        rules = new ArrayList<StochasticRule>();
         rules.add(rule);
         antRules = new ArrayList<AntRule>();
     }
 
-    public LCurve(int angle, String axiom, LRule rule1, LRule rule2)
+    public LCurve(int angle, String axiom, StochasticRule rule1, StochasticRule rule2)
     {
         this.angle = angle;
-        rules = new ArrayList<LRule>();
+        rules = new ArrayList<StochasticRule>();
         rules.add(rule1);
         rules.add(rule2);
         this.axiom = axiom;
         antRules = new ArrayList<AntRule>();
     }
 
-    public LCurve(int angle, String axiom, ArrayList<LRule> rules)
+    public LCurve(int angle, String axiom, ArrayList<StochasticRule> rules)
     {
         this.angle = angle;
         this.rules = rules;
