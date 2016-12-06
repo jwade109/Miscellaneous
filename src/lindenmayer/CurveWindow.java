@@ -22,6 +22,9 @@ public class CurveWindow
     private ArrayList<Line> lines;
     private int maxStep;
     private int tick;
+    private LCurve curve;
+    private int order;
+    private int population;
 
     private int scaleable = 40;
     private int frameWidth = 2200;
@@ -34,17 +37,15 @@ public class CurveWindow
     private boolean moving = false;
     private boolean antEraser = false;
     private boolean ALLSTOP = true;
+    private boolean drawTurtles = false;
+    private boolean differentiate = false;
 
-    public CurveWindow(LCurve curve, int order, int ants)
+    public CurveWindow(LCurve curve, int order, int numTurtles)
     {
-        turtles = new ArrayList<Turtle>();
-        for (int i = 0; i < ants; i++)
-        {
-            Turtle t = new Turtle(0, 0, curve, order, 0, Color.BLACK);
-            turtles.add(t);
-            maxStep = Math.max(t.getSteps(), maxStep);
-        }
-
+        this.curve = curve;
+        this.order = order;
+        population = numTurtles;
+        
         f = new JFrame(curve.getName() + " Order " + order);
         lines = new ArrayList<Line>();
 
@@ -109,6 +110,8 @@ public class CurveWindow
 
     public void start(int tick)
     {
+        populateTurtles();
+        
         if (tick < 0)
         {
             throw new IllegalArgumentException("tick length must be positive");
@@ -189,6 +192,33 @@ public class CurveWindow
     public void setVisibility(boolean visible)
     {
         f.setVisible(visible);
+    }
+
+    public void setDrawTurtles(boolean state)
+    {
+        drawTurtles = state;
+    }
+    
+    public void setDifferentiate(boolean state)
+    {
+        differentiate = state;
+    }
+    
+    private void populateTurtles()
+    {
+        turtles = new ArrayList<Turtle>();
+        for (int i = 0; i < population; i++)
+        {
+            int color = (int) (Math.random() * 256);
+            if (i == 0 || !differentiate)
+            {
+                color = 0;
+            }
+            Turtle t = new Turtle(0, 0, curve, order, 0,
+                    new Color(color, color, color));
+            turtles.add(t);
+            maxStep = Math.max(t.getSteps(), maxStep);
+        }
     }
 
     private void updateFrame(JFrame f)
@@ -272,11 +302,6 @@ public class CurveWindow
             g.setColor(Color.WHITE);
             g.fillRect(0, 0, 2 * frameWidth, 2 * frameHeight);
 
-            if (k < maxStep)
-            {
-
-            }
-
             g.setColor(Color.BLUE);
             for (int i = 0; i < lines.size(); i++)
             {
@@ -287,6 +312,14 @@ public class CurveWindow
                 catch (Exception e)
                 {
 
+                }
+            }
+
+            if (drawTurtles)
+            {
+                for (int i = 0; i < turtles.size(); i++)
+                {
+                    drawTurtle(turtles.get(i), g, i);
                 }
             }
 
@@ -360,16 +393,66 @@ public class CurveWindow
             // translate[1] + newTranslate[1] - 10 + scaleable, 20, 20);
         }
 
+        private void drawTurtle(Turtle turtle, Graphics g, int n)
+        {
+            int unit = scaleable / 4;
+            double x = scaleable * turtle.getX() + translate[0]
+                    + newTranslate[0];
+            double y = scaleable * turtle.getY() + translate[1]
+                    + newTranslate[1];
+            double angle = turtle.getAngle();
+            double dx;
+            double dy;
+
+            // legs
+            g.setColor(new Color(0, 160, 0));
+            for (int i = 0; i < 4; i++)
+            {
+                if (i == 0)
+                {
+                    angle += 45;
+                }
+                else
+                {
+                    angle += 90;
+                }
+
+                dx = 2 * unit * Math.cos(Math.toRadians(angle));
+                dy = 2 * unit * -Math.sin(Math.toRadians(angle));
+                g.fillOval((int) (x - unit / 2 + dx), (int) (y - unit / 2 + dy),
+                        unit, unit);
+            }
+            angle = turtle.getAngle();
+            dx = 2 * unit * Math.cos(Math.toRadians(angle));
+            dy = 2 * unit * -Math.sin(Math.toRadians(angle));
+
+            // head
+            g.setColor(Color.GREEN);
+            g.fillOval((int) (x - unit + dx), (int) (y - unit + dy), 2 * unit,
+                    2 * unit);
+
+            // shell
+            g.setColor(new Color(0, 200, 0));
+            g.fillOval((int) (x - 2 * unit), (int) (y - 2 * unit), 4 * unit,
+                    4 * unit);
+
+            // number
+            g.setColor(Color.WHITE);
+            g.drawString(n + "", (int) x - unit, (int) y);
+
+        }
+
+        private void drawThickLine(Graphics2D g, Line line)
+        {
+            double[] a = line.getLoc();
+            g.setColor(line.getColor());
+
+            g.drawLine(
+                    (int) (scaleable * a[0] + translate[0] + newTranslate[0]),
+                    (int) (scaleable * a[1] + translate[1] + newTranslate[1]),
+                    (int) (scaleable * a[2] + translate[0] + newTranslate[0]),
+                    (int) (scaleable * a[3] + translate[1] + newTranslate[1]));
+        }
     }
 
-    private void drawThickLine(Graphics2D g, Line line)
-    {
-        double[] a = line.getLoc();
-        g.setColor(line.getColor());
-
-        g.drawLine((int) (scaleable * a[0] + translate[0] + newTranslate[0]),
-                (int) (scaleable * a[1] + translate[1] + newTranslate[1]),
-                (int) (scaleable * a[2] + translate[0] + newTranslate[0]),
-                (int) (scaleable * a[3] + translate[1] + newTranslate[1]));
-    }
 }

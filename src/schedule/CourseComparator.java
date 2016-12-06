@@ -6,6 +6,14 @@ public class CourseComparator implements Comparator<Course>
 {
     public int compare(Course c1, Course c2)
     {
+        if (c1.done() && !c2.done())
+        {
+            return -1;
+        }
+        if (c2.done() && !c1.done())
+        {
+            return 1;
+        }
         int dif = c1.department().compareTo(c2.department());
         if (dif == 0)
         {

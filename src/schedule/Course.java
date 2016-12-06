@@ -10,6 +10,7 @@ public class Course
     private int credits;
     private ArrayList<Course> prereqs;
     private ArrayList<Course> coreqs;
+    private boolean completed;
 
     /**
      * Constructs a new Course object.
@@ -27,6 +28,7 @@ public class Course
         credits = cr;
         prereqs = new ArrayList<Course>();
         coreqs = new ArrayList<Course>();
+        completed = false;
     }
 
     /**
@@ -67,6 +69,26 @@ public class Course
     public int credits()
     {
         return credits;
+    }
+    
+    /**
+     * Sets whether this Course is completed or not.
+     * 
+     * @param state True if completed, false if not.
+     */
+    public void setDone(boolean state)
+    {
+        completed = state;
+    }
+    
+    /**
+     * Gets whether this Course is completed or not.
+     * 
+     * @return True of completed, false otherwise.
+     */
+    public boolean done()
+    {
+        return completed;
     }
 
     /**
@@ -147,19 +169,19 @@ public class Course
     }
 
     /**
-     * Gets a String representation of this Course.
+     * Gets a String representation of this Course, including prerequisites.
      * 
      * @return a String.
      */
     public String toFullString()
     {
-        StringBuilder out = new StringBuilder(toStringHelper(this));
+        StringBuilder out = new StringBuilder(toString());
         if (prereqs.size() > 0)
         {
             out.append("\n\tPrereqs: ");
             for (Course c : prereqs)
             {
-                out.append(toStringHelper(c));
+                out.append(c.toShortString());
                 out.append(", ");
             }
             out.delete(out.length() - 2, out.length());
@@ -169,7 +191,7 @@ public class Course
             out.append("\n\tCoreqs: ");
             for (Course c : coreqs)
             {
-                out.append(toStringHelper(c));
+                out.append(c.toShortString());
                 out.append(", ");
             }
             out.delete(out.length() - 2, out.length());
@@ -177,23 +199,47 @@ public class Course
         return out.toString();
     }
 
-    private String toStringHelper(Course c)
+    /**
+     * Gets a String representation of the Course.
+     * 
+     * @return A String.
+     */
+    public String toString()
     {
         StringBuilder out = new StringBuilder("[");
-        out.append(c.department());
+        out.append(department);
         out.append("\t");
-        out.append(c.number());
+        out.append(courseNo);
         out.append("\t");
-        out.append(c.name());
+        out.append(name);
         out.append(" (");
-        out.append(c.credits());
-        out.append(")]");
+        out.append(credits);
+        out.append(") ");
+        if (done())
+        {
+            out.append("*");
+        }
+        out.append("]");
         return out.toString();
     }
     
-    public String toString()
+    /**
+     * Gets a truncated String representation.
+     * 
+     * @return A String.
+     */
+    public String toShortString()
     {
-        return toStringHelper(this);
+        StringBuilder out = new StringBuilder("[");
+        out.append(department);
+        out.append(" ");
+        out.append(courseNo);
+        if (done())
+        {
+            out.append("*");
+        }
+        out.append("]");
+        return out.toString();
     }
 
     /**
