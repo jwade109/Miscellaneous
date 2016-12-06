@@ -43,6 +43,8 @@ public class AE_CS_M_Schedule extends Schedule
 
     public AE_CS_M_Schedule()
     {
+        super();
+        
         deforms = new Course(Department.ESM, 2204,
                 "Mechanics of Deformable Bodies", 3);
         add(deforms);
@@ -63,7 +65,7 @@ public class AE_CS_M_Schedule extends Schedule
         add(discrete);
 
         compOrg1 = new Course(Department.CS, 2505,
-                "Intro to Computer Organization", 3);
+                "Intro to Computer Organization I", 3);
         compOrg1.addCoreq(discrete);
         add(compOrg1);
 
@@ -90,7 +92,8 @@ public class AE_CS_M_Schedule extends Schedule
         add(thermo);
 
         compOrg2 = new Course(Department.CS, 2506,
-                "Intro to Computer Organization", 3);
+                "Intro to Computer Organization II", 3);
+        compOrg2.addPrereq(compOrg1);
         add(compOrg2);
 
         exMethods = new Course(Department.AOE, 3054, "Experimental Methods", 3);
@@ -129,7 +132,7 @@ public class AE_CS_M_Schedule extends Schedule
         boundary.addPrereq(thermo);
         add(boundary);
 
-        scDesign1 = new Course(Department.AOE, 4165, "Spacecraft Design", 3);
+        scDesign1 = new Course(Department.AOE, 4165, "Spacecraft Design I", 3);
         scDesign1.addPrereq(exMethods);
         scDesign1.addPrereq(compressible);
         scDesign1.addPrereq(structures);
@@ -158,7 +161,7 @@ public class AE_CS_M_Schedule extends Schedule
         CADcontrols.addPrereq(vibration);
         add(CADcontrols);
 
-        scDesign2 = new Course(Department.AOE, 4166, "Spacecraft Design", 3);
+        scDesign2 = new Course(Department.AOE, 4166, "Spacecraft Design II", 3);
         scDesign2.addPrereq(scDesign1);
         add(scDesign2);
 

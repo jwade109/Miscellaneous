@@ -6,11 +6,11 @@ public class CourseComparator implements Comparator<Course>
 {
     public int compare(Course c1, Course c2)
     {
-        if (c1.done() && !c2.done())
+        if (c1.isComplete() && !c2.isComplete())
         {
             return -1;
         }
-        if (c2.done() && !c1.done())
+        if (c2.isComplete() && !c1.isComplete())
         {
             return 1;
         }

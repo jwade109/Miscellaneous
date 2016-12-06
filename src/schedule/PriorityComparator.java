@@ -4,15 +4,20 @@ import java.util.Comparator;
 
 public class PriorityComparator implements Comparator<Course>
 {
-    private Schedule s;
+    private ScheduleQuerier q;
     
-    public PriorityComparator(Schedule s)
+    public PriorityComparator(ScheduleQuerier q)
     {
-        this.s = s;
+        this.q = q;
     }
     
     public int compare(Course c1, Course c2)
     {
-        return s.children(c2) - s.children(c1);
+        int dif = q.importanceOf(c2) - q.importanceOf(c1);
+        if (dif == 0)
+        {
+            dif = new CourseComparator().compare(c1, c2);
+        }
+        return dif;
     }
 }

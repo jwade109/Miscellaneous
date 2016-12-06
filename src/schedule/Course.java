@@ -10,6 +10,7 @@ public class Course
     private int credits;
     private ArrayList<Course> prereqs;
     private ArrayList<Course> coreqs;
+    private boolean registered;
     private boolean completed;
 
     /**
@@ -28,6 +29,7 @@ public class Course
         credits = cr;
         prereqs = new ArrayList<Course>();
         coreqs = new ArrayList<Course>();
+        registered = false;
         completed = false;
     }
 
@@ -76,7 +78,7 @@ public class Course
      * 
      * @param state True if completed, false if not.
      */
-    public void setDone(boolean state)
+    public void makeComplete(boolean state)
     {
         completed = state;
     }
@@ -86,9 +88,29 @@ public class Course
      * 
      * @return True of completed, false otherwise.
      */
-    public boolean done()
+    public boolean isComplete()
     {
         return completed;
+    }
+    
+    /**
+     * Sets the registration status of this Course.
+     * 
+     * @param True if registered, false if not.
+     */
+    public void setRegistered(boolean state)
+    {
+        registered = state;
+    }
+    
+    /**
+     * Gets whether this Course is registered into a Semester.
+     * 
+     * @return state True if registered, false otherwise.
+     */
+    public boolean isRegistered()
+    {
+        return registered;
     }
 
     /**
@@ -158,14 +180,28 @@ public class Course
     }
 
     /**
+     * Gets all requisites (pre and corequisites) of this Course.
+     * 
+     * @return A sorted List of Courses.
+     */
+    public ArrayList<Course> getReqs()
+    {
+        ArrayList<Course> list = new ArrayList<Course>();
+        list.addAll(prereqs);
+        list.addAll(coreqs);
+        list.sort(new CourseComparator());
+        return list;
+    }
+    
+    /**
      * Gets the number of dependencies (the number of prerequisites and
      * corequisites) of this Course.
      * 
      * @return The number of dependencies.
      */
-    public int dependencies()
+    public int countReqs()
     {
-        return prereqs.size() + coreqs.size();
+        return getReqs().size();
     }
 
     /**
@@ -178,7 +214,7 @@ public class Course
         StringBuilder out = new StringBuilder(toString());
         if (prereqs.size() > 0)
         {
-            out.append("\n\tPrereqs: ");
+            out.append("\nPrereqs: ");
             for (Course c : prereqs)
             {
                 out.append(c.toShortString());
@@ -188,7 +224,7 @@ public class Course
         }
         if (coreqs.size() > 0)
         {
-            out.append("\n\tCoreqs: ");
+            out.append("\nCoreqs: ");
             for (Course c : coreqs)
             {
                 out.append(c.toShortString());
@@ -211,13 +247,16 @@ public class Course
         out.append("\t");
         out.append(courseNo);
         out.append("\t");
-        out.append(name);
-        out.append(" (");
         out.append(credits);
-        out.append(") ");
-        if (done())
+        out.append("\t");
+        out.append(name);
+        if (isRegistered())
         {
-            out.append("*");
+            out.append(" +");
+        }
+        if (isComplete())
+        {
+            out.append(" *");
         }
         out.append("]");
         return out.toString();
@@ -234,9 +273,9 @@ public class Course
         out.append(department);
         out.append(" ");
         out.append(courseNo);
-        if (done())
+        if (isComplete())
         {
-            out.append("*");
+            out.append(" *");
         }
         out.append("]");
         return out.toString();

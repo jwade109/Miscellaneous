@@ -1,86 +1,101 @@
 package schedule;
 
-import java.util.ArrayList;
-
 import junit.framework.TestCase;
 
 public class ScheduleTest extends TestCase
 {
     private Schedule s;
-
-    private Course aero;
-    private Course statics;
-    private Course comp;
-    private Course philOne;
-    private Course philTwo;
-    private Course software;
-
-    private Course aircraft;
+    private ScheduleQuerier q;
 
     public void setUp()
     {
-        s = new Schedule();
-
-        aero = new Course(Department.AOE, 2104,
-                "Intro to Aerospace Engineering", 2);
-        statics = new Course(Department.ESM, 2104, "Statics", 3);
-        comp = new Course(Department.AOE, 2074, "Comp Methods", 2);
-        philOne = new Course(Department.PHIL, 1204, "Knowledge and Reality", 3);
-        philTwo = new Course(Department.PHIL, 1304, "Morality and Justice", 3);
-        software = new Course(Department.CS, 2114,
-                "Software Design and Data Structures", 3);
-
-        aircraft = new Course(Department.AOE, 3104, "Aircraft Performance", 3);
-        aircraft.addPrereq(aero);
-        aircraft.addCoreq(comp);
+        s = new AE_CS_M_Schedule();
+        q = new ScheduleQuerier(s);
     }
 
-    public void testAddProper()
+    /**
+     * Tests add() and remove() in normal cases.
+     */
+    public void testRemoveAdd()
     {
-        s.add(aero);
-        s.add(comp);
-        s.add(aircraft);
-        assertEquals(3, s.size());
-        assertEquals(aircraft, s.find(aircraft));
-        s.clear();
-        assertEquals(0, s.size());
+        assertTrue(s.remove(q.search("Manufacturing")));
+        assertFalse(s.remove(q.search("Manufacturing")));
+        assertTrue(s.remove(q.search("Materials")));
+        assertFalse(s.remove(q.search("Materials")));
+        assertTrue(s.remove(q.search("Space Mission")));
+        assertFalse(s.remove(q.search("Space Mission")));
+        
+        assertFalse(s.remove(new Course(Department.OTHER, 4, "", 2)));
+        assertFalse(s.remove(new Course(Department.CS, 8888, "Cheese", 3)));
     }
 
-    public void testAddDuplicate()
+    /**
+     * Tests add() in cases of adding duplicate Courses.
+     */
+    public void testAddDuplicateException()
     {
-        s.add(aero);
-
         Exception e = null;
         try
         {
-            s.add(aero);
+            s.add(q.search("Discrete"));
         }
         catch (DuplicateItemException ex)
         {
             e = ex;
         }
         assertNotNull(e);
-
     }
-
-    public void testAddRequisite()
+    
+    /**
+     * Tests add() in the case of insufficient requisites.
+     */
+    public void testAddRequisiteException()
     {
+        Course pretest = new Course(Department.ESM, 9, "PreReqTest", 3);
+        Course cotest = new Course(Department.ESM, 9, "CoReqTest", 3);
+        Course bothtest = new Course(Department.ESM, 9, "BothReqTest", 3);
+        pretest.addPrereq(q.search("Manufacturing"));
+        cotest.addCoreq(q.search("Manufacturing"));
+        bothtest.addPrereq(q.search("Manufacturing"));
+        bothtest.addCoreq(q.search("Numerical"));
+        s.remove(q.search("Manufacturing"));
+        s.remove(q.search("Numerical"));
+        
         Exception e = null;
         try
         {
-            s.add(aircraft);
+            s.add(pretest);
         }
         catch (RequisiteException ex)
         {
             e = ex;
         }
         assertNotNull(e);
-        String error = "Can't add - unmet requisites:\n"
-                + "[AOE\t2104\tIntro to Aerospace Engineering (2)], "
-                + "[AOE\t2074\tComp Methods (2)]";
-        assertEquals(error, e.getMessage());
+        e = null;
+        try
+        {
+            s.add(cotest);
+        }
+        catch (RequisiteException ex)
+        {
+            e = ex;
+        }
+        assertNotNull(e);
+        e = null;
+        try
+        {
+            s.add(bothtest);
+        }
+        catch (RequisiteException ex)
+        {
+            e = ex;
+        }
+        assertNotNull(e);
     }
 
+    /**
+     * Tests add() in cases of adding a null Course. 
+     */
     public void testAddNull()
     {
         Exception e = null;
@@ -94,47 +109,16 @@ public class ScheduleTest extends TestCase
         }
         assertNotNull(e);
     }
-    
-    public void testRemove()
-    {
-        s.add(aero);
-        s.add(statics);
-        s.add(comp);
-        s.add(aircraft);
-        assertEquals(4, s.size());
-        assertTrue(s.remove(aircraft));
-        assertTrue(s.remove(aero));
-        assertEquals(2, s.size());
-    }
-    
-    public void testRemoveNull()
+
+    /**
+     * Tests remove() in cases of removing a Course upon which others are dependent.
+     */
+    public void testRemoveRequisiteException()
     {
         Exception e = null;
         try
         {
-            s.remove(null);
-        }
-        catch (IllegalArgumentException ex)
-        {
-            e = ex;
-        }
-        assertNotNull(e);
-    }
-    
-    public void testRemoveNotInSchedule()
-    {
-        assertFalse(s.remove(aero));
-    }
-    
-    public void testRemoveDependency()
-    {
-        s.add(aero);
-        s.add(comp);
-        s.add(aircraft);
-        Exception e = null;
-        try
-        {
-            s.remove(aero);
+            s.remove(q.search("Discrete"));
         }
         catch (RequisiteException ex)
         {
@@ -143,47 +127,107 @@ public class ScheduleTest extends TestCase
         assertNotNull(e);
     }
 
-    public void testSize()
-    {
-        s.add(aero);
-        s.add(statics);
-        s.add(comp);
-        assertEquals(3, s.size());
-        s.clear();
-        assertEquals(0, s.size());
-    }
-
+    /**
+     * Tests find() for all cases.
+     */
     public void testFind()
     {
-        s.add(comp);
-        s.add(aero);
-        s.add(aircraft);
-        assertEquals(aero, s.find(aero));
-        assertEquals(comp, s.find(comp));
-        assertNull(s.find(statics));
-        assertEquals(aircraft, s.find(aircraft));
-    }
-
-    public void testToCourseList()
-    {
-        s.add(aero);
-        s.add(comp);
-        s.add(statics);
-        s.add(philOne);
-        s.add(philTwo);
-        s.add(software);
-        s.add(aircraft);
-        ArrayList<Course> list = s.toCourseList();
-        assertEquals(7, list.size());
-        assertEquals(7, s.size());
+        assertEquals(q.search("Thermo"), s.find(q.search("Thermo")));
+        assertEquals(q.search(null), s.find(q.search(null)));
     }
     
-    public void testGetDependents()
+    /**
+     * Tests size() for all cases.
+     */
+    public void testSize()
     {
-        s.add(aero);
-        s.add(comp);
-        s.add(aircraft);
-        assertEquals(aircraft, s.getDependents(aero).get(0));
-        assertEquals(aircraft, s.getDependents(comp).get(0));
+        assertEquals(29, s.size());
+        s.remove(q.search("Numer"));
+        s.remove(q.search("Materials"));
+        assertEquals(27, s.size());
+        s.remove(null);
+        assertEquals(27, s.size());
+        s.add(new Course(Department.OTHER, 4, "", 3));
+        assertEquals(28, s.size());
     }
+    
+    /**
+     * Tests getChildren() for all cases.
+     */
+    public void testCountChildren()
+    {
+        assertEquals(0, s.countChildren(q.search("4414")));
+        assertEquals(2, s.countChildren(q.search("Operational")));
+    }
+
+    /**
+     * Tests toCourseList() for all cases.
+     */
+    public void testToCourseList()
+    {
+        assertEquals(q.search("Hydro"), s.toCourseList().get(0));
+        assertEquals(q.search("Thin"), s.toCourseList().get(1));
+        assertEquals(q.search("ISE"), s.toCourseList().get(28));
+        
+        s.remove(q.search("ISE"));
+
+        assertEquals(q.search("Hydro"), s.toCourseList().get(0));
+        assertEquals(q.search("Thin"), s.toCourseList().get(1));
+        assertEquals(q.search("CS 3414"), s.toCourseList().get(27));
+    }
+    
+    /**
+     * Tests getChildren() and countChildren for all cases.
+     */
+    public void testGetCountChildren()
+    {
+        assertEquals(3, s.getChildren(q.search("ESM 2304")).size());
+        assertEquals(3, s.countChildren(q.search("ESM 2304")));
+        assertEquals(q.search("Vehicle Vibration"), s.getChildren(q.search("ESM 2304")).get(0));
+        assertEquals(0, s.countChildren(q.search("Numerical")));
+        assertEquals(q.search("AOE 4165"), s.getChildren(q.search("Aerospace Structures")).get(1));
+        assertNull(s.getChildren(null));
+    }
+    
+    /**
+     * Tests getCourseSublist() for all cases.
+     */
+    public void testGetCourseSublist()
+    {
+        assertEquals(3, s.getCourseSublist(q.search("Operational")).size());
+        assertEquals(15, s.getCourseSublist(q.search("ESM 2304")).size());
+        assertEquals(q.search("Exper"), s.getCourseSublist(q.search("ESM 2304")).get(3));
+        assertEquals(q.search("CS 2506"), s.getCourseSublist(q.search("CS 2505")).get(1));
+    }
+    
+    /**
+     * Tests toString().
+     */
+    public void testToString()
+    {
+        assertNotNull(s.toString());
+        // System.out.println(s.toString());
+    }
+
+    /**
+     * Tests path() for all cases.
+     */
+    public void testPath()
+    {
+        assertNotNull(s.path(q.search("Discrete")));
+        assertNull(s.path(null));
+        System.out.println(s.path(q.search("Discrete")));
+    }
+    
+    /**
+     * Tests Schedule's iterator().
+     */
+    public void testIterator()
+    {
+        for (Course c : s)
+        {
+            assertNotNull(c.name());
+        }
+    }
+
 }

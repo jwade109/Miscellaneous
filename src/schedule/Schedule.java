@@ -23,6 +23,11 @@ public class Schedule implements Iterable<Course>
     private CNode root;
 
     /**
+     * The current size of the Schedule.
+     */
+    private int size;
+
+    /**
      * Constructs a new Schedule object.
      */
     public Schedule()
@@ -36,9 +41,6 @@ public class Schedule implements Iterable<Course>
      * Schedule.
      * 
      * @param c The course to add.
-     * @throws IllegalArgumentException
-     * @throws DuplicateItemException
-     * @throws RequisiteException
      */
     public void add(Course newCourse)
     {
@@ -52,10 +54,11 @@ public class Schedule implements Iterable<Course>
         {
             throw new DuplicateItemException("Cannot store duplicate courses");
         }
-        // course has no dependencies, it can be added as a root
-        if (newCourse.dependencies() == 0)
+        // course has no requisites, it can be added as a root
+        if (newCourse.countReqs() == 0)
         {
             root.addPre(new CNode(newCourse));
+            size++;
         }
         else
         {
@@ -91,6 +94,7 @@ public class Schedule implements Iterable<Course>
                     CNode coNode = findNode(root, co);
                     coNode.addCo(newNode);
                 }
+                size++;
             }
             // some required ancestors are not present, throw an exception
             else
@@ -113,14 +117,14 @@ public class Schedule implements Iterable<Course>
      * Course is a requisite for another Course - that is, if the Course is not
      * a leaf for the Schedule.
      * 
+     * @param c The Course to remove.
      * @return True if removed successfully, false otherwise.
-     * @throws RequisiteException
      */
     public boolean remove(Course c)
     {
         if (c == null)
         {
-            throw new IllegalArgumentException("Can't remove a null Course");
+            return false;
         }
         CNode toRemove = findNode(root, c);
         if (toRemove == null)
@@ -132,9 +136,10 @@ public class Schedule implements Iterable<Course>
             throw new RequisiteException(
                     "Removal would create unsatisfied dependency");
         }
-        if (toRemove.isOrphan())
+        if (toRemove.isRoot())
         {
             root.removePre(toRemove);
+            size--;
             return true;
         }
         for (Course pre : c.getPrereqs())
@@ -147,12 +152,14 @@ public class Schedule implements Iterable<Course>
             CNode parent = findNode(root, co);
             parent.removeCo(toRemove);
         }
+        size--;
         return true;
     }
 
     /**
      * Checks if the Schedule contains a given Course.
      * 
+     * @param c The Course to search for.
      * @return True if the Schedule contains the Course, false otherwise.
      */
     public boolean contains(Course c)
@@ -178,58 +185,80 @@ public class Schedule implements Iterable<Course>
     }
 
     /**
-     * Checks whether a Course can be taken or not - i.e., whether all of its
-     * prerequisites are completed or not. If a Course is a root, this method
-     * always returns true. Note that a Course may still be available to enroll
-     * in if its corequisites are not satisfied.
+     * Checks if a Course is complete or not. Returns false if the Course is not
+     * in the Schedule.
      * 
      * @param c The Course to inspect.
-     * @return Whether this Course can be taken at the present time.
+     * @return Whether the Course is complete or not.
      */
-    public boolean canTake(Course c)
+    public boolean isComplete(Course c)
     {
-        if (c.done())
+        if (c == null || !contains(c))
         {
             return false;
         }
-        ArrayList<Course> prereqs = c.getPrereqs();
-        for (Course pre : prereqs)
-        {
-            if (!pre.done())
-            {
-                return false;
-            }
-        }
-        return true;
+        return findNode(root, c).getCourse().isComplete();
     }
 
     /**
-     * Gets a list of all Courses which must come after, or during, this Course.
-     * In other words, returns all Courses for which this Course is a pre or co
-     * requisite. This is a dynamic return, since Courses can be added as this
-     * Course's dependent.
+     * Makes a Course complete or not complete.
      * 
-     * @param parent The Course to inspect.
-     * @return All Courses which depend upon parent.
+     * @param c The Course to alter.
+     * @param state Whether the Course is complete or not.
      */
-    public ArrayList<Course> getDependents(Course parent)
+    public void makeComplete(Course c, boolean state)
     {
-        ArrayList<Course> list = new ArrayList<Course>();
-        list = toCourseList(findNode(root, parent), list);
-        list.sort(new CourseComparator());
-        list.remove(parent);
-        return list;
+        if (c == null || !contains(c))
+        {
+            findNode(root, c).getCourse().makeComplete(state);
+        }
     }
 
+    /**
+     * Gets whether a Course is currently registered.
+     * 
+     * @param c The Course to inspect.
+     * @return Whether the Course is registered.
+     */
+    public boolean isRegistered(Course c)
+    {
+        if (!contains(c))
+        {
+            return false;
+        }
+        return findNode(root, c).getCourse().isRegistered();
+    }
+    
+    /**
+     * Sets the registration of a Course in this Schedule.
+     * 
+     * @param c The Course to alter.
+     * @param state Whether the Course is registered.
+     */
+    public void setRegistered(Course c, boolean state)
+    {
+        if (contains(c))
+        {
+            findNode(root, c).getCourse().setRegistered(state);
+        }
+    }
+    
     /**
      * A private helper method which recursively finds the CNode containing a
      * given Course, given root node.
      * 
+     * @param parent A CNode which is expected to be the target CNode's
+     *        ancestor.
+     * @param c The target Course.
      * @return The Node containing the given Course if it can be found. Null
      *         otherwise.
      */
     private CNode findNode(CNode parent, Course c)
     {
+        if (c == null)
+        {
+            return null;
+        }
         if (c.equals(parent.getCourse()))
         {
             return parent;
@@ -258,83 +287,103 @@ public class Schedule implements Iterable<Course>
      */
     public int size()
     {
-        return toCourseList().size();
-    }
-    
-    /**
-     * Gets the number of children of the subschedule with a Course as its head.
-     * 
-     * @param c The Course to inspect.
-     * @return The number of Courses "under" this Course.
-     */
-    public int children(Course c)
-    {
-        return toCourseList(c).size() - 1;
+        return size;
     }
 
+    /**
+     * Gets all the children of a Course in a sorted List.
+     * 
+     * @param parent The Course to be inspected.
+     * @return a sorted List of Courses which are children of the parent Course.
+     */
+    public ArrayList<Course> getChildren(Course parent)
+    {
+        if (parent == null)
+        {
+            return null;
+        }
+        ArrayList<CNode> childNodes = findNode(root, parent).getChildren();
+        ArrayList<Course> childCourses = new ArrayList<Course>();
+        for (CNode node : childNodes)
+        {
+            childCourses.add(node.getCourse());
+        }
+        childCourses.sort(new CourseComparator());
+        return childCourses;
+    }
+
+    /**
+     * Gets the number of children of this Course.
+     * 
+     * @param c The Course to inspected.
+     * @return The number of Courses directly under this Course.
+     */
+    public int countChildren(Course parent)
+    {
+        return findNode(root, parent).countChildren();
+    }
+
+    /**
+     * Returns a sorted List of all Courses in this Schedule. This List will
+     * contain each Course no more than once.
+     * 
+     * @return A List of Courses in this Schedule.
+     */
     public ArrayList<Course> toCourseList()
     {
-        ArrayList<Course> list = new ArrayList<Course>();
-        list = toCourseList(root, list);
+        ArrayList<Course> list = getCourseList(root, new ArrayList<Course>());
         list.sort(new CourseComparator());
-        return list;
-    }
-    
-    public ArrayList<Course> toCourseList(Course c)
-    {
-        ArrayList<Course> list = new ArrayList<Course>();
-        list = toCourseList(findNode(root, c), list);
-        list.sort(new CourseComparator());
-        return list;
-    }
-    
-    public ArrayList<Course> toPriorityCourseList()
-    {
-        ArrayList<Course> list = toCourseList();
-        list.sort(new PriorityComparator(this));
         return list;
     }
 
-    private ArrayList<Course> toCourseList(CNode root, ArrayList<Course> list)
+    /**
+     * Gets a sorted list containing a Course and all Courses in the subschedule
+     * defined by that Course. In other words, returns a Course and all Courses
+     * which depend on that Course.
+     * 
+     * @param parent The Course to define the top of the subschedule.
+     * @return A List containing a parent Course all Courses underneath.
+     */
+    public ArrayList<Course> getCourseSublist(Course parent)
     {
-        Course rootCourse = root.getCourse();
+        ArrayList<Course> list = getCourseList(findNode(root, parent),
+                new ArrayList<Course>());
+        list.sort(new CourseComparator());
+        return list;
+    }
+
+    /**
+     * A private helper method which returns a List of Courses. The List
+     * contains the Course in the root CNode, as well as all of root's children.
+     * This amounts to compiling a list of all Courses which are dependent on
+     * the parent Course, as well as the parent itself. The list is not sorted.
+     * 
+     * @param parent The parent CNode of the subtree to compile a list for.
+     * @param list A list which is compiled and passed to this method
+     *        recursively.
+     * @return A List of all Courses in the subtree defined by CNode parent.
+     */
+    private ArrayList<Course> getCourseList(CNode parent,
+            ArrayList<Course> list)
+    {
+        Course rootCourse = parent.getCourse();
         if (rootCourse != null && !list.contains(rootCourse))
         {
-            list.add(root.getCourse());
+            list.add(parent.getCourse());
         }
-        if (root.isLeaf())
+        if (parent.isLeaf())
         {
             return list;
         }
-        for (CNode pre : root.getPre())
+        for (CNode pre : parent.getPre())
         {
-            list = toCourseList(pre, list);
+            list = getCourseList(pre, list);
         }
-        for (CNode co : root.getCo())
+        for (CNode co : parent.getCo())
         {
-            list = toCourseList(co, list);
+            list = getCourseList(co, list);
         }
         return list;
-    }
-    
-    public ArrayList<Course> getMostEfficientSemester(int maxCredits)
-    {
-        ArrayList<Course> all = toPriorityCourseList();
-        ArrayList<Course> semester = new ArrayList<Course>();
-        int credits = 0;
-        int index = 0;
-        while (credits <= maxCredits)
-        {
-            Course candidate = all.get(index);
-            if (canTake(candidate))
-            {
-                semester.add(all.get(index));
-                credits += all.get(index).credits();
-            }
-            index++;
-        }
-        semester.remove(semester.size() - 1);
-        return semester;
     }
 
     /**
@@ -346,38 +395,53 @@ public class Schedule implements Iterable<Course>
     }
 
     /**
-     * Returns the path of the entire Schedule.
+     * Gets a String representation of the Schedule which displays the hierarchy
+     * of Courses.
      * 
-     * @return path
+     * @return A String representation of the Schedule.
      */
-    public String path()
+    public String toString()
     {
         return traverse(root, 0);
     }
 
     /**
-     * Returns a tree of dependencies of the specified Course.
+     * Returns a String representing the hierarchy of dependencies of the
+     * specified Course.
      * 
      * @param c The Course to inspect.
      * @return A String printout of the tree with the c as its root.
      */
     public String path(Course c)
     {
+        if (c == null)
+        {
+            return null;
+        }
         return traverse(findNode(root, c), 1);
     }
 
-    private String traverse(CNode root, int depth)
+    /**
+     * Traverses the root CNode and every child of root, and returns a String
+     * representation of the hierarchy.
+     * 
+     * @param parent The parent CNode.
+     * @param depth An int representing the current depth of the recursive call.
+     * @return A String representation of root and all of its children.
+     */
+    private String traverse(CNode parent, int depth)
     {
         StringBuilder out = new StringBuilder();
-        if (root != this.root)
+        if (parent != root)
         {
-            out.append(root.getCourse().name());
-            out.append(" (");
-            out.append(children(root.getCourse()));
-            out.append(")");
+            out.append(parent.getCourse().name());
+            if (parent.getCourse().isComplete())
+            {
+                out.append(" *");
+            }
             out.append("\n");
         }
-        for (CNode each : root.getChildren())
+        for (CNode each : parent.getChildren())
         {
             for (int i = 0; i < depth; i++)
             {
@@ -386,6 +450,17 @@ public class Schedule implements Iterable<Course>
             out.append(traverse(each, depth + 1));
         }
         return out.toString();
+    }
+
+    /**
+     * Gets an Iterator for this Schedule, which iterates over a sorted
+     * courselist.
+     * 
+     * @return an Iterator over this Schedule's courselist.
+     */
+    public Iterator<Course> iterator()
+    {
+        return toCourseList().iterator();
     }
 
     /**
@@ -420,6 +495,11 @@ public class Schedule implements Iterable<Course>
          */
         private ArrayList<CNode> codependents;
 
+        /**
+         * Constructs a new CNode containing a Course.
+         * 
+         * @param c The Course to be contained in this node.
+         */
         public CNode(Course c)
         {
             course = c;
@@ -438,7 +518,7 @@ public class Schedule implements Iterable<Course>
         }
 
         /**
-         * Returns a list of all predependent courses of this CNode's course.
+         * Returns a list of all predependent children of this CNode's course.
          * 
          * @return An ArrayList of CNodes.
          */
@@ -448,7 +528,7 @@ public class Schedule implements Iterable<Course>
         }
 
         /**
-         * Returns a list of all codependent courses of this CNode's course.
+         * Returns a list of all codependent children of this CNode's course.
          * 
          * @return An ArrayList of CNodes.
          */
@@ -457,6 +537,11 @@ public class Schedule implements Iterable<Course>
             return codependents;
         }
 
+        /**
+         * Gets a list of all children of this CNode.
+         * 
+         * @return A List of CNodes.
+         */
         public ArrayList<CNode> getChildren()
         {
             ArrayList<CNode> list = new ArrayList<CNode>();
@@ -524,9 +609,9 @@ public class Schedule implements Iterable<Course>
          * 
          * @return Whether this CNode is an orphan.
          */
-        public boolean isOrphan()
+        public boolean isRoot()
         {
-            return course.dependencies() == 0;
+            return course.countReqs() == 0;
         }
 
         /**
@@ -540,10 +625,5 @@ public class Schedule implements Iterable<Course>
         {
             return countChildren() == 0;
         }
-    }
-
-    public Iterator<Course> iterator()
-    {
-        return toCourseList().iterator();
     }
 }
