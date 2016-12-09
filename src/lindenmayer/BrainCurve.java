@@ -6,7 +6,7 @@ public class BrainCurve extends LCurve
     public BrainCurve()
     {
         super(8, "X",
-            new LRule("X", "Y>RX>RX"),
+            new StochasticRule("X", "Y>RX>RX", "X>LY>LY", 50),
             new LRule("Y", "Y>LY"));
         addAntRule("X", Action.DRAW);
         addAntRule("L", Action.TURNLEFT);

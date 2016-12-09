@@ -17,6 +17,17 @@ public class FastSierpinskiTriangleCurve extends LCurve
         setName("Sierpinski Triangle");
         
         /*
+        super(5, "X",
+            new LRule("X", "Y>RX>RX"),
+            new LRule("Y", "Y>LY"));
+        addAntRule("X", Action.DRAW);
+        addAntRule("L", Action.TURNLEFT);
+        addAntRule("R", Action.TURNRIGHT);
+        addAntRule(">", Action.DRAW);
+        setName("Brain Curve");
+        */
+        
+        /*
         super(90, "XYXYXYXY",
             new LRule("X", "X>R>Y>LX"),
             new LRule("Y", "Y>R>X>LY"));
