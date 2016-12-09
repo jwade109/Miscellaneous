@@ -1,17 +1,17 @@
 package lindenmayer;
 
-public class StochasticRule
+public class SRule
 {
     private String input;
     private String[] outputs;
     private int[] probabilities;
 
-    public StochasticRule(String input, String[] outputs, int[] probs)
+    public SRule(String input, String[] outputs, int[] probs)
     {
         // unimplemented
     }
     
-    public StochasticRule(String input, String output1, String output2, int p1)
+    public SRule(String input, String output1, String output2, int p1)
     {
         if (input.equals("") || output1.equals("") || p1 < 0 || p1 > 100)
         {

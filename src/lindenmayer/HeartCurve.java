@@ -16,13 +16,13 @@ public class HeartCurve extends LCurve
         addAntRule("C", Action.DRAW);
     }
     
-    private static ArrayList<StochasticRule> rules()
+    private static ArrayList<SRule> rules()
     {
-        ArrayList<StochasticRule> list = new ArrayList<StochasticRule>();
-        list.add(new StochasticRule("S", "WA", "EB", 50));
+        ArrayList<SRule> list = new ArrayList<SRule>();
+        list.add(new SRule("S", "WA", "EB", 50));
         list.add(new LRule("A", "+++DDDD++D++D++D++D++D+D"));
         list.add(new LRule("B", "---DDDD--D--D--D--D--D-D"));
-        list.add(new StochasticRule("D", "D", "DC", 95));
+        list.add(new SRule("D", "D", "DC", 95));
         return list;
     }
 

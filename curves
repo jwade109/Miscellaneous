@@ -1,0 +1,9 @@
+// A text file storing information for Lindenmayer curves.
+//
+// The syntax shall be as follows:
+//
+// Name; Angle; Axiom; R("X" "XY"); S("X" "X" "Y" 50 50); A("L" LEFT); A("D" DRAW);
+
+Bush Curve; 60; "NA"; S("A" "ABBBBB+" "AB-" 40 60); A("B" DRAW); A("+" TURNRIGHT); A("-" TURNLEFT); A("N" NORTH);
+
+Other Curve; 30, "A"; R("A" "ABACA"); A("A" DRAW); A("B" TURNLEFT); A("C" TURNRIGHT);

@@ -7,37 +7,79 @@ public class LCurve
     private String name;
     private int angle;
     private String axiom;
-    private ArrayList<StochasticRule> rules;
+    private ArrayList<SRule> rules;
     private ArrayList<AntRule> antRules;
 
-    public LCurve(int angle, String axiom, StochasticRule rule)
+    public LCurve()
     {
-        name = "LCurve";
-        this.angle = angle;
-        this.axiom = axiom;
-        rules = new ArrayList<StochasticRule>();
+        this(1, "A", new LRule("A", "B"));
+    }
+    
+    /**
+     * Constructs a new LCurve of a specified turning angle, axiom, and SRule.
+     * 
+     * @param angle The turning angle for this Curve.
+     * @param axiom The starting String.
+     * @param rule A rule to be applied recursively to the axiom.
+     */
+    public LCurve(int angle, String axiom, SRule rule)
+    {
+        rules = new ArrayList<SRule>();
         rules.add(rule);
-        antRules = new ArrayList<AntRule>();
+        construct(angle, axiom, rules);
     }
 
-    public LCurve(int angle, String axiom, StochasticRule rule1, StochasticRule rule2)
+    /**
+     * Constructs a new LCurve of a specified turning angle, axiom, and SRules.
+     * 
+     * @param angle The turning angle.
+     * @param axiom The starting String.
+     * @param rule1 The first SRule.
+     * @param rule2 The second SRule.
+     */
+    public LCurve(int angle, String axiom, SRule rule1, SRule rule2)
     {
-        this.angle = angle;
-        rules = new ArrayList<StochasticRule>();
+        rules = new ArrayList<SRule>();
         rules.add(rule1);
         rules.add(rule2);
-        this.axiom = axiom;
-        antRules = new ArrayList<AntRule>();
+        construct(angle, axiom, rules);
     }
 
-    public LCurve(int angle, String axiom, ArrayList<StochasticRule> rules)
+    /**
+     * Constructs a new LCurve given a turning angle, axiom, and List of SRules.
+     * 
+     * @param angle The turning angle.
+     * @param axiom The starting String.
+     * @param rules An ArrayList of SRules.
+     */
+    public LCurve(int angle, String axiom, ArrayList<SRule> rules)
     {
+        construct(angle, axiom, rules);
+    }
+
+    /**
+     * A helper method that takes angle, axiom, and an ArrayList of SRules and
+     * initializes this object.
+     * 
+     * @param angle Turning angle.
+     * @param axiom Axiom.
+     * @param rules An ArrayList of SRules.
+     */
+    private void construct(int angle, String axiom, ArrayList<SRule> rules)
+    {
+        name = "LCurve";
         this.angle = angle;
         this.rules = rules;
         this.axiom = axiom;
         antRules = new ArrayList<AntRule>();
     }
 
+    /**
+     * Adds an AntRule to this LCurve.
+     * 
+     * @param input The String input of this AntRule.
+     * @param action The Ant Action to take.
+     */
     public void addAntRule(String input, Action action)
     {
         boolean contains = false;
@@ -54,17 +96,27 @@ public class LCurve
             antRules.add(new AntRule(input, action));
         }
     }
-    
+
+    /**
+     * Gets the name of this LCurve.
+     * 
+     * @return This curve's name.
+     */
     public String getName()
     {
         return name;
     }
-    
+
+    /**
+     * Sets this curve's name.
+     * 
+     * @param name 
+     */
     protected void setName(String name)
     {
         this.name = name;
     }
-    
+
     public Action getAction(String string)
     {
         for (int i = 0; i < antRules.size(); i++)
@@ -80,6 +132,11 @@ public class LCurve
     public int getAngle()
     {
         return angle;
+    }
+    
+    public void setAngle(int angle)
+    {
+        this.angle = angle;
     }
 
     public String generate(int order)
@@ -116,7 +173,7 @@ public class LCurve
     {
         return generate(order).length();
     }
-    
+
     public int[] lengths(int maxOrder)
     {
         int[] lengths = new int[maxOrder + 1];
@@ -126,7 +183,7 @@ public class LCurve
         }
         return lengths;
     }
-    
+
     public String toString()
     {
         StringBuilder out = new StringBuilder("LCurve: angle = ");

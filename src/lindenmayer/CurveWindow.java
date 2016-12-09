@@ -209,13 +209,17 @@ public class CurveWindow
         turtles = new ArrayList<Turtle>();
         for (int i = 0; i < population; i++)
         {
-            int color = (int) (Math.random() * 256);
+            int color1 = (int) (Math.random() * 256);
+            int color2 = (int) (Math.random() * 256);
+            int color3 = (int) (Math.random() * 256);
             if (i == 0 || !differentiate)
             {
-                color = 0;
+                color1 = 0;
+                color2 = 0;
+                color3 = 0;
             }
             Turtle t = new Turtle(0, 0, curve, order, 0,
-                    new Color(color, color, color));
+                    new Color(color1, color2, color3));
             turtles.add(t);
             maxStep = Math.max(t.getSteps(), maxStep);
         }

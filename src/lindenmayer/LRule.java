@@ -1,6 +1,6 @@
 package lindenmayer;
 
-public class LRule extends StochasticRule
+public class LRule extends SRule
 {
 
     public LRule(String input, String output)
