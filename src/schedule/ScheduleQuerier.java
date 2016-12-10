@@ -5,7 +5,7 @@ import java.util.ArrayList;
 /**
  * A wrapper class for Schedule. Since Schedule was beginning to become bloated,
  * what with all the counting and returning it needs to do, it was decided that
- * a separate object should quiery the Schedule to return specific information.
+ * a separate object should query the Schedule to return specific information.
  * 
  * @author Wade Foster
  * @version 2016.12.6
