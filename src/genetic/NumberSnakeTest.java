@@ -35,7 +35,7 @@ public class NumberSnakeTest
         {
             snakes.add(new NumberSnake());
         }
-
+        
         int iter = 0;
         
         // iterate through the maximum number of generations
