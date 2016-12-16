@@ -13,11 +13,11 @@ public class CurveLauncher
         // curve.setDifferentiate(true);
         // curve.start(10);
         CurveWindow curve = new CurveWindow(
-            new CardioidCurve(), 100, 1);
+            new LogarithmicSpiral(), 8, 3);
         curve.setErasing(false);
         curve.setVisibility(true);
         curve.setDrawTurtles(false);
-        curve.setDifferentiate(false);
+        curve.setDifferentiate(true);
         curve.start(1);
     }
 }
