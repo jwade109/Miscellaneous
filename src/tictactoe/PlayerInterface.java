@@ -2,7 +2,7 @@ package tictactoe;
 
 /**
  * This interface dictates the moves and options that a player must be able to
- * do in tic tac toe.
+ * do in tic tac grow.
  * 
  * @author William McDermott
  * @version 2016.12.22
@@ -26,4 +26,22 @@ public interface PlayerInterface
      * Where some indexes may result in an OccupiedSpotException.
      */
     void move(int location);
+    
+    /**
+     * Move in an arbitrary location, as with a free move.
+     * 
+     * @param location A coordinate of where to move in the bigger grid.
+     * The simulation will prefix the larger grid before this one,
+     * which represents the last few coordinates.
+     */
+    void move(int[] location);
+    
+    /**
+     * IM NOT SURE THIS METHOD IS NECESSARY...
+     * Gets the subGrid for a cell
+     * @param location The coordinate of a subgrid to find its children's states.
+     * @return A grid of the states of the three cells below this
+     * coordinate.
+     */
+    int[][] requestGrid(int[] location);
 }
