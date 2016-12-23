@@ -10,7 +10,7 @@ package tictactoe;
  * Actually, let me start implementing and then figure out what I am saying...
  * 
  * @author William McDermott
- * @version 2016.12.21
+ * @version 2016.12.22
  */
 public class Board
 {
@@ -31,7 +31,7 @@ public class Board
     private int order;
     
     /**
-     * Whether or not the
+     * Whether or not won subgrids restrict movement.
      */
     private static final boolean FREE_MOVE = true;
     
@@ -55,6 +55,24 @@ public class Board
     }
     
     /**
+     * Gets the order of this grid.
+     * @return  The depth of subgrids this board goes to.
+     */
+    public int getOrder()
+    {
+        return order;
+    }
+    
+    /**
+     * Gets if the free move is true or not.
+     * @return  Whether or not this board considers free moves.
+     */
+    public boolean getFreeMove()
+    {
+        return FREE_MOVE;
+    }
+    
+    /**
      * Makes a move for the specified player,
      * at the specified coordinates.
      * 
@@ -70,37 +88,39 @@ public class Board
         {
             throw new IllegalArgumentException("Invalid Move!");
         }
-        BoardNode cell = this.getCell(place);
+        BoardNode cell = this.getCell(game, place);
         if (cell.getState() != PlayEnum.U)
         {
             throw new OccupiedSpotException();
         }
         cell.setState(shape);
         move++;
-        this.updateWinners(place);
+        Board.updateWinnersRecursive(game, place);
     }
     
-    //THE FOLLOWING METHOD DOES NOT AGREE WITH THE FREE_MOVE OPTION... I think.
+    //THE FOLLOWING METHOD DOES NOT AGREE WITH THE FREE_MOVE OPTION
     
     /**
      * Gets a state of a cell safely, by navigating down the tree 
      * only where not null, and creating cells where they should exist.
      * @param coordinates   The coordinates of the cell to get.
+     * @param base          The cell to start at, and to look down 
+     * through coordinates at.
      * @return              The state of the cell to change.
      */
-    private BoardNode getCell(int[] coordinates)
+    private BoardNode getCell(BoardNode base, int[] coordinates)
     {
-        BoardNode current = game;
-        for (int i = 0; i < order; i++)
+        BoardNode current = base;
+        for (int i = 0; i < coordinates.length; i++)
         {
             BoardNode next = current.getChild(coordinates[i]);
-            if (i != order - 1 && next == null)
+            if (i == coordinates.length - 1 && next == null)
             {
-                current.setChild(coordinates[i], new BoardNode(PlayEnum.U));
+                current.setChild(coordinates[i], new BoardNode());
             }
             else if (next == null)
             {
-                current.setChild(coordinates[i], new BoardNode());
+                current.setChild(coordinates[i], new BoardNode(PlayEnum.U));
             }
             current = current.getChild(coordinates[i]);
         }
@@ -108,40 +128,31 @@ public class Board
     }
     
     /**
-     * After a move at the specified coordinates, tests if the game is won.
-     * @param coords    The coordinates where the last move was made.
-     */
-    private void updateWinners(int[] coords)
-    {
-        updateWinnersRecursive(game, coords);
-    }
-    
-    /**
      * Checks the win condition after a move recursively.
      * @param coords    The coordinates where the move needs to be checked.
-     * @param index     The index of how deep in the game board the method is.
      * @param current   The node to settle the win condition of.
      */
     private static PlayEnum updateWinnersRecursive(
         BoardNode current, int[] coords)
     {
-        if (coords.length == 0 || 
-            (FREE_MOVE && current.getState() != PlayEnum.U))
+        // recursive base case
+        if (coords.length == 0 || current.getState() != PlayEnum.U)
         {
             return current.getState();
         }
-        // truncating the first coordinate.
+        // truncating the first coordinate
         int[] newCoords = new int[coords.length - 1];
         for (int i = 1; i < coords.length; i++)
         {
             newCoords[i - 1] = coords[i];
         }
         // getting what the child's state is, where the move was
-        PlayEnum movedState = updateWinnersRecursive(
+        PlayEnum movedState = Board.updateWinnersRecursive(
             current.getChild(coords[0]), newCoords);
+        // nothing changed, since U is the default, so we return this state.
         if (movedState == PlayEnum.U)
         {
-            return PlayEnum.U;
+            return current.getState();
         }
         current.getChild(coords[0]).setState(movedState);
         return Board.isSubGridWon(current);
@@ -153,6 +164,21 @@ public class Board
      */
     private static PlayEnum isSubGridWon(BoardNode subGrid)
     {
+        // Testing subGrid is not null
+        if (subGrid == null)
+        {
+            throw new IllegalArgumentException();
+        }
+        // Testing that the subGrid has children.
+        try
+        {
+            subGrid.getChild(0);
+        }
+        catch (IllegalStateException ex)
+        {
+            System.out.println("No children to subGrid");
+            return subGrid.getState();
+        }
         // Getting the states of all 9 cells
         PlayEnum[][] states = new PlayEnum[3][3];
         for (int i = 0; i < 9; i++)
@@ -202,11 +228,13 @@ public class Board
                 return p;
             }
         }
+        // No one was a winner here
         return PlayEnum.U;
     }
     
     /**
      * Tests if the board is won by a player.
+     * @return  The current win state of the entire board.
      */
     public PlayEnum isWonBy()
     {
@@ -214,7 +242,7 @@ public class Board
     }
     
     /**
-     * Clears the board of stuff, for a new game.
+     * Clears the board of stuff, for a new game or something.
      */
     public void clear()
     {
