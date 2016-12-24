@@ -10,7 +10,7 @@ package tictactoe;
  * Actually, let me start implementing and then figure out what I am saying...
  * 
  * @author William McDermott
- * @version 2016.12.22
+ * @version 2016.12.23
  */
 public class Board
 {
@@ -18,12 +18,6 @@ public class Board
      * The reference to the head node.
      */
     private BoardNode game;
-    
-    /**
-     * The number of moves that have been made,
-     * where one move is counted for each player.
-     */
-    private int move;
     
     /**
      * The order of this tic tac toe game.
@@ -51,7 +45,6 @@ public class Board
     {
         game = new BoardNode(PlayEnum.U);
         this.order = order;
-        move = 0;
     }
     
     /**
@@ -66,6 +59,7 @@ public class Board
     /**
      * Gets if the free move is true or not.
      * @return  Whether or not this board considers free moves.
+     * The first implementation will not consider a lack of free moves.
      */
     public boolean getFreeMove()
     {
@@ -73,29 +67,16 @@ public class Board
     }
     
     /**
-     * Makes a move for the specified player,
-     * at the specified coordinates.
+     * Sets the state for a cell or subgrid in the tree.
      * 
-     * This is like setting a state in the tree.
-     * 
-     * @param shape     The specified player's enum.
-     * @param place     Where the player just moved.
+     * @param shape     The specified enum to put in.
+     * @param place     Where the state should be changed.
      */
-    public void move(PlayEnum shape, int[] place) 
-        throws OccupiedSpotException
+    public void setState(int[] place, PlayEnum shape)
     {
-        if (shape == PlayEnum.U || place.length != order)
-        {
-            throw new IllegalArgumentException("Invalid Move!");
-        }
         BoardNode cell = this.getCell(game, place);
-        if (cell.getState() != PlayEnum.U)
-        {
-            throw new OccupiedSpotException();
-        }
         cell.setState(shape);
-        move++;
-        Board.updateWinnersRecursive(game, place);
+        // Board.updateWinnersRecursive(game, place);
     }
     
     //THE FOLLOWING METHOD DOES NOT AGREE WITH THE FREE_MOVE OPTION
@@ -108,7 +89,7 @@ public class Board
      * through coordinates at.
      * @return              The state of the cell to change.
      */
-    private BoardNode getCell(BoardNode base, int[] coordinates)
+    public BoardNode getCell(BoardNode base, int[] coordinates)
     {
         BoardNode current = base;
         for (int i = 0; i < coordinates.length; i++)
@@ -242,14 +223,23 @@ public class Board
     }
     
     /**
-     * Clears the board of stuff, for a new game or something.
+     * Clears the entire board, and erases the state of the game.
      */
     public void clear()
     {
-        game = new BoardNode(PlayEnum.U);
-        move = 0;
+        clearSubgrid(new int[0]);
     }
     
-    // Need a toArray() for the front end too, or at least something
-    // it can manage.
+    /**
+     * Clears a subgrid of the board, or the entire board.
+     * @param location  The subgrid whose base node has this pair,
+     * it will clear every subNode of this one.
+     */
+    public void clearSubgrid(int[] location)
+    {
+        BoardNode base = this.getCell(game, location);
+        PlayEnum baseState = base.getState();
+        base = new BoardNode();
+        base.setState(baseState);
+    }
 }

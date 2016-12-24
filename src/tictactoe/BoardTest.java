@@ -53,13 +53,4 @@ public class BoardTest
         assertEquals(1, game1.getOrder());
         assertEquals(2, game2.getOrder());
     }
-    
-    /**
-     * 
-     */
-    @Test
-    public void testMove()
-    {
-        
-    }
 }
