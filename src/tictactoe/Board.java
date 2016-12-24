@@ -1,5 +1,7 @@
 package tictactoe;
 
+import java.util.Iterator;
+
 /**
  * This class represents the area of tic tac toe cells that players play on.
  * Stored as a full tree where each parent has 9 children, each separate 
@@ -12,12 +14,20 @@ package tictactoe;
  * @author William McDermott
  * @version 2016.12.24
  */
-public class Board implements Cloneable
+public class Board implements Cloneable, Iterable<PlayEnum>
 {
+    /*
+     * Something I'm noticing about this entire thing is the parent nodes seem to store
+     * U values. It would be easier to differentiate between leaf and parent nodes by making parents
+     * only store null values. Since parents are only a structure to facilitate what is, in essense,
+     * a 2D array implemented recursively, they should not store any value which might accidentally
+     * be read or interpreted.
+     */
+    
     /**
      * The reference to the head node.
      */
-    private BoardNode game;
+    private BoardNode game; // kinda think this should be called root, game is very confusing
     
     /**
      * The order of this tic tac toe game.
@@ -84,6 +94,21 @@ public class Board implements Cloneable
         cell.setState(shape);
         Board.updateWinnersRecursive(game, place);
         return true;
+    }
+    
+    /**
+     * Gets the state of a particular cell in the Board.
+     * 
+     * @param path The tree-space coordinates of a particular cell.
+     * @return a PlayEnum.
+     */
+    public PlayEnum getState(int[] path)
+    {
+        if (path.length != order)
+        {
+            throw new IllegalArgumentException("Operation requires " + order + "-dimensional coordinates");
+        }
+        return getCell(game, path).getState();
     }
     
     //THE FOLLOWING METHOD DOES NOT AGREE WITH THE FREE_MOVE OPTION
@@ -306,5 +331,51 @@ public class Board implements Cloneable
         PlayEnum baseState = node.getState();
         node = new BoardNode();
         node.setState(baseState);
+    }
+
+    @Override
+    public TreeIterator iterator()
+    {
+        return new TreeIterator();
+    }
+    
+    private class TreeIterator implements Iterator<PlayEnum>
+    {
+        private int index;
+        
+        public TreeIterator()
+        {
+            index = 0;
+        }
+        
+        @Override
+        public boolean hasNext()
+        {
+            return index < Math.pow(9, order);
+        }
+
+        @Override
+        public PlayEnum next()
+        {
+            index++;
+            System.out.println(index - 1);
+            return getState(map(index - 1, order));
+        }
+        
+        private int[] map(int index, int order)
+        {
+            if (order > Math.pow(9, order))
+            {
+                return new int[] {-1};
+            }
+            
+            int[] path = new int[order];
+            for (int i = 0; i < order; i++)
+            {
+                path[i] = index / (int) Math.pow(9, order - i - 1);
+                index -= path[i] * 9;
+            }
+            return path;
+        }
     }
 }
