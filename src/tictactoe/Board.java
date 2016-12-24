@@ -148,17 +148,10 @@ public class Board implements Cloneable, Iterable<PlayEnum>
     private static PlayEnum updateWinnersRecursive(
         BoardNode current, int[] coords)
     {
-        // This case isn't necessary, but allows for cleaner
-        // deletions of won portions.
-        if (!current.hasChildren())
-        {
-            return current.getState();
-        }
         // recursive base case - this eventually succeeds, because there
         // is a move at the location coords.
         if (current.getState() != PlayEnum.U)
         {
-            Board.clearSubgrid(current);
             return current.getState();
         }
         // truncating the first coordinate
@@ -175,8 +168,14 @@ public class Board implements Cloneable, Iterable<PlayEnum>
         {
             return current.getState();
         }
-        current.getChild(coords[0]).setState(movedState);
-        return Board.isSubGridWon(current);
+        // Note the moved state is set in the recursive step.
+        PlayEnum target = Board.isSubGridWon(current);
+        current.setState(target);
+        if (target != PlayEnum.U)
+        {
+            Board.clearSubgrid(current);
+        }
+        return target;
     }
     
     /**

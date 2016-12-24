@@ -27,32 +27,21 @@ public interface Player
     String getName();
     
     /**
-     * Move in one of the 9 legal locations, ordered as normal.
-     * If a move is illegal, you will have to ensure it doesn't happen.
-     * @param location  The index to move at, as such:
-     * 0 1 2
-     * 3 4 5
-     * 6 7 8
-     * 
-     * Where some indexes may result in an OccupiedSpotException.
-     */
-    int[] move(int location);
-    
-    /**
      * Move in an arbitrary location, which will only be valid if it passes
      * the test of a legal move in TicTacGrow.
-     * Improper moves will end the simulation with an OccupiedSpotException.
+     * Improper moves will end the simulation with an OccupiedSpotException,
+     * or IllegalMoveException (when out of the scope of the current move).
      * 
-     * @param location A coordinate of where to move in the bigger grid.
-     * The simulation will prefix the larger grid before this one,
-     * which represents the last few coordinates.
+     * @param board A clone of the board being played on, for viewing purposes.
+     * 
+     * @param lastMove The last move that was made.
+     * This coordinate must be short, since it is a prefix of larger
+     * coordinates. The player should add a suffix of the desired move,
+     * which will be either one number for the basic move, or an array of
+     * coordinates for a free move. The output MUST be the length of the order 
+     * of the board.
+     * 
+     * @return A coordinate of where to move in the grid at large.
      */
     int[] move(Board board, int[] lastMove);
-    
-    /**
-     * Gets the state for a cell.
-     * @param location The coordinate of a cell or subgrid.
-     * @return The state of the specified cell.
-     */
-    int[][] getCellState(int[] location);
 }
