@@ -7,7 +7,7 @@ package tictactoe;
  * Represents the nodes in the tree that hold the state of who won them.
  * 
  * @author William McDermott
- * @version 2016.12.20
+ * @version 2016.12.24
  */
 public class BoardNode
 {
@@ -56,6 +56,14 @@ public class BoardNode
     public void setState(PlayEnum state)
     {
         this.state = state;
+    }
+    
+    /**
+     * Tests if this node has children, that is, it is a cell.
+     */
+    public boolean hasChildren()
+    {
+        return subGrids != null;
     }
     
     /**

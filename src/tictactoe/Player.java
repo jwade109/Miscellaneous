@@ -10,7 +10,7 @@ import java.util.Observer;
  * before it gets used.
  * 
  * @author William McDermott
- * @version 2016.12.23
+ * @version 2016.12.24
  */
 public interface Player
 {
@@ -22,6 +22,7 @@ public interface Player
     
     /**
      * Gets the name of the player for output purposes.
+     * @return  The name of the player.
      */
     String getName();
     
@@ -46,7 +47,7 @@ public interface Player
      * The simulation will prefix the larger grid before this one,
      * which represents the last few coordinates.
      */
-    int[] move(int[] location);
+    int[] move(Board board, int[] lastMove);
     
     /**
      * Gets the state for a cell.

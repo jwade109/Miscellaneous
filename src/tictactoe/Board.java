@@ -10,9 +10,9 @@ package tictactoe;
  * Actually, let me start implementing and then figure out what I am saying...
  * 
  * @author William McDermott
- * @version 2016.12.23
+ * @version 2016.12.24
  */
-public class Board
+public class Board implements Cloneable
 {
     /**
      * The reference to the head node.
@@ -71,12 +71,19 @@ public class Board
      * 
      * @param shape     The specified enum to put in.
      * @param place     Where the state should be changed.
+     * @return          Whether the move was successful. A move is not 
+     * successful if the occupied space has a state other than U.
      */
-    public void setState(int[] place, PlayEnum shape)
+    public boolean setState(int[] place, PlayEnum shape)
     {
         BoardNode cell = this.getCell(game, place);
+        if (cell.getState() != PlayEnum.U)
+        {
+            return false;
+        }
         cell.setState(shape);
-        // Board.updateWinnersRecursive(game, place);
+        Board.updateWinnersRecursive(game, place);
+        return true;
     }
     
     //THE FOLLOWING METHOD DOES NOT AGREE WITH THE FREE_MOVE OPTION
@@ -89,7 +96,7 @@ public class Board
      * through coordinates at.
      * @return              The state of the cell to change.
      */
-    public BoardNode getCell(BoardNode base, int[] coordinates)
+    private BoardNode getCell(BoardNode base, int[] coordinates)
     {
         BoardNode current = base;
         for (int i = 0; i < coordinates.length; i++)
@@ -116,9 +123,17 @@ public class Board
     private static PlayEnum updateWinnersRecursive(
         BoardNode current, int[] coords)
     {
-        // recursive base case
-        if (coords.length == 0 || current.getState() != PlayEnum.U)
+        // This case isn't necessary, but allows for cleaner
+        // deletions of won portions.
+        if (!current.hasChildren())
         {
+            return current.getState();
+        }
+        // recursive base case - this eventually succeeds, because there
+        // is a move at the location coords.
+        if (current.getState() != PlayEnum.U)
+        {
+            Board.clearSubgrid(current);
             return current.getState();
         }
         // truncating the first coordinate
@@ -148,23 +163,25 @@ public class Board
         // Testing subGrid is not null
         if (subGrid == null)
         {
-            throw new IllegalArgumentException();
+            return PlayEnum.U;
         }
-        // Testing that the subGrid has children.
-        try
+        // Testing if the subGrid is itself won.
+        if (subGrid.getState() != PlayEnum.U)
         {
-            subGrid.getChild(0);
-        }
-        catch (IllegalStateException ex)
-        {
-            System.out.println("No children to subGrid");
             return subGrid.getState();
         }
         // Getting the states of all 9 cells
         PlayEnum[][] states = new PlayEnum[3][3];
         for (int i = 0; i < 9; i++)
         {
-            states[i / 3][i % 3] = subGrid.getChild(i).getState();
+            if (subGrid.getChild(i) == null)
+            {
+                states [i / 3][i % 3] = PlayEnum.U;
+            }
+            else
+            {
+                states[i / 3][i % 3] = subGrid.getChild(i).getState();
+            }
         }
         // Testing the states
         for (PlayEnum p : new PlayEnum[]{PlayEnum.X, PlayEnum.O})
@@ -216,6 +233,7 @@ public class Board
     /**
      * Tests if the board is won by a player.
      * @return  The current win state of the entire board.
+     * Note this can return PlayEnum.U if the board is not yet won.
      */
     public PlayEnum isWonBy()
     {
@@ -223,23 +241,70 @@ public class Board
     }
     
     /**
+     * Tests if the game is over, and no player can make a move.
+     * @return  False if a player can still make a move, and true otherwise.
+     */
+    public boolean isGameOver()
+    {
+        return Board.isGameOverRecursive(game);
+    }
+    
+    /**
+     * Tests if the subGame is over, and no player can move.
+     * @param   node    The node to consider finished or not.
+     * @return  Whether this subGame cannot have progress made on it.
+     */
+    private static boolean isGameOverRecursive(BoardNode node)
+    {
+        if (node.getState() != PlayEnum.U)
+        {
+            return true;
+        }
+        else if (!node.hasChildren())
+        {
+            return false;
+        }
+        // Now we have an undetermined node with children
+        // Test recursively if every child is finished
+        for (int i = 0; i < 9; i++)
+        {
+            if (!Board.isGameOverRecursive(node.getChild(i)))
+            {
+                return false;
+            }
+        }
+        // Since every node was solved, we return true.
+        return true;
+    }
+    
+    /**
      * Clears the entire board, and erases the state of the game.
      */
     public void clear()
     {
-        clearSubgrid(new int[0]);
+        Board.clearSubgrid(game);
     }
     
     /**
      * Clears a subgrid of the board, or the entire board.
      * @param location  The subgrid whose base node has this pair,
      * it will clear every subNode of this one.
+     * 
+     * This method might not be necessary.
      */
     public void clearSubgrid(int[] location)
     {
-        BoardNode base = this.getCell(game, location);
-        PlayEnum baseState = base.getState();
-        base = new BoardNode();
-        base.setState(baseState);
+        Board.clearSubgrid(this.getCell(game, location));
+    }
+    
+    /**
+     * Clears a subgrid of the board.
+     * @param node The node to clear children of.
+     */
+    private static void clearSubgrid(BoardNode node)
+    {
+        PlayEnum baseState = node.getState();
+        node = new BoardNode();
+        node.setState(baseState);
     }
 }
