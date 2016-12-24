@@ -1,5 +1,8 @@
 package tictactoe;
 
+/*
+ * I am of the opinion that this should be a private class inside of Board
+ */
 /**
  * Represents the nodes in the tree that hold the state of who won them.
  * 

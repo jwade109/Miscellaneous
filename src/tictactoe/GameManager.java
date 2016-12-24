@@ -50,6 +50,28 @@ public class GameManager
      */
     private void makeMove()
     {
+        /*
+         * I'm gonna write some code here which may not work exactly just yet,
+         * but I think it's a valid way to approach this conceptually
+         * 
+         * Player objects would need a single method called takeTurn(), which would take
+         * a TicTacGrow object as an argument and return the same object modified by one move.
+         * This is necessary because Players do not (should not) store references of the game
+         * they are playing. This allows the Manager to manage when Players take their turn,
+         * and allows TicTacGrow to ensure Players make valid moves.
+         */
+
+        boolean xTurn = false;
         
+        if (xTurn) 
+        {
+            board = playerX.takeTurn(board);
+        }
+        else
+        {
+            board = playerO.takeTurn(board);
+        }
+        
+        xTurn = !xTurn;
     }
 }
