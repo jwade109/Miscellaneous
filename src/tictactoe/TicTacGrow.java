@@ -28,14 +28,6 @@ public class TicTacGrow
     public TicTacGrow(int order)
     {
         gameBoard = new Board(order);
-        moves = 0;
     }
     
-    /**
-     * Makes the next move in the game,
-     */
-    public void nextMove()
-    {
-        boolean moveX = moves % 2 == 0;
-    }
 }

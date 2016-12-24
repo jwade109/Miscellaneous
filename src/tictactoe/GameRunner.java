@@ -26,7 +26,7 @@ public class GameRunner
         
         Board game = new Board(gameOrder);
         new GameManager(game, 
-            new AIPlayer("X AI"), // worrying about names later
-            new AIPlayer("O AI")).run();
+            new TestAIPlayer("X AI"),
+            new TestAIPlayer("O AI")).run();
     }
 }
