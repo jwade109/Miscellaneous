@@ -4,7 +4,7 @@ package tictactoe;
  * Basic AI that moves randomly with wild abandon.
  * 
  * @author William McDermott
- * @version 2016.12.24
+ * @version 2016.12.25 HECK ITS CHRISTMAS
  */
 public class TestAIPlayer implements Player
 {
@@ -56,21 +56,22 @@ public class TestAIPlayer implements Player
      * Improper moves will end the simulation with an OccupiedSpotException,
      * or IllegalMoveException (when out of the scope of the current move).
      * 
-     * @param board The board to play on.
+     * @param board The board to play on, which is a temporary object.
      * 
      * @param lastMove The last move that was made.
      * This coordinate must be short, since it is a prefix of larger
      * coordinates. The player should add a suffix of the desired move,
-     * which will be either one number for the basic move, or an array of
-     * coordinates for a free move. It MUST be the length of the order of
-     * the board.
+     * which will be either one extra array number for the basic move, or an
+     * array of coordinates for a free move.
      * 
      * @return A coordinate of where to move in the grid at large.
+     * It MUST have length equal to the order of the board, and it must be
+     * only a suffix of lastMove, which will be checked by the board.
      */
     @Override
     public int[] move(Board board, int[] lastMove)
     {
-        // TODO Auto-generated method stub
+        // NEEDS MORE HERE
         return null;
     }
 }

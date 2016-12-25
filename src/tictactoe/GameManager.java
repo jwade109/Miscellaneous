@@ -4,7 +4,7 @@ package tictactoe;
  * Runs an instance of the game, by calling methods on the players and board.
  * 
  * @author William McDermott
- * @version 2016.12.24
+ * @version 2016.12.25
  */
 public class GameManager
 {
@@ -42,6 +42,7 @@ public class GameManager
         this.playerX = playerX;
         this.playerO = playerO;
         lastMove = new int[0];
+        moves = 0;
     }
     
     /**
@@ -89,18 +90,17 @@ public class GameManager
          * Also, I'm unsure whether we should have this method execute for each player,
          * or one player every other time. This way seems strange to me.
          */
-
-        boolean xTurn = true; /** X moves first in my mind. */
-        
-        if (xTurn) 
+        /** X moves first in my mind, 
+         * also I think using % 2 on moves is easier. */
+        if (moves % 2 == 0) 
         {
-            board = playerX.takeTurn(board);
+            int[] nextMove = playerX.takeTurn(gameBoard, lastMove);
         }
         else
         {
-            board = playerO.takeTurn(board);
+            int[] nextMove = playerO.takeTurn(gameBoard, lastMove);
         }
         
-        xTurn = !xTurn;
+        moves++;
     }
 }

@@ -10,6 +10,9 @@ import java.util.Iterator;
  * 
  * @author William McDermott
  * @version 2016.12.24
+ * 
+ * @author Wade Foster
+ * @version 2016.12.25
  */
 public class BoardNode implements Iterable<BoardNode>
 {

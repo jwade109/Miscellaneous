@@ -18,13 +18,13 @@ import java.util.Collection;
  * Cartesian Space: A coordinate system which ONLY identifies the leaf nodes of
  * a tree, and maps all of them to points on the x-y plane. As such, an x and y
  * ordered pair is always sufficient to uniquely define any leaf node. Valid
- * Cartesian coordinates will range between 0 and 3^n-1 inclusive, where n is
+ * Cartesian coordinates will range between 0 and (3^n)-1 inclusive, where n is
  * the order of the nonatree, in all cases.
  * 
  * Tree Index: An index uniquely maps every leaf node to a single natural
- * number, which by design describes the order by with TreeIterator will
+ * number, which by design describes the order by which TreeIterator will
  * traverse the leaves. For any nonatree, the index of all leaves ranges between
- * 0 and 9^n-1 inclusive, where n is the tree's order.
+ * 0 and (9^n)-1 inclusive, where n is the tree's order.
  * 
  * @author Wade Foster
  * @version 2016.12.25
