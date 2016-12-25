@@ -15,8 +15,8 @@ package tictactoe;
  * Cartesian Space: A coordinate system which ONLY identifies the leaf nodes of
  * a tree, and maps all of them to points on the x-y plane. As such, an x and y
  * ordered pair is always sufficient to uniquely define any leaf node. Valid
- * Cartesian coordinates will range between 0 and 3^n-1 inclusive, where n is the
- * order of the nonatree, in all cases.
+ * Cartesian coordinates will range between 0 and 3^n-1 inclusive, where n is
+ * the order of the nonatree, in all cases.
  * 
  * Tree Index: An index uniquely maps every leaf node to a single natural
  * number, which by design describes the order by with TreeIterator will
@@ -28,21 +28,6 @@ package tictactoe;
  */
 public class Converter
 {
-    public static void main(String[] args)
-    {
-<<<<<<< HEAD
-=======
-        for (int i = 0; i < 9; i++)
-        {
-            for (int j = 0; j < 9; j++)
-            {
-                int[] coordinates = Converter.toTreeCoordinates(new int[]{j, i}, 2);
-                System.out.println("(" + coordinates[0] + ", " + coordinates[1] + ")");
-            }
-        }
->>>>>>> origin/master
-    }
-
     /**
      * Tree Index -> Tree Space
      * 

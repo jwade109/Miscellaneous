@@ -1,7 +1,7 @@
 package tictactoe;
 
 /**
- * Represents the possible states of a node: won by X, won by Y,
+ * Represents the possible states of a node: won by X, won by O,
  * and winner undetermined.
  * 
  * @author William McDermott
