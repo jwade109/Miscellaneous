@@ -30,13 +30,24 @@ public class Converter
 {
     public static void main(String[] args)
     {
+<<<<<<< HEAD
+=======
+        for (int i = 0; i < 9; i++)
+        {
+            for (int j = 0; j < 9; j++)
+            {
+                int[] coordinates = Converter.toTreeCoordinates(new int[]{j, i}, 2);
+                System.out.println("(" + coordinates[0] + ", " + coordinates[1] + ")");
+            }
+        }
+>>>>>>> origin/master
     }
 
     /**
      * Tree Index -> Tree Space
      * 
      * Maps a 1-dimensional number to an n-dimensional coordinate using the
-     * nonaordinal grid system.
+     * non-ordinal grid system.
      * 
      * @param index 1-dimensional coordinate to be mapped to n dimensions.
      * @param dim The number of dimensions to map into.
@@ -108,7 +119,16 @@ public class Converter
             throw new IllegalArgumentException(
                     "Cartesian coordinates must be 2 dimensional");
         }
-        return null;
+        int[] target = new int[dim];
+        int x = cartesian[0];
+        int y = cartesian[1];
+        for (int i = dim - 1; i >= 0; i--)
+        {
+            target[i] = x % 3 + 3 * (y % 3);
+            x = x / 3;
+            y = y / 3;
+        }
+        return target;
     }
 
     /**
