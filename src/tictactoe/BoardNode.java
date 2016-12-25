@@ -1,5 +1,7 @@
 package tictactoe;
 
+import java.util.Iterator;
+
 /*
  * I am of the opinion that this should be a private class inside of Board
  */
@@ -9,7 +11,7 @@ package tictactoe;
  * @author William McDermott
  * @version 2016.12.24
  */
-public class BoardNode
+public class BoardNode implements Iterable<BoardNode>
 {
     /**
      * Represents the 9 grids under this one.
@@ -92,5 +94,36 @@ public class BoardNode
             throw new IllegalStateException("Non-Existant Grid Access!");
         }
         subGrids[index] = child;
+    }
+
+    @Override
+    public Iterator<BoardNode> iterator()
+    {
+        return new NodeIterator();
+    }
+    
+    private class NodeIterator implements Iterator<BoardNode>
+    {
+        private int index;
+        
+        public NodeIterator()
+        {
+            index = 0;
+        }
+
+        @Override
+        public boolean hasNext()
+        {
+            return index < 9;
+        }
+
+        @Override
+        public BoardNode next()
+        {
+            BoardNode node = subGrids[index];
+            index++;
+            return node;
+        }
+        
     }
 }

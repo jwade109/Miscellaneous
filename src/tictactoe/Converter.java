@@ -1,5 +1,8 @@
 package tictactoe;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 /**
  * Contains a number of converter methods, which are helpful when considering
  * recursive nonatrees using various coordinate systems, defined below.
@@ -28,6 +31,63 @@ package tictactoe;
  */
 public class Converter
 {
+    private static final int[][] WIN_CONDITIONS = {{0, 1, 2}, {3, 4, 5}, {6, 7, 8}, {0, 3, 6},
+            {1, 4, 7}, {2, 5, 8}, {0, 4, 8}, {2, 4, 6}};
+
+    public static void main(String[] args)
+    {
+        for (int t = 0; t < 100; t++)
+        {
+            int length = (int) (Math.random() * 10);
+            ArrayList<Integer> loc = new ArrayList<Integer>();
+            for (int l = 0; l < length; l++)
+            {
+                int randLoc = (int) (Math.random() * 9);
+                if (!loc.contains(randLoc))
+                {
+                    loc.add(randLoc);
+                }
+            }
+            for (int i = 0; i < 9; i++)
+            {
+                int x = i % 3;
+                if (loc.contains(i))
+                {
+                    System.out.print("X ");
+                }
+                else
+                {
+                    System.out.print("- ");
+                }
+                if (x == 2)
+                {
+                    System.out.println();
+                }
+            }
+            System.out.println(hasWon(loc) + "\n");
+        }
+    }
+
+    public static boolean hasWon(ArrayList<Integer> locations)
+    {
+        boolean won = false;
+        for (int i = 0; i < WIN_CONDITIONS.length && !won; i++)
+        {
+            int[] win = WIN_CONDITIONS[i];
+            boolean thisWin = true;
+            for (int j = 0; j < win.length && thisWin; j++)
+            {
+                if (!locations.contains(win[j]))
+                {
+                    thisWin = false;
+                }
+                
+            }
+            won = thisWin;
+        }
+        return won;
+    }
+
     /**
      * Tree Index -> Tree Space
      * 
