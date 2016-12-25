@@ -19,7 +19,7 @@ public class Board implements Cloneable, Iterable<PlayEnum>
     /*
      * Something I'm noticing about this entire thing is the parent nodes seem to store
      * U values. It would be easier to differentiate between leaf and parent nodes by making parents
-     * only store null values. Since parents are only a structure to facilitate what is, in essense,
+     * only store null values. Since parents are only a structure to facilitate what is, in essence,
      * a 2D array implemented recursively, they should not store any value which might accidentally
      * be read or interpreted.
      */
@@ -27,7 +27,7 @@ public class Board implements Cloneable, Iterable<PlayEnum>
     /**
      * The reference to the head node.
      */
-    private BoardNode game; // kinda think this should be called root, game is very confusing
+    private BoardNode root;
     
     /**
      * The order of this tic tac toe game.
@@ -53,7 +53,7 @@ public class Board implements Cloneable, Iterable<PlayEnum>
      */
     public Board(int order)
     {
-        game = new BoardNode(PlayEnum.U);
+        root = new BoardNode(PlayEnum.U);
         this.order = order;
     }
     
@@ -86,13 +86,13 @@ public class Board implements Cloneable, Iterable<PlayEnum>
      */
     public boolean setState(int[] place, PlayEnum shape)
     {
-        BoardNode cell = this.getCell(game, place);
+        BoardNode cell = this.getCell(root, place);
         if (cell.getState() != PlayEnum.U)
         {
             return false;
         }
         cell.setState(shape);
-        Board.updateWinnersRecursive(game, place);
+        Board.updateWinnersRecursive(root, place);
         return true;
     }
     
@@ -108,7 +108,7 @@ public class Board implements Cloneable, Iterable<PlayEnum>
         {
             throw new IllegalArgumentException("Operation requires " + order + "-dimensional coordinates");
         }
-        return getCell(game, path).getState();
+        return getCell(root, path).getState();
     }
     
     //THE FOLLOWING METHOD DOES NOT AGREE WITH THE FREE_MOVE OPTION
@@ -261,7 +261,7 @@ public class Board implements Cloneable, Iterable<PlayEnum>
      */
     public PlayEnum isWonBy()
     {
-        return game.getState();
+        return root.getState();
     }
     
     /**
@@ -270,7 +270,7 @@ public class Board implements Cloneable, Iterable<PlayEnum>
      */
     public boolean isGameOver()
     {
-        return Board.isGameOverRecursive(game);
+        return Board.isGameOverRecursive(root);
     }
     
     /**
@@ -306,7 +306,7 @@ public class Board implements Cloneable, Iterable<PlayEnum>
      */
     public void clear()
     {
-        Board.clearSubgrid(game); // TRIGGERED
+        Board.clearSubgrid(root); // TRIGGERED
     }
     
     // DIAMETRICALLY OPPOSED
@@ -319,13 +319,13 @@ public class Board implements Cloneable, Iterable<PlayEnum>
      */
     public void clearSubgrid(int[] location)
     {
-        Board.clearSubgrid(this.getCell(game, location));
+        Board.clearSubgrid(this.getCell(root, location));
     }
     
     // DIAMETRICALLY OPPOSED TO THIS OPERATION
     /**
      * Clears a subgrid of the board.
-     * @param node The node to clear children of.
+     * @param node The node to clear of children.
      */
     private static void clearSubgrid(BoardNode node)
     {
@@ -378,5 +378,17 @@ public class Board implements Cloneable, Iterable<PlayEnum>
             }
             return path;
         }
+    }
+    
+    /**
+     * Checks that a move is legal, by comparing a previous move to the next.
+     * @param thisMove
+     * @param prevMove
+     * @return  True if the move is legal and false otherwise.
+     */
+    public boolean isLegalMove(int[] thisMove, int[] prevMove)
+    {
+        
+        return false;
     }
 }
