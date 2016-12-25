@@ -1,13 +1,40 @@
 package tictactoe;
 
+/**
+ * Contains a number of converter methods, which are helpful when considering
+ * recursive nonatrees using various coordinate systems, defined below.
+ * 
+ * Tree Space: A coordinate system which defines a given node using a row
+ * vector, where each natural number represents the path from one level of the
+ * tree to the next. It takes n coordinates to uniquely locate the leaf node of
+ * a nonatree of order n; for example, 2 coordinates are sufficient to uniquely
+ * locate every cell in an order 2 nonatree, while an order 4 nonatree would
+ * require 4 coordinates. In all circumstances, tree space coordinates range
+ * between 0 and 8 inclusive.
+ * 
+ * Cartesian Space: A coordinate system which ONLY identifies the leaf nodes of
+ * a tree, and maps all of them to points on the x-y plane. As such, an x and y
+ * ordered pair is always sufficient to uniquely define any leaf node. Valid
+ * Cartesian coordinates will range between 0 and 3^n-1 inclusive, where n is the
+ * order of the nonatree, in all cases.
+ * 
+ * Tree Index: An index uniquely maps every leaf node to a single natural
+ * number, which by design describes the order by with TreeIterator will
+ * traverse the leaves. For any nonatree, the index of all leaves ranges between
+ * 0 and 9^n-1 inclusive, where n is the tree's order.
+ * 
+ * @author Wade Foster
+ * @version 2016.12.25
+ */
 public class Converter
 {
     public static void main(String[] args)
     {
-        
     }
 
     /**
+     * Tree Index -> Tree Space
+     * 
      * Maps a 1-dimensional number to an n-dimensional coordinate using the
      * nonaordinal grid system.
      * 
@@ -15,11 +42,16 @@ public class Converter
      * @param dim The number of dimensions to map into.
      * @return An n-dimensional vector.
      */
-    public static int[] transform(int index, int dim)
+    public static int[] expandToTreeCoordinates(int index, int dim)
     {
-        if (dim > Math.pow(9, dim))
+        if (index > Math.pow(9, dim) - 1)
         {
-            return new int[] {-1};
+            int[] bad = new int[dim];
+            for (int i = 0; i < dim; i++)
+            {
+                bad[i] = -1;
+            }
+            return bad;
         }
 
         int[] path = new int[dim];
@@ -32,31 +64,37 @@ public class Converter
     }
 
     /**
-     * Maps an n-dimensional coordinate to a 1-dimensional number using the
-     * nonaordinal grid system.
+     * Tree Space -> Tree Index
+     * 
+     * Maps a tree space coordinate to a 1-dimensional number using the
+     * nonaordinal grid system. This method defines the order in which leaf
+     * nodes will be traversed by a TreeIterator, and imposes an order on cells
+     * in any game of TicTacGrow.
      * 
      * @param path The n-dimensional coordinate to map into one dimension.
-     * @return A one-to-one mapping from n dimensions into a 1-dimensional
-     *         coordinate.
+     * @return A one-to-one mapping from n dimensional tree space into a
+     *         1-dimensional location.
      */
-    public static int transform(int[] path)
+    public static int compressToTreeIndex(int[] tree)
     {
-        for (int i = 0; i < path.length; i++)
+        for (int i = 0; i < tree.length; i++)
         {
-            if (path[i] > 8)
+            if (tree[i] > 8)
             {
                 return -1;
             }
         }
         int sum = 0;
-        for (int i = 0; i < path.length; i++)
+        for (int i = 0; i < tree.length; i++)
         {
-            sum += Math.pow(9, path.length - i - 1) * path[i];
+            sum += Math.pow(9, tree.length - i - 1) * tree[i];
         }
         return sum;
     }
 
     /**
+     * Cartesian Space -> Tree Space
+     * 
      * Converts an Cartesian ordered coordinate pair (x, y) into an address in
      * recursive tree space.
      * 
@@ -74,10 +112,12 @@ public class Converter
     }
 
     /**
-     * Converts tree-space coordinates of arbitrary dimension to Cartesian
+     * Tree Space -> Cartesian Space
+     * 
+     * Converts tree space coordinates of arbitrary dimension to Cartesian
      * two-dimensional coordinates.
      * 
-     * @param tree The tree-space vector.
+     * @param tree The tree space vector.
      * @return An int[] of length two, containing (x, y).
      */
     public static int[] toCartesianCoordinates(int[] tree)
@@ -88,23 +128,9 @@ public class Converter
         for (int i = 0; i < dim; i++)
         {
             int multiplier = (int) Math.pow(3, dim - 1 - i);
-            x += unitCoords(tree[i])[0] * multiplier;
-            y += unitCoords(tree[i])[1] * multiplier;
+            x += (tree[i] % 3) * multiplier;
+            y += (tree[i] / 3) * multiplier;
         }
-        return new int[] {x, y};
-    }
-
-    /**
-     * Maps the 9 squares in a Tic-Tac-Toe grid to unit coordinates between (0,
-     * 0) and (2, 2).
-     * 
-     * @param n The TTT square to map.
-     * @return The unit coordinate, (x, y).
-     */
-    private static int[] unitCoords(int n)
-    {
-        int x = n % 3;
-        int y = n / 3;
         return new int[] {x, y};
     }
 }
