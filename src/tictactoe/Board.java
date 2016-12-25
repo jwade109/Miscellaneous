@@ -306,9 +306,10 @@ public class Board implements Cloneable, Iterable<PlayEnum>
      */
     public void clear()
     {
-        Board.clearSubgrid(game);
+        Board.clearSubgrid(game); // TRIGGERED
     }
     
+    // DIAMETRICALLY OPPOSED
     /**
      * Clears a subgrid of the board, or the entire board.
      * @param location  The subgrid whose base node has this pair,
@@ -321,6 +322,7 @@ public class Board implements Cloneable, Iterable<PlayEnum>
         Board.clearSubgrid(this.getCell(game, location));
     }
     
+    // DIAMETRICALLY OPPOSED TO THIS OPERATION
     /**
      * Clears a subgrid of the board.
      * @param node The node to clear children of.

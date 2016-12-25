@@ -46,10 +46,14 @@ public class TicTacGrow
      */
     public ArrayList<int[]> getValidMoves()
     {
+        ArrayList<int[]> moves = new ArrayList<int[]>();
         
+        // add all valid moves to the arraylist
+        
+        return moves;
     }
     
-    public boolean isValidMove(int[] coord)
+    public boolean isValidMove(int[] cartesian)
     {
         /*
          * A move is valid if the cell denoted by the coordinate pair:
