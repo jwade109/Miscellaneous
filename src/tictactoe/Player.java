@@ -34,14 +34,15 @@ public interface Player
      * 
      * @param board A clone of the board being played on, for viewing purposes.
      * 
-     * @param lastMove The last move that was made.
+     * The last move that was made will be in the TicTacGrow board,
+     * accessible through the getLastMove() method.
      * This coordinate must be short, since it is a prefix of larger
-     * coordinates. The player should add a suffix of the desired move,
-     * which will be either one number for the basic move, or an array of
-     * coordinates for a free move. The output MUST be the length of the order 
+     * coordinates. The player should add a suffix for their desired move,
+     * which will be or an array of coordinates for a free move, although 
+     * usually just one coordinate. The output MUST be the length of the order 
      * of the board.
      * 
      * @return A coordinate of where to move in the grid at large.
      */
-    int[] move(Board board, int[] lastMove);
+    int[] move(TicTacGrow board);
 }

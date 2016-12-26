@@ -24,8 +24,7 @@ public class GameRunner
             // player2AI = Boolean.valueOf(args[2]);
         }
         
-        Board game = new Board(gameOrder);
-        new GameManager(game, 
+        new GameManager(new TicTacGrow(gameOrder), 
             new TestAIPlayer("X AI"),
             new TestAIPlayer("O AI")).run();
     }

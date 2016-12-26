@@ -12,7 +12,7 @@ import java.util.Iterator;
  * Actually, let me start implementing and then figure out what I am saying...
  * 
  * @author William McDermott
- * @version 2016.12.24
+ * @version 2016.12.26
  * 
  * @author Wade Foster
  * @version 2016.12.25
@@ -64,7 +64,7 @@ public class Board implements Cloneable, Iterable<PlayEnum>
     }
 
     /**
-     * Gets if the free move is true or not.
+     * Gets if the free move applies to this game or not.
      * 
      * @return Whether or not this board considers free moves. The first
      *         implementation will not consider a lack of free moves.
@@ -88,8 +88,7 @@ public class Board implements Cloneable, Iterable<PlayEnum>
         {
             throw new IllegalArgumentException("Shape must not be null");
         }
-        BoardNode cell = getCell(root, path);
-        cell.setState(shape);
+        this.getCell(root, path).setState(shape);
         return true;
     }
     /*
@@ -106,10 +105,7 @@ public class Board implements Cloneable, Iterable<PlayEnum>
      */
     public boolean setState(int x, int y, PlayEnum shape)
     {
-        if (shape == null)
-        {
-            throw new IllegalArgumentException("Shape must not be null");
-        }
+        // null check happens in the other method
         int max = (int) (Math.pow(3, order) - 1);
         if (x > max || y > max || x < 0 || y < 0)
         {
@@ -128,6 +124,14 @@ public class Board implements Cloneable, Iterable<PlayEnum>
      * @return a PlayEnum.
      */
     public PlayEnum getState(int[] path)
+    {
+        if (path.length > order)
+        {
+            throw new IllegalArgumentException("Path length must be less than "
+                + order);
+        }
+        return this.getCell(root, path).getState();
+    }
     /*
      * Changed the parameter to Cartesian coordinates, since this is a public
      * method and external classes should only deal in Cartesian coordinates,
@@ -142,7 +146,7 @@ public class Board implements Cloneable, Iterable<PlayEnum>
                     "Coordinates must be between 0 and " + max);
         }
         int[] treePath = Converter.toTreeCoordinates(new int[] {x, y}, order);
-        return getCell(root, treePath).getState();
+        return this.getCell(root, treePath).getState();
     }
 
     // THE FOLLOWING METHOD DOES NOT AGREE WITH THE FREE_MOVE OPTION
@@ -311,7 +315,7 @@ public class Board implements Cloneable, Iterable<PlayEnum>
      */
     public PlayEnum getWinner()
     {
-        return getWinner(root);
+        return this.getWinner(root);
     }
 
     /**
@@ -340,6 +344,8 @@ public class Board implements Cloneable, Iterable<PlayEnum>
     {
         /*
          * return Board.isGameOverRecursive(root);
+         * OR
+         * return getWinner() != PlayEnum.U;
          *
          * I think this might be sufficient, considering that structural nodes
          * store the winning symbol of their subgame, and the root node's
@@ -347,8 +353,13 @@ public class Board implements Cloneable, Iterable<PlayEnum>
          * other than Undetermined, someone has won the game, and so the game
          * must be over. QED.
          */
-        /** I like the QED. */
-        return getWinner() != PlayEnum.U;
+        /** I like the QED... BUT this is not what this method does.
+         * This method tests if the game is over because X won, over because
+         * O won, or over because it is a TIE, in which case no moves can be
+         * made. In the Tie case, it does not suffice to test if the board is
+         * undetermined, because it could be undetermined and playable, or 
+         * undetermined and locked in a tie. */
+        return Board.isGameOverRecursive(root);
     }
 
     /**
@@ -376,7 +387,7 @@ public class Board implements Cloneable, Iterable<PlayEnum>
                 return false;
             }
         }
-        // Since every node was solved, we return true.
+        // Since every node was a game over, we return true.
         return true;
     }
 

@@ -69,9 +69,20 @@ public class TestAIPlayer implements Player
      * only a suffix of lastMove, which will be checked by the board.
      */
     @Override
-    public int[] move(Board board, int[] lastMove)
+    public int[] move(TicTacGrow gameBoard)
     {
         // NEEDS MORE HERE
-        return null;
+        int[] dummyMove = new int[gameBoard.getOrder()];
+        for (int i = 0; i < gameBoard.getOrder(); i++)
+        {
+            dummyMove[i] = 0;
+        }
+        
+        for (int i = 0; i < dummyMove.length; i++)
+        {
+            System.out.print(dummyMove[i] + ", ");
+        }
+        System.out.println();
+        return dummyMove;
     }
 }

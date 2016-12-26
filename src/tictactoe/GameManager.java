@@ -4,14 +4,14 @@ package tictactoe;
  * Runs an instance of the game, by calling methods on the players and board.
  * 
  * @author William McDermott
- * @version 2016.12.25
+ * @version 2016.12.26
  */
 public class GameManager
 {
     /**
      * A TicTacGrow to play.
      */
-    private Board gameBoard;
+    private TicTacGrow gameBoard;
     
     /**
      * The player who plays X.
@@ -24,25 +24,13 @@ public class GameManager
     private Player playerO;
     
     /**
-     * The previous move made, which restricts the next move.
-     */
-    private int[] lastMove;
-    
-    /**
-     * The number of moves that have been made.
-     */
-    private int moves;
-    
-    /**
      * Creates a new GameManager with two players and a board.
      */
-    public GameManager(Board gameBoard, Player playerX, Player playerO)
+    public GameManager(TicTacGrow gameBoard, Player playerX, Player playerO)
     {
         this.gameBoard = gameBoard;
         this.playerX = playerX;
         this.playerO = playerO;
-        lastMove = new int[0];
-        moves = 0;
     }
     
     /**
@@ -50,7 +38,7 @@ public class GameManager
      */
     public void run()
     {
-        while (!gameBoard.isGameOver())
+        while (true) // !gameBoard.isGameOver())
         {
             this.makeMove();
         }
@@ -95,26 +83,29 @@ public class GameManager
          * also I think using % 2 on "moves" is easier. */
         
         Player currentPlayer;
-        
-        if (moves % 2 == 0) 
+        PlayEnum shape;
+        if (gameBoard.getMoves() % 2 == 0) 
         {
             currentPlayer = playerX;
+            shape = PlayEnum.X;
         }
         else
         {
             currentPlayer = playerO;
+            shape = PlayEnum.O;
         }
-        int[] nextMove = currentPlayer.move(gameBoard, lastMove);
-        if (!Board.isValidMove(nextMove, lastMove))
+        int[] thisMove = currentPlayer.move(gameBoard);
+        if (!gameBoard.isValidMove(thisMove)) // board split later
         {
+            throw new UnsupportedOperationException();
             // handle an illegal move.
             // handle too many calls for another move or something.
-            // ask this dummy for another move
+            // ask this dummy player for another move
+            /**
             this.makeMove();
             return;
+            */
         }
-        Board.setState(nextMove, )
-        
-        moves++;
+        gameBoard.move(thisMove, shape);
     }
 }
