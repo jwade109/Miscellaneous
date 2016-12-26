@@ -165,6 +165,10 @@ public class Board implements Cloneable, Iterable<PlayEnum>
         BoardNode current = root;
         for (int i = 0; i < treePath.length; i++)
         {
+            if (!current.hasChildren())
+            {
+                break;
+            }
             BoardNode next = current.getChild(treePath[i]);
             if (i == treePath.length - 1 && next == null)
             {
@@ -370,14 +374,15 @@ public class Board implements Cloneable, Iterable<PlayEnum>
      */
     private static boolean isGameOverRecursive(BoardNode node)
     {
+        if (node == null)
+        {
+            return false;
+        }
         if (node.getState() != PlayEnum.U)
         {
             return true;
         }
-        else if (!node.hasChildren())
-        {
-            return false;
-        }
+        if (!node.hasChildren())
         // Now we have an undetermined node with children
         // Test recursively if every child is finished
         for (int i = 0; i < 9; i++)

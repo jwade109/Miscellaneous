@@ -42,8 +42,8 @@ public class GameManager
         this.playerX = playerX;
         this.playerO = playerO;
         this.printGameStarted();
-        xFouls = 100;
-        oFouls = 100;
+        xFouls = 50;
+        oFouls = 50;
     }
     
     /**
@@ -51,7 +51,7 @@ public class GameManager
      */
     public void run()
     {
-        while (true) // !gameBoard.isGameOver())
+        while (!gameBoard.isGameOver())
         {
             this.makeMove();
         }
@@ -112,7 +112,7 @@ public class GameManager
         if (!gameBoard.isValidMove(thisMove)) // board split later
         {
             System.out.println(shape + " made an illegal move!");
-            this.decrementFoulsForShape(shape);
+            this.callFoulForShape(shape);
             this.makeMove();
             return; // so it doesn't keep executing after the recursion ends
         }
@@ -121,12 +121,25 @@ public class GameManager
     
     /**
      * Removes a foul from a player, for moving in the wrong location.
+     * @param shape     The dumb player that moved wrong.
      */
-    private void decrementFoulsForShape(PlayEnum shape)
+    private void callFoulForShape(PlayEnum shape)
     {
         if (shape == PlayEnum.X)
         {
-            
+            xFouls--;
+            if (xFouls == 0)
+            {
+                throw new IllegalStateException("X has fouled out!");
+            }
+        }
+        else
+        {
+            oFouls--;
+            if (oFouls == 0)
+            {
+                throw new IllegalStateException("O has fouled out!");
+            }
         }
     }
     

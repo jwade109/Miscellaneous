@@ -83,8 +83,7 @@ public class TicTacGrow
         }
         board.setState(location, shape);
         
-        // win updates
-        // check if the game has ended, maybe?
+        // update wins
         
         // updating nextMove
         int[] truncatedLocation = new int[location.length - 1];
@@ -108,6 +107,7 @@ public class TicTacGrow
     /**
      * Returns an array of all valid moves, where a move is encoded as an 
      * ordered coordinate pair.
+     * @return  An ArrayList of allowed moves, in iterator order.
      */
     public ArrayList<int[]> getValidMoves()
     {
@@ -120,7 +120,10 @@ public class TicTacGrow
             {
                 int[] location = 
                     Converter.expandToTreeCoordinates(index, board.getOrder());
-                moves.add(location);
+                if (this.isValidMove(location))
+                {
+                    moves.add(location);
+                }
             }
             index++;
         }
@@ -137,11 +140,17 @@ public class TicTacGrow
      */
     public boolean isValidMove(int[] thisMove)
     {
-        if (!(this.isSpaceUnoccupied(thisMove) && this.isMoveLegal(thisMove)))
-        {
-            return false;
-        }
-        return true;
+        return this.isSpaceUnoccupied(thisMove) && this.isMoveLegal(thisMove);
+    }
+    
+    /**
+     * TEMPORARY
+     * Tests if the game is over
+     * @return  True if the game is over, for a win or for a tie.
+     */
+    public boolean isGameOver()
+    {
+        return board.isGameOver();
     }
     
     /**

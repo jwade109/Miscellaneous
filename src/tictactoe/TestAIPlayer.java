@@ -78,14 +78,6 @@ public class TestAIPlayer implements Player
         {
             dummyMove[i] = (int) (9 * Math.random());
         }
-        // debug
-        /*
-        for (int i = 0; i < dummyMove.length; i++)
-        {
-            System.out.print(dummyMove[i] + ", ");
-        }
-        System.out.println();
-        */
         return dummyMove;
     }
 }

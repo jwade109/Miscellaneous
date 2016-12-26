@@ -4,7 +4,7 @@ package tictactoe;
  * Runs the tic tac grow game, initializing all the parts.
  * 
  * @author William McDermott
- * @version 2016.12.24
+ * @version 2016.12.26
  */
 public class GameRunner
 {
@@ -13,7 +13,7 @@ public class GameRunner
      */
     public static void main(String[] args)
     {
-        int gameOrder = 1;
+        int gameOrder = 2;
         // boolean player1AI = true;
         // boolean player2AI = true;
         
@@ -25,7 +25,7 @@ public class GameRunner
         }
         
         new GameManager(new TicTacGrow(gameOrder), 
-            new TestAIPlayer("X AI"),
-            new TestAIPlayer("O AI")).run();
+            new LegalRandomAIPlayer("X AI"),
+            new LegalRandomAIPlayer("O AI")).run();
     }
 }
