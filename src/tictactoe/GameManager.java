@@ -57,7 +57,8 @@ public class GameManager
     }
     
     /**
-     * Makes a move for a player, updating the game.
+     * Asks a player to make a move, updating the game and applying the move
+     * if it works.
      */
     private void makeMove()
     {
@@ -91,15 +92,28 @@ public class GameManager
          * or one player every other time. This way seems strange to me.
          */
         /** X moves first in my mind, 
-         * also I think using % 2 on moves is easier. */
+         * also I think using % 2 on "moves" is easier. */
+        
+        Player currentPlayer;
+        
         if (moves % 2 == 0) 
         {
-            int[] nextMove = playerX.takeTurn(gameBoard, lastMove);
+            currentPlayer = playerX;
         }
         else
         {
-            int[] nextMove = playerO.takeTurn(gameBoard, lastMove);
+            currentPlayer = playerO;
         }
+        int[] nextMove = currentPlayer.move(gameBoard, lastMove);
+        if (!Board.isValidMove(nextMove, lastMove))
+        {
+            // handle an illegal move.
+            // handle too many calls for another move or something.
+            // ask this dummy for another move
+            this.makeMove();
+            return;
+        }
+        Board.setState(nextMove, )
         
         moves++;
     }

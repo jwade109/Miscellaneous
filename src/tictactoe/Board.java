@@ -1,7 +1,6 @@
 package tictactoe;
 
 import java.util.Iterator;
-import tictactoe.BoardNode.NodeIterator;
 
 /**
  * This class represents the area of tic tac toe cells that players play on.
@@ -83,6 +82,16 @@ public class Board implements Cloneable, Iterable<PlayEnum>
      * @return Whether the move was successful. A move is not successful if the
      *         occupied space has a state other than U.
      */
+    public boolean setState(int[] path, PlayEnum shape)
+    {
+        if (shape == null)
+        {
+            throw new IllegalArgumentException("Shape must not be null");
+        }
+        BoardNode cell = getCell(root, path);
+        cell.setState(shape);
+        return true;
+    }
     /*
      * Edits as of 2016.12.25: This method should only apply to leaf nodes, as
      * they are the only nodes with a notion of state WHICH IS ACCESSIBLE BY
@@ -109,9 +118,7 @@ public class Board implements Cloneable, Iterable<PlayEnum>
         }
 
         int[] treePath = Converter.toTreeCoordinates(new int[] {x, y}, order);
-        BoardNode cell = getCell(root, treePath);
-        cell.setState(shape);
-        return true;
+        return this.setState(treePath, shape);
     }
 
     /**
@@ -120,6 +127,7 @@ public class Board implements Cloneable, Iterable<PlayEnum>
      * @param path The Cartesian coordinates of a particular cell.
      * @return a PlayEnum.
      */
+    public PlayEnum getState(int[] path)
     /*
      * Changed the parameter to Cartesian coordinates, since this is a public
      * method and external classes should only deal in Cartesian coordinates,
@@ -181,7 +189,7 @@ public class Board implements Cloneable, Iterable<PlayEnum>
      * the node structure, the Board class is a glorified 2D array without the
      * benefits of recursion.
      */
-    private static PlayEnum updateWinnersRecursive(BoardNode current,
+    private PlayEnum updateWinnersRecursive(BoardNode current,
             int[] coords)
     {
         // recursive base case - this eventually succeeds, because there
@@ -197,7 +205,7 @@ public class Board implements Cloneable, Iterable<PlayEnum>
             newCoords[i - 1] = coords[i];
         }
         // getting what the child's state is, where the move was
-        PlayEnum movedState = Board
+        PlayEnum movedState = this
                 .updateWinnersRecursive(current.getChild(coords[0]), newCoords);
         // nothing changed, since U is the default, so we return this state.
         if (movedState == PlayEnum.U)
@@ -209,7 +217,7 @@ public class Board implements Cloneable, Iterable<PlayEnum>
         current.setState(target);
         if (target != PlayEnum.U)
         {
-            Board.clearSubgrid(current);
+            this.clearSubgrid(current);
         }
         return target;
     }
@@ -377,7 +385,7 @@ public class Board implements Cloneable, Iterable<PlayEnum>
      */
     public void clear()
     {
-        Board.clearSubgrid(root); // TRIGGERED
+        this.clearSubgrid(root); // TRIGGERED
     }
 
     // DIAMETRICALLY OPPOSED
@@ -391,7 +399,7 @@ public class Board implements Cloneable, Iterable<PlayEnum>
      */
     public void clearSubgrid(int[] location)
     {
-        Board.clearSubgrid(this.getCell(root, location));
+        this.clearSubgrid(this.getCell(root, location));
     }
 
     // DIAMETRICALLY OPPOSED TO THIS OPERATION
@@ -400,7 +408,7 @@ public class Board implements Cloneable, Iterable<PlayEnum>
      * 
      * @param node The node to clear of children.
      */
-    private static void clearSubgrid(BoardNode node)
+    private void clearSubgrid(BoardNode node)
     {
         PlayEnum baseState = node.getState();
         node = new BoardNode();
