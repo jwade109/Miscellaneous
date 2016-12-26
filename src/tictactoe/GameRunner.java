@@ -13,7 +13,7 @@ public class GameRunner
      */
     public static void main(String[] args)
     {
-        int gameOrder = 2;
+        int gameOrder = 1;
         // boolean player1AI = true;
         // boolean player2AI = true;
         

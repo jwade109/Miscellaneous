@@ -1,10 +1,11 @@
 package tictactoe;
 
 /**
- * Basic AI that moves randomly with wild abandon.
+ * Basic AI that moves randomly with wild abandon,
+ * so much so it refuses to check if the moves are even legal.
  * 
  * @author William McDermott
- * @version 2016.12.25 HECK ITS CHRISTMAS
+ * @version 2016.12.26
  */
 public class TestAIPlayer implements Player
 {
@@ -75,14 +76,16 @@ public class TestAIPlayer implements Player
         int[] dummyMove = new int[gameBoard.getOrder()];
         for (int i = 0; i < gameBoard.getOrder(); i++)
         {
-            dummyMove[i] = 0;
+            dummyMove[i] = (int) (9 * Math.random());
         }
-        
+        // debug
+        /*
         for (int i = 0; i < dummyMove.length; i++)
         {
             System.out.print(dummyMove[i] + ", ");
         }
         System.out.println();
+        */
         return dummyMove;
     }
 }

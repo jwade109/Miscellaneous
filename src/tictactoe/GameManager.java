@@ -24,6 +24,16 @@ public class GameManager
     private Player playerO;
     
     /**
+     * The number of times X can make us cross.
+     */
+    private int xFouls;
+    
+    /**
+     * The number of times O can think in circles.
+     */
+    private int oFouls;
+    
+    /**
      * Creates a new GameManager with two players and a board.
      */
     public GameManager(TicTacGrow gameBoard, Player playerX, Player playerO)
@@ -31,6 +41,9 @@ public class GameManager
         this.gameBoard = gameBoard;
         this.playerX = playerX;
         this.playerO = playerO;
+        this.printGameStarted();
+        xFouls = 100;
+        oFouls = 100;
     }
     
     /**
@@ -95,17 +108,55 @@ public class GameManager
             shape = PlayEnum.O;
         }
         int[] thisMove = currentPlayer.move(gameBoard);
+        this.printMove(thisMove, shape);
         if (!gameBoard.isValidMove(thisMove)) // board split later
         {
-            throw new UnsupportedOperationException();
-            // handle an illegal move.
-            // handle too many calls for another move or something.
-            // ask this dummy player for another move
-            /**
+            System.out.println(shape + " made an illegal move!");
+            this.decrementFoulsForShape(shape);
             this.makeMove();
-            return;
-            */
+            return; // so it doesn't keep executing after the recursion ends
         }
         gameBoard.move(thisMove, shape);
+    }
+    
+    /**
+     * Removes a foul from a player, for moving in the wrong location.
+     */
+    private void decrementFoulsForShape(PlayEnum shape)
+    {
+        if (shape == PlayEnum.X)
+        {
+            
+        }
+    }
+    
+    /**
+     * Prints out the player names and the board state.
+     */
+    private void printGameStarted()
+    {
+        System.out.println("X is represented by player " + playerX.getName());
+        System.out.println("O is represented by player " + playerO.getName());
+        System.out.println("Begin!");
+    }
+    
+    /**
+     * Prints a move that just occurred to System.out,
+     * so that a game can be viewed.
+     * 
+     * @param thisMove  The move just made.
+     * @param shape     The shape just placed.
+     */
+    private void printMove(int[] thisMove, PlayEnum shape)
+    {
+        System.out.print(shape + " is moving at tree coordinate [");
+        for (int i = 0; i < thisMove.length - 1; i++)
+        {
+            System.out.print(thisMove[i] + ", ");
+        }
+        System.out.print(thisMove[thisMove.length - 1] + "]");
+        System.out.println(" and cartesian coordinate ");
+        int[] pair = Converter.toCartesianCoordinates(thisMove);
+        System.out.println("[" + pair[0] + ", " + pair[1] + "].");
     }
 }
