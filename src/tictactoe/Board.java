@@ -336,7 +336,7 @@ public class Board implements Cloneable, Iterable<PlayEnum>
         {
             return root.getState();
         }
-
+        // so broken
         return PlayEnum.U;
     }
 

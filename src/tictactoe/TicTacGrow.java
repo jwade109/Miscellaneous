@@ -18,7 +18,7 @@ public class TicTacGrow
     /**
      * The board where the game is played.
      */
-    private Board board;
+    private TreeGrid board;
 
     /**
      * The sub-grid location of the next move.
@@ -35,7 +35,7 @@ public class TicTacGrow
      */
     public TicTacGrow(int order)
     {
-        board = new Board(order);
+        board = new TreeGrid(order);
         nextMove = new int[0];
         moves = 0;
     }
@@ -79,7 +79,7 @@ public class TicTacGrow
         if (!this.isValidMove(location))
         {
             // fake handling
-            throw new IllegalStateException("Just a test");
+            throw new IllegalStateException("Move validation in TicTacGrow.move");
         }
         board.setState(location, shape);
         
@@ -144,14 +144,20 @@ public class TicTacGrow
     }
     
     /**
-     * TEMPORARY
      * Tests if the game is over
+     * 
      * @return  True if the game is over, for a win or for a tie.
      */
     public boolean isGameOver()
     {
-        return board.isGameOver();
+        return this.isGameOverRecursive(new int[0]);
     }
+    
+    public boolean isGameOverRecursive(int[] location)
+    {
+        
+    }
+    
     
     /**
      * Tests if a move is legal based on the previous move.
