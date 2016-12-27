@@ -1,6 +1,7 @@
 package tictactoe;
 
 import java.util.Iterator;
+import tictactoe.TreeGrid.BoardNode;
 
 /**
  * This class represents the area of tic tac toe cells that players play on.
@@ -72,6 +73,36 @@ public class Board implements Cloneable, Iterable<PlayEnum>
     public boolean getFreeMove()
     {
         return FREE_MOVE;
+    }
+    
+    /**
+     * Creates or follows a path to a cell, and returns it to the class.
+     * 
+     * @param path  The tree coordinate of where the cell is
+     * @return      The cell found at that coordinate.
+     */
+    private BoardNode getCell(BoardNode root, int[] path)
+    {
+        BoardNode current = root;
+        for (int i = 0; i < path.length; i++)
+        {
+            if (!current.hasChildren())
+            {
+                break;
+            }
+            BoardNode next = current.getChild(path[i]);
+            if (i == path.length - 1 && next == null)
+            {
+                next = new BoardNode();
+            }
+            else if (next == null)
+            {
+                next = new BoardNode(PlayEnum.U);
+            }
+            current.setChild(path[i], next);
+            current = next;
+        }
+        return current;
     }
 
     /**
@@ -151,37 +182,7 @@ public class Board implements Cloneable, Iterable<PlayEnum>
 
     // THE FOLLOWING METHOD DOES NOT AGREE WITH THE FREE_MOVE OPTION
 
-    /**
-     * Gets a state of a cell safely, by navigating down the tree only where not
-     * null, and creating cells where they should exist.
-     * 
-     * @param treePath The tree space coordinates of the cell to get.
-     * @param base The cell to start at, and to look down through coordinates
-     *        at.
-     * @return The state of the cell to change.
-     */
-    private BoardNode getCell(BoardNode root, int[] treePath)
-    {
-        BoardNode current = root;
-        for (int i = 0; i < treePath.length; i++)
-        {
-            if (!current.hasChildren())
-            {
-                break;
-            }
-            BoardNode next = current.getChild(treePath[i]);
-            if (i == treePath.length - 1 && next == null)
-            {
-                current.setChild(treePath[i], new BoardNode());
-            }
-            else if (next == null)
-            {
-                current.setChild(treePath[i], new BoardNode(PlayEnum.U));
-            }
-            current = current.getChild(treePath[i]);
-        }
-        return current;
-    }
+    
 
     /**
      * Checks the win condition after a move recursively.
