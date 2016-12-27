@@ -28,7 +28,7 @@ public class BoardTest
     @Before
     public void setUp()
     {
-        game1 = new Board();
+        game1 = new Board(1);
         game2 = new Board(2);
     }
     

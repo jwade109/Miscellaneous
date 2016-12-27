@@ -383,6 +383,9 @@ public class Board implements Cloneable, Iterable<PlayEnum>
             return true;
         }
         if (!node.hasChildren())
+        {
+            return true;
+        }
         // Now we have an undetermined node with children
         // Test recursively if every child is finished
         for (int i = 0; i < 9; i++)
