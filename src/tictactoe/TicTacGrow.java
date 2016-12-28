@@ -31,6 +31,12 @@ public class TicTacGrow
     private int moves;
 
     /**
+     * An independent variable that don't need no man.
+     */
+    private static final int[][] WIN_CONDITIONS = {{0, 1, 2}, {3, 4, 5},
+        {6, 7, 8}, {0, 3, 6}, {1, 4, 7}, {2, 5, 8}, {0, 4, 8}, {2, 4, 6}};
+    
+    /**
      * Creates a new game instance of an arbitrary order.
      */
     public TicTacGrow(int order)
@@ -79,29 +85,185 @@ public class TicTacGrow
         if (!this.isValidMove(location))
         {
             // fake handling
-            throw new IllegalStateException("Move validation in TicTacGrow.move");
+            throw new IllegalStateException(
+                "Move validation in TicTacGrow.move was bad yo");
         }
+        
         board.setState(location, shape);
+        this.updateWinnersAfterMove(location);
         
-        // update wins
-        
-        // updating nextMove
+        // updating nextMove, which could be its own method
+        // left shift the tree coordinates
         int[] truncatedLocation = new int[location.length - 1];
         for (int i = 0; i < location.length - 1; i++)
         {
             truncatedLocation[i] = location[i + 1]; 
         }
+        // while we move out of the solved layers, truncate the last coordinate
         while (board.getState(truncatedLocation) != PlayEnum.U)
         {
-            int[] subArray = new int[truncatedLocation.length - 1];
-            for (int i = 0; i < truncatedLocation.length - 1; i++)
-            {
-                subArray[i] = truncatedLocation[i];
-            }
-            truncatedLocation = subArray;
+            truncatedLocation = this.truncateLastIndex(truncatedLocation);
         }
         nextMove = truncatedLocation;
         moves++;
+    }
+    
+    /**
+     * Tests if the board is won by a player.
+     * 
+     * @return The current win state of the entire board. Note this can return
+     *         PlayEnum.U if the board is not yet won.
+     */
+    public PlayEnum getWinner()
+    {
+        return board.getState(new int[0]);
+    }
+    
+    /**
+     * Updates the winners after a move.
+     * 
+     * @param place  The location where the last move happened.
+     */
+    public void updateWinnersAfterMove(int[] place)
+    {
+        // Move out of a solved layer
+        /*
+        if (board.getState(place) != PlayEnum.U)
+        {
+            place = this.truncateLastIndex(place);
+        }
+        */
+        System.out.print("Debug for updateWinnersAfterMove: place == [ ");
+        for (int i = 0; i < place.length; i++)
+        {
+            System.out.print(place[i] + ", ");
+            if (i == place.length - 1)
+            {
+                System.out.print(place[place.length - 1]);
+            }
+        }
+        System.out.println();
+        PlayEnum winner = this.whoWonGrid(place);
+        // Now we recur, in case this win triggered a bigger one
+        if (winner != PlayEnum.U) 
+        {
+            board.setState(place, winner);
+            // int last = place[place.length - 1];
+            if (!place.equals(new int[0]))
+            {
+                this.updateWinnersAfterMove(this.truncateLastIndex(place));
+            }
+            // this.addIndexSuffix(place, last);
+        }
+        // If the winner is U, then we can't determine a larger winner,
+        // so we just end.
+    }
+    
+    /**
+     * Ripped off version of Wade's base case win tester, made into a 
+     * base case win state tester.
+     * 
+     * Instead of worrying about parameters and matching the locations to 
+     * each other, this method just straight up tests for all three patterns.
+     * @return  Which player has won the board, or an undetermined value.
+     */
+    private PlayEnum whoWonGrid(int[] place)
+    {
+        PlayEnum[] childrenStates = board.getSubGrid(place);
+        if (childrenStates == null)
+        {
+            return board.getState(place);
+        }
+        for (int i = 0; i < WIN_CONDITIONS.length; i++)
+        {
+            int[] pattern = WIN_CONDITIONS[i];
+            for (PlayEnum p : new PlayEnum[] {PlayEnum.X, PlayEnum.O})
+            {
+                boolean win = true;
+                for (int j = 0; j < pattern.length; j++)
+                {
+                    if (childrenStates[pattern[j]] != p)
+                    {
+                        win = false;
+                    }
+                }
+                if (win)
+                {
+                    return p;
+                }
+            }
+        }
+        return PlayEnum.U;
+    }
+    
+    /**
+     * Tests if the game is over, such that no player can move.
+     * 
+     * @return  True if the game is over, for a win or for a tie.
+     */
+    public boolean isGameOver()
+    {
+        return this.isGameOverRecursive(new int[0]);
+    }
+    
+    /**
+     * Tests if a subGrid of the game is over or not.
+     * Not currently used except in this class, but could be made public.
+     * 
+     * @param location  The location to test for something being game over.
+     * @return          True if the no moves can be made, false otherwise.
+     */
+    private boolean isGameOverRecursive(int[] location)
+    {
+        // debug
+        if (location.length > 0)
+        {
+            System.out.print("Checking game over at location: [");
+        }
+        for (int i = 0; i < location.length; i++)
+        {
+            System.out.print(location[i] + ", ");
+            if (i == location.length - 1)
+            {
+                System.out.println(location[i] + "]");
+            }
+        }
+        // These base cases could be better
+        if (board.getState(location) != PlayEnum.U)
+        {
+            return true;
+        }
+        // Undetermined parent case
+        if (location.length == this.getOrder())
+        {
+            return board.getState(location) != PlayEnum.U;
+        }
+        
+        // For each undetermined board, determine if it is full.
+        PlayEnum[] shapes = board.getSubGrid(location);
+        if (shapes == null)
+        {
+            return false;
+        }
+        for (int i = 0; i < shapes.length; i++)
+        {
+            // We ignore won boards, they are boring.
+            if (shapes[i] == null)
+            {
+                return false;
+            }
+            if (shapes[i] == PlayEnum.U)
+            {
+                int[] newLocation = this.addIndexSuffix(location, i);
+                if (!this.isGameOverRecursive(newLocation));
+                {
+                    newLocation = this.truncateLastIndex(newLocation);
+                    return false;
+                }
+                // newLocation = this.truncateLastIndex(newLocation);
+            }
+        }
+        return true;
     }
 
     /**
@@ -144,22 +306,6 @@ public class TicTacGrow
     }
     
     /**
-     * Tests if the game is over
-     * 
-     * @return  True if the game is over, for a win or for a tie.
-     */
-    public boolean isGameOver()
-    {
-        return this.isGameOverRecursive(new int[0]);
-    }
-    
-    public boolean isGameOverRecursive(int[] location)
-    {
-        
-    }
-    
-    
-    /**
      * Tests if a move is legal based on the previous move.
      * 
      * @param thisMove  The move being made and tested.
@@ -186,5 +332,44 @@ public class TicTacGrow
     private boolean isSpaceUnoccupied(int[] location)
     {
         return board.getState(location) == PlayEnum.U;
+    }
+    
+    /**
+     * Adds a suffix integer to an array for recursive methods.
+     * 
+     * @param array     The array to add a suffix to.
+     * @param value     The value to add to the array
+     * @return          The parameter array with the value attached.
+     */
+    public int[] addIndexSuffix(int[] array, int value)
+    {
+        int[] target = new int[array.length + 1];
+        for (int i = 0; i < array.length; i++)
+        {
+            target[i] = array[i];
+        }
+        target[array.length] = value;
+        return target;
+    }
+    
+    /**
+     * Truncate the last coordinate of the array.
+     * 
+     * @param array     The array to truncate.
+     * @return          The same array with one coordinate removed.
+     */
+    public int[] truncateLastIndex(int[] array)
+    {
+        System.out.println("Truncation performed!");
+        if (array.length == 0)
+        {
+            return array;
+        }
+        int[] target = new int[array.length - 1];
+        for (int i = 0; i < array.length - 1; i++)
+        {
+            target[i] = array[i];
+        }
+        return target;
     }
 }

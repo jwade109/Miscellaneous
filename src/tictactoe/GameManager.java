@@ -114,7 +114,7 @@ public class GameManager
             System.out.println(shape + " made an illegal move!");
             this.callFoulForShape(shape);
             this.makeMove();
-            return; // so it doesn't keep executing after the recursion ends
+            return; // so it doesn't keep executing after the recursion calls
         }
         gameBoard.move(thisMove, shape);
     }
@@ -170,6 +170,6 @@ public class GameManager
         System.out.print(thisMove[thisMove.length - 1] + "]");
         System.out.println(" and cartesian coordinate ");
         int[] pair = Converter.toCartesianCoordinates(thisMove);
-        System.out.println("[" + pair[0] + ", " + pair[1] + "].");
+        System.out.println("[" + pair[0] + ", " + pair[1] + "].\n\n");
     }
 }

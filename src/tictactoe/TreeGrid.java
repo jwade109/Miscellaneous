@@ -125,10 +125,29 @@ public class TreeGrid implements Iterable<PlayEnum>
     public PlayEnum[] getSubGrid(int[] place)
     {
         PlayEnum[] target = new PlayEnum[9];
+        System.out.println("getSubGrid Debug!");
+        for (int i = 0; i < place.length; i++)
+        {
+            System.out.print(place[i] + ", ");
+        }
+        System.out.println();
+        System.out.println(this.getCell(place).getState());
         Iterator<BoardNode> iter = this.getCell(place).iterator();
+        if (iter == null)
+        {
+            return null;
+        }
         for (int i = 0; iter.hasNext(); i++)
         {
-            target[i] = iter.next().getState();
+            BoardNode next = iter.next();
+            if (next == null)
+            {
+                target[i] = null;
+            }
+            else
+            {
+                target[i] = next.getState();
+            }
         }
         return target;
     }
@@ -320,7 +339,6 @@ public class TreeGrid implements Iterable<PlayEnum>
                 index++;
                 return node;
             }
-            
         }
     }
 }
