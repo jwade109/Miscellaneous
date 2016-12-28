@@ -496,6 +496,84 @@ public class Board implements Cloneable, Iterable<PlayEnum>
     }
     
     /**
+     * Creates a new CartesianIterator for this object.
+     * 
+     * @param dummy     It has no purpose or effect actually.
+     * Just distinguishes this iterator from the other.
+     * @return          A CartesianIterator
+     */
+    public CartesianIterator iterator(boolean dummy)
+    {
+        return new CartesianIterator();
+    }
+    
+    /**
+     * A CartesianIterator traverses every leaf node in a Board object, by
+     * moving through the tree as though it was stacked like a two dimensional
+     * board, the original visualization for the game.
+     * 
+     * @author William McDermott
+     * @version 2016.12.28
+     */
+    private class CartesianIterator implements Iterator<PlayEnum>
+    {
+        /**
+         * Stores the location of the TreeIterator along the traversal in a
+         * horizantal direction.
+         */
+        private int x;
+        
+        /**
+         * Stores the location of the TreeIterator along the traversal in a
+         * vertical direction. This coordinate moves second.
+         */
+        private int y;
+
+        /**
+         * Constructs a new TreeIterator.
+         */
+        public CartesianIterator()
+        {
+            x = 0;
+            y = 0;
+        }
+
+        /**
+         * Checks whether the traversal is finished.
+         * 
+         * @return Whether there is another element in the iteration.
+         */
+        @Override
+        public boolean hasNext()
+        {
+            return y < Math.pow(3, order);
+        }
+
+        /**
+         * Gets the next element in the traversal.
+         * 
+         * @return A PlayEnum.
+         */
+        @Override
+        public PlayEnum next()
+        {
+            int max = ((int) (Math.pow(3,  order) + 0.001)) - 1;
+            if (x == max)
+            {
+                x = 0;
+                y++;
+            }
+            if (y == max + 1)
+            {
+                throw new IllegalStateException("next() called illegally "
+                    + "in Cartesian Iterator!");
+            }
+            int[] treePath = Converter.toTreeCoordinates(new int[] {x, y}, order);
+            return getCell(root, treePath).getState();
+        }
+    }
+    
+    /**
      * Represents the nodes in the tree that hold the state of who won them.
      * 
      * @author William McDermott
@@ -617,7 +695,6 @@ public class Board implements Cloneable, Iterable<PlayEnum>
                 index++;
                 return node;
             }
-            
         }
     }
 }

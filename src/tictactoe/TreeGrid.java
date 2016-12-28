@@ -12,7 +12,7 @@ import java.util.Iterator;
  * manipulated in the tree.
  * 
  * @author William McDermott
- * @version 2016.12.26
+ * @version 2016.12.28
  */
 public class TreeGrid implements Iterable<PlayEnum>
 {
@@ -154,6 +154,47 @@ public class TreeGrid implements Iterable<PlayEnum>
         return target;
     }
     
+    /**
+     * Writes this object to a human readable string.
+     * @return  A string representation of this object.
+     */
+    @Override
+    public String toString()
+    {
+        int cartesianMax = ((int) Math.pow(3, order));
+        StringBuilder str = new StringBuilder("Board:\n");
+        Iterator<PlayEnum> iter = this.iterator(false);
+        for (int i = 0; i < cartesianMax; i++)
+        {
+            for (int j = 0; j < cartesianMax / 3; j++)
+            {
+                for (int k = 0; k < 3; k++)
+                {
+                    str.append(iter.next());
+                    if (k == 2)
+                    {
+                        str.append("|");
+                    }
+                    else
+                    {
+                        str.append(" ");
+                    }
+                }
+            }
+            str.append("\n");
+            if (i % 3 == 0)
+            {
+                for (int j = 0; j < cartesianMax; j++)
+                {
+                    str.append("-");
+                }
+                str.append("\n");
+            }
+            System.out.println(iter.next() + " ");
+        }
+        return str.toString();
+    }
+    
     
     /**
      * Gets a new Iterator for Board.
@@ -212,6 +253,84 @@ public class TreeGrid implements Iterable<PlayEnum>
             int[] treePath = Converter.expandToTreeCoordinates(index, order);
             index++;
             return getCell(treePath).getState();
+        }
+    }
+    
+    /**
+     * Creates a new CartesianIterator for this object.
+     * 
+     * @param dummy     It has no purpose or effect actually.
+     * Just distinguishes this iterator from the other.
+     * @return          A CartesianIterator
+     */
+    public CartesianIterator iterator(boolean dummy)
+    {
+        return new CartesianIterator();
+    }
+    
+    /**
+     * A CartesianIterator traverses every leaf node in a Board object, by
+     * moving through the tree as though it was stacked like a two dimensional
+     * board, the original visualization for the game.
+     * 
+     * @author William McDermott
+     * @version 2016.12.28
+     */
+    private class CartesianIterator implements Iterator<PlayEnum>
+    {
+        /**
+         * Stores the location of the TreeIterator along the traversal in a
+         * horizantal direction.
+         */
+        private int x;
+        
+        /**
+         * Stores the location of the TreeIterator along the traversal in a
+         * vertical direction. This coordinate moves second.
+         */
+        private int y;
+
+        /**
+         * Constructs a new TreeIterator.
+         */
+        public CartesianIterator()
+        {
+            x = 0;
+            y = 0;
+        }
+
+        /**
+         * Checks whether the traversal is finished.
+         * 
+         * @return Whether there is another element in the iteration.
+         */
+        @Override
+        public boolean hasNext()
+        {
+            return y < Math.pow(3, order);
+        }
+
+        /**
+         * Gets the next element in the traversal.
+         * 
+         * @return A PlayEnum.
+         */
+        @Override
+        public PlayEnum next()
+        {
+            if (!this.hasNext())
+            {
+                throw new IllegalStateException("next() called illegally "
+                    + "in Cartesian Iterator!");
+            }
+            int max = ((int) (Math.pow(3,  order) + 0.001)) - 1;
+            if (x == max)
+            {
+                x = 0;
+                y++;
+            }
+            int[] treePath = Converter.toTreeCoordinates(new int[] {x, y}, order);
+            return getState(treePath);
         }
     }
     

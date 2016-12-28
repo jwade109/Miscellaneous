@@ -4,7 +4,7 @@ package tictactoe;
  * Runs an instance of the game, by calling methods on the players and board.
  * 
  * @author William McDermott
- * @version 2016.12.26
+ * @version 2016.12.28
  */
 public class GameManager
 {
@@ -117,6 +117,7 @@ public class GameManager
             return; // so it doesn't keep executing after the recursion calls
         }
         gameBoard.move(thisMove, shape);
+        this.printBoard();
     }
     
     /**
@@ -171,5 +172,13 @@ public class GameManager
         System.out.println(" and cartesian coordinate ");
         int[] pair = Converter.toCartesianCoordinates(thisMove);
         System.out.println("[" + pair[0] + ", " + pair[1] + "].\n\n");
+    }
+    
+    /**
+     * Prints out the gameBoard for viewing.
+     */
+    public void printBoard()
+    {
+        System.out.println(gameBoard.toString());
     }
 }

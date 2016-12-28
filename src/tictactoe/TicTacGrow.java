@@ -373,7 +373,7 @@ public class TicTacGrow
      */
     private boolean isMoveLegal(int[] thisMove)
     {
-        for (int i = 1; i < nextMove.length; i++)
+        for (int i = 0; i < nextMove.length; i++)
         {
             if (thisMove[i] != nextMove[i])
             {
@@ -438,5 +438,14 @@ public class TicTacGrow
             target[i] = array[i];
         }
         return target;
+    }
+    
+    /**
+     * Prints out this object.
+     */
+    @Override
+    public String toString()
+    {
+        return board.toString();
     }
 }
