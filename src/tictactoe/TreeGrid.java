@@ -125,6 +125,7 @@ public class TreeGrid implements Iterable<PlayEnum>
     public PlayEnum[] getSubGrid(int[] place)
     {
         PlayEnum[] target = new PlayEnum[9];
+        /*
         System.out.println("getSubGrid Debug!");
         for (int i = 0; i < place.length; i++)
         {
@@ -132,6 +133,7 @@ public class TreeGrid implements Iterable<PlayEnum>
         }
         System.out.println();
         System.out.println(this.getCell(place).getState());
+        */
         Iterator<BoardNode> iter = this.getCell(place).iterator();
         if (iter == null)
         {
