@@ -163,34 +163,30 @@ public class TreeGrid implements Iterable<PlayEnum>
     {
         int cartesianMax = ((int) Math.pow(3, order));
         StringBuilder str = new StringBuilder("Board:\n");
-        Iterator<PlayEnum> iter = this.iterator(false);
-        for (int i = 0; i < cartesianMax; i++)
+        Iterator<PlayEnum> iter = this.iterator();
+        for (int i = 0; i < (int) Math.pow(9, order); i++)
         {
-            for (int j = 0; j < cartesianMax / 3; j++)
+            str.append(this.getState(Converter.expandToTreeCoordinates(i, order)));
+            if (i % 3 == 2)
             {
-                for (int k = 0; k < 3; k++)
-                {
-                    str.append(iter.next());
-                    if (k == 2)
-                    {
-                        str.append("|");
-                    }
-                    else
-                    {
-                        str.append(" ");
-                    }
-                }
+                str.append("|");
             }
-            str.append("\n");
-            if (i % 3 == 0)
+            else
+            {
+                str.append(" ");
+            }
+            if (i % cartesianMax == cartesianMax - 1)
+            {
+                str.append("\n");
+            }
+            if (i % (3 * cartesianMax) == (3 * cartesianMax) - 1)
             {
                 for (int j = 0; j < cartesianMax; j++)
                 {
-                    str.append("-");
+                    str.append("- ");
                 }
                 str.append("\n");
             }
-            System.out.println(iter.next() + " ");
         }
         return str.toString();
     }

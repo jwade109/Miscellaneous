@@ -55,6 +55,7 @@ public class GameManager
         {
             this.makeMove();
         }
+        this.printWinner();
     }
     
     /**
@@ -109,6 +110,10 @@ public class GameManager
         }
         int[] thisMove = currentPlayer.move(gameBoard);
         this.printMove(thisMove, shape);
+        if (thisMove.length != gameBoard.getOrder())
+        {
+            throw new IllegalStateException("Temporary: Player BAD MOVE LENGTH");
+        }
         if (!gameBoard.isValidMove(thisMove)) // board split later
         {
             System.out.println(shape + " made an illegal move!");
@@ -180,5 +185,14 @@ public class GameManager
     public void printBoard()
     {
         System.out.println(gameBoard.toString());
+    }
+    
+    /**
+     * Prints out the winner of the game!
+     * Could be more complicated later.
+     */
+    public void printWinner()
+    {
+        System.out.println(gameBoard.getWinner() + " has won the game!");
     }
 }

@@ -102,13 +102,26 @@ public class TicTacGrow
     public void move(int[] location, PlayEnum shape)
     {
         /** Do we validate the move here, or allow GameManager to do so? */
+        System.out.print("Debug for isValidMove:"
+            + " location == [");
+        for (int i = 0; i < location.length; i++)
+        {
+            if (i == location.length - 1)
+            {
+                System.out.print(location[location.length - 1]);
+            }
+            else
+            {
+                System.out.print(location[i] + ", ");
+            }
+        }
         if (!this.isValidMove(location))
         {
             // fake handling
             throw new IllegalStateException(
                 "Move validation in TicTacGrow.move was bad yo");
         }
-
+        
         board.setState(location, shape);
         this.updateWinnersAfterMove(location);
 
@@ -118,10 +131,13 @@ public class TicTacGrow
             + " nextMove == [");
         for (int i = 0; i < nextMove.length; i++)
         {
-            System.out.print(nextMove[i] + ", ");
             if (i == nextMove.length - 1)
             {
                 System.out.print(nextMove[nextMove.length - 1]);
+            }
+            else
+            {
+                System.out.print(nextMove[i] + ", ");
             }
         }
         // updating nextMove, which could be its own method
@@ -132,7 +148,8 @@ public class TicTacGrow
             truncatedLocation[i] = location[i + 1];
         }
         // while we move out of the solved layers, truncate the last coordinate
-        while (board.getState(truncatedLocation) != PlayEnum.U)
+        while (board.getState(truncatedLocation) != PlayEnum.U 
+            && truncatedLocation.length != 0)
         {
             truncatedLocation = this.truncateLastIndex(truncatedLocation);
         }
@@ -183,10 +200,13 @@ public class TicTacGrow
         System.out.print("Debug for updateWinnersAfterMove: place == [");
         for (int i = 0; i < place.length; i++)
         {
-            System.out.print(place[i] + ", ");
             if (i == place.length - 1)
             {
-                System.out.print(place[place.length - 1]);
+                System.out.print(place[i]);
+            }
+            else
+            {
+                System.out.print(place[i] + ", ");
             }
         }
         System.out.println("]");
@@ -276,12 +296,19 @@ public class TicTacGrow
         }
         for (int i = 0; i < location.length; i++)
         {
-            System.out.print(location[i] + ", ");
             if (i == location.length - 1)
             {
                 System.out.println(location[i] + "]");
             }
+            else
+            {
+                System.out.print(location[i] + ", ");
+            }
         }
+        System.out.println();
+        // end debug
+        
+        
         // These base cases could be better
         if (board.getState(location) != PlayEnum.U)
         {
@@ -310,12 +337,10 @@ public class TicTacGrow
             {
                 int[] newLocation = this.addIndexSuffix(location, i);
                 if (!this.isGameOverRecursive(newLocation))
-                    ;
                 {
-                    newLocation = this.truncateLastIndex(newLocation);
                     return false;
                 }
-                // newLocation = this.truncateLastIndex(newLocation);
+                newLocation = this.truncateLastIndex(newLocation);
             }
         }
         return true;
@@ -337,7 +362,7 @@ public class TicTacGrow
         {
             if (iter.next() == PlayEnum.U)
             {
-                int[] location = Converter.expandToTreeCoordinates(index, board
+                int[] location = Converter.expandToTreeCoordinates(index, this
                     .getOrder());
                 if (this.isValidMove(location))
                 {
@@ -351,7 +376,7 @@ public class TicTacGrow
 
 
     /**
-     * Checks that a move is valid according to the game
+     * Checks that a move is valid according to the game.
      * A move is valid if the cell denoted by the location:
      * 1. is unoccupied (contains a U)
      * 2. is within the available sub-game
