@@ -206,6 +206,22 @@ public class TreeGrid implements Iterable<PlayEnum>, Cloneable
         return str.toString();
     }
     
+    /**
+     * Clones this TreeGrid into a new one.
+     */
+    @Override
+    public TreeGrid clone()
+    {
+        TreeGrid clone = new TreeGrid();
+        for (int i = 0; i < Math.pow(9, order); i++)
+        {
+            int[] treePath = Converter.expandToTreeCoordinates(i, order);
+            clone.setState(treePath, this.getState(treePath));
+        }
+        clone.order = this.order;
+        return clone;
+    }
+    
     
     /**
      * Gets a new Iterator for Board.

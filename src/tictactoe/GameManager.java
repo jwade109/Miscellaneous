@@ -109,7 +109,7 @@ public class GameManager
             currentPlayer = playerO;
             shape = PlayEnum.O;
         }
-        Coordinate coord = currentPlayer.move(gameBoard);
+        Coordinate coord = currentPlayer.move(gameBoard.clone());
         int[] thisMove = coord.getTreePath();
         this.printMove(thisMove, shape);
         if (thisMove.length != gameBoard.getOrder())

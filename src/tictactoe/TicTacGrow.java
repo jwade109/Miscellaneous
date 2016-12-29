@@ -1,6 +1,7 @@
 package tictactoe;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 
 /**
@@ -13,7 +14,7 @@ import java.util.Iterator;
  * @author William McDermott
  * @version 2016.12.27
  */
-public class TicTacGrow
+public class TicTacGrow implements Cloneable
 {
     /**
      * The board where the game is played.
@@ -443,7 +444,7 @@ public class TicTacGrow
      * @return  True if the sub grid above this one is not won,
      * false otherwise.
      */
-    public boolean isNotWon(int[] location)
+    private boolean isNotWon(int[] location)
     {
         return board.getState(this.truncateLastIndex(location)) == PlayEnum.U;
     }
@@ -499,4 +500,17 @@ public class TicTacGrow
     {
         return board.toString();
     }
+    
+    /**
+     * Clones this object into another.
+     */
+    @Override
+    public TicTacGrow clone()
+    {
+        TicTacGrow clone = new TicTacGrow(board.getOrder());
+        clone.board = board.clone();
+        clone.nextMove = Arrays.copyOf(nextMove, nextMove.length);
+        return clone;
+    }
+    
 }
