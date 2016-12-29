@@ -55,6 +55,7 @@ public class GameManager
         {
             this.makeMove();
         }
+        this.printBoard();
         this.printWinner();
     }
     
@@ -123,7 +124,6 @@ public class GameManager
             return; // so it doesn't keep executing after the recursion calls
         }
         gameBoard.move(thisMove, shape);
-        this.printBoard();
     }
     
     /**

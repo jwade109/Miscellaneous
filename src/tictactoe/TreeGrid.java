@@ -1,6 +1,5 @@
 package tictactoe;
 
-import java.util.Arrays;
 import java.util.Iterator;
 
 /**
@@ -13,9 +12,9 @@ import java.util.Iterator;
  * manipulated in the tree.
  * 
  * @author William McDermott
- * @version 2016.12.28
+ * @version 2016.12.29
  */
-public class TreeGrid implements Iterable<PlayEnum>
+public class TreeGrid implements Iterable<PlayEnum>, Cloneable
 {
     /**
      * The topNode of the simulation.
@@ -166,16 +165,22 @@ public class TreeGrid implements Iterable<PlayEnum>
         StringBuilder str = new StringBuilder("Board:\n");
         for (int i = 0; i < (int) Math.pow(9, order); i++)
         {
-            int[] place = Converter.expandToTreeCoordinates(i, order);
+            int[] cartesian = new int[2];
+            cartesian[0] = i % cartesianMax;
+            cartesian[1] = i / cartesianMax;
+            int[] place = Converter.toTreeCoordinates(cartesian, order);
+            // THIS IS CORRECT SO FAR
+            // System.out.print("\n" + Arrays.toString(place));
             PlayEnum state = this.getState(place);
+            // System.out.print("\n" + Arrays.toString(place) + ": " +  state);
             if (state == PlayEnum.U)
             {
                 str.append(" ");
             }
             else
             {
-                System.out.print("\n" + Arrays.toString(place));
-                str.append(this.getState(place));
+                str.append(state);
+                // System.out.print("\n" + Arrays.toString(place) + ": " +  state);
             }
             if (i % 3 == 2)
             {

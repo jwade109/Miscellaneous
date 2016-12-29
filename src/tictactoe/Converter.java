@@ -119,6 +119,7 @@ public class Converter
             index -= 9 * path[i];
         }
         */
+        // Actually, not sure this works either
         int[] path = new int[dim];
         for (int i = 0; i < dim; i++)
         {

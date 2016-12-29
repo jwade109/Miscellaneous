@@ -128,6 +128,7 @@ public class TicTacGrow
         this.updateWinnersAfterMove(location);
 
         // DEBUG
+        /*
         System.out.println("BEFORE");
         System.out.print("Debug for nextMove calculation:"
             + " nextMove == [");
@@ -142,6 +143,7 @@ public class TicTacGrow
                 System.out.print(nextMove[i] + ", ");
             }
         }
+        */
         // updating nextMove, which could be its own method
         // left shift the tree coordinates
         int[] truncatedLocation = new int[location.length - 1];
@@ -157,17 +159,22 @@ public class TicTacGrow
         }
         nextMove = truncatedLocation;
         // DEBUG
+        /*
         System.out.println("AFTER");
         System.out.print("Debug for nextMove calculation:"
             + " nextMove == [");
         for (int i = 0; i < nextMove.length; i++)
         {
-            System.out.print(nextMove[i] + ", ");
             if (i == nextMove.length - 1)
             {
                 System.out.print(nextMove[nextMove.length - 1]);
             }
+            else
+            {
+                System.out.print(nextMove[i] + ", ");
+            }
         }
+        */
         moves++;
     }
 
@@ -384,13 +391,15 @@ public class TicTacGrow
      * A move is valid if the cell denoted by the location:
      * 1. is unoccupied (contains a U)
      * 2. is within the available sub-game
+     * 3. is not in a won grid, after a free move.
      * 
      * @return True if the move follows the game rules.
      */
     public boolean isValidMove(Coordinate location)
     {
         int[] thisMove = location.getTreePath();
-        return this.isSpaceUnoccupied(thisMove) && this.isMoveLegal(thisMove);
+        return this.isSpaceUnoccupied(thisMove) && this.isMoveLegal(thisMove)
+            && this.isNotWon(thisMove); // This last one is for free moves
     }
 
 
@@ -425,7 +434,19 @@ public class TicTacGrow
     {
         return board.getState(location) == PlayEnum.U;
     }
-
+    
+    /**
+     * Tests whether this subGrid is already won,
+     * and thus if someone can move or not.
+     * 
+     * @param location  The location to be checked.
+     * @return  True if the sub grid above this one is not won,
+     * false otherwise.
+     */
+    public boolean isNotWon(int[] location)
+    {
+        return board.getState(this.truncateLastIndex(location)) == PlayEnum.U;
+    }
 
     /**
      * Adds a suffix integer to an array for recursive methods.
