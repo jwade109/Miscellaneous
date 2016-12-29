@@ -29,9 +29,9 @@ public class LegalRandomAIPlayer extends TestAIPlayer
      * Makes a random allowable move.
      */
     @Override
-    public int[] move(TicTacGrow gameBoard)
+    public Coordinate move(TicTacGrow gameBoard)
     {
-        int[] move = super.move(gameBoard);
+        Coordinate move = super.move(gameBoard);
         while (!gameBoard.isValidMove(move))
         {
             move = super.move(gameBoard);

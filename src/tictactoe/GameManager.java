@@ -108,13 +108,14 @@ public class GameManager
             currentPlayer = playerO;
             shape = PlayEnum.O;
         }
-        int[] thisMove = currentPlayer.move(gameBoard);
+        Coordinate coord = currentPlayer.move(gameBoard);
+        int[] thisMove = coord.getTreePath();
         this.printMove(thisMove, shape);
         if (thisMove.length != gameBoard.getOrder())
         {
             throw new IllegalStateException("Temporary: Player BAD MOVE LENGTH");
         }
-        if (!gameBoard.isValidMove(thisMove)) // board split later
+        if (!gameBoard.isValidMove(new Coordinate(thisMove))) // board split later
         {
             System.out.println(shape + " made an illegal move!");
             this.callFoulForShape(shape);

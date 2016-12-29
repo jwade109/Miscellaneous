@@ -110,11 +110,20 @@ public class Converter
             return bad;
         }
 
+        // Don't think it works, at least it isn't this easy.
+        /*
         int[] path = new int[dim];
         for (int i = 0; i < dim; i++)
         {
             path[i] = index / (int) Math.pow(9, dim - i - 1);
-            index -= path[i] * 9;
+            index -= 9 * path[i];
+        }
+        */
+        int[] path = new int[dim];
+        for (int i = 0; i < dim; i++)
+        {
+            path[i] = index % 9;
+            index = index / 9;
         }
         return path;
     }
@@ -192,7 +201,7 @@ public class Converter
         int y = 0;
         for (int i = 0; i < dim; i++)
         {
-            int multiplier = (int) Math.pow(3, dim - 1 - i);
+            int multiplier = (int) Math.pow(3, dim - i - 1);
             x += (tree[i] % 3) * multiplier;
             y += (tree[i] / 3) * multiplier;
         }

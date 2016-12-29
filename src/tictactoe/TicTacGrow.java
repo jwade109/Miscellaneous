@@ -95,13 +95,14 @@ public class TicTacGrow
      * Makes a move for a certain player in a certain location.
      * 
      * @param location
-     *            The place to make the move.
+     *            The tree coordinate to make the move.
      * @param shape
      *            Which player's symbol is being played.
      */
     public void move(int[] location, PlayEnum shape)
     {
         /** Do we validate the move here, or allow GameManager to do so? */
+        /*
         System.out.print("Debug for isValidMove:"
             + " location == [");
         for (int i = 0; i < location.length; i++)
@@ -115,7 +116,8 @@ public class TicTacGrow
                 System.out.print(location[i] + ", ");
             }
         }
-        if (!this.isValidMove(location))
+        */
+        if (!this.isValidMove(new Coordinate(location)))
         {
             // fake handling
             throw new IllegalStateException(
@@ -197,6 +199,7 @@ public class TicTacGrow
          *     place = this.truncateLastIndex(place);
          * }
          */
+        /*
         System.out.print("Debug for updateWinnersAfterMove: place == [");
         for (int i = 0; i < place.length; i++)
         {
@@ -210,8 +213,9 @@ public class TicTacGrow
             }
         }
         System.out.println("]");
+        */
         PlayEnum winner = this.whoWonGrid(place);
-        System.out.println(winner);
+        // System.out.println(winner);
         // Now we recur, in case this win triggered a bigger one
         if (winner != PlayEnum.U)
         {
@@ -227,7 +231,6 @@ public class TicTacGrow
         // If the winner is U, then we can't determine a larger winner,
         // so we just end.
     }
-
 
     /**
      * Ripped off version of Wade's base case win tester, made into a
@@ -290,6 +293,7 @@ public class TicTacGrow
     private boolean isGameOverRecursive(int[] location)
     {
         // debug
+        /*
         if (location.length > 0)
         {
             System.out.print("Checking game over at location: [");
@@ -306,6 +310,7 @@ public class TicTacGrow
             }
         }
         System.out.println();
+        */
         // end debug
         
         
@@ -353,17 +358,16 @@ public class TicTacGrow
      * 
      * @return An ArrayList of allowed moves, in iterator order.
      */
-    public ArrayList<int[]> getValidMoves()
+    public ArrayList<Coordinate> getValidMoves()
     {
-        ArrayList<int[]> moves = new ArrayList<int[]>();
+        ArrayList<Coordinate> moves = new ArrayList<Coordinate>();
         Iterator<PlayEnum> iter = board.iterator();
         int index = 0;
         while (iter.hasNext())
         {
             if (iter.next() == PlayEnum.U)
             {
-                int[] location = Converter.expandToTreeCoordinates(index, this
-                    .getOrder());
+                Coordinate location = new Coordinate(index, this.getOrder());
                 if (this.isValidMove(location))
                 {
                     moves.add(location);
@@ -383,8 +387,9 @@ public class TicTacGrow
      * 
      * @return True if the move follows the game rules.
      */
-    public boolean isValidMove(int[] thisMove)
+    public boolean isValidMove(Coordinate location)
     {
+        int[] thisMove = location.getTreePath();
         return this.isSpaceUnoccupied(thisMove) && this.isMoveLegal(thisMove);
     }
 

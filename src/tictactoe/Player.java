@@ -10,7 +10,7 @@ import java.util.Observer;
  * before it gets used.
  * 
  * @author William McDermott
- * @version 2016.12.24
+ * @version 2016.12.28
  */
 public interface Player
 {
@@ -44,5 +44,5 @@ public interface Player
      * 
      * @return A coordinate of where to move in the grid at large.
      */
-    int[] move(TicTacGrow board);
+   Coordinate move(TicTacGrow board);
 }
