@@ -129,7 +129,7 @@ public class TicTacGrow implements Cloneable
         this.updateWinnersAfterMove(location);
 
         // DEBUG
-        /*
+        /* 
         System.out.println("BEFORE");
         System.out.print("Debug for nextMove calculation:"
             + " nextMove == [");
@@ -144,7 +144,8 @@ public class TicTacGrow implements Cloneable
                 System.out.print(nextMove[i] + ", ");
             }
         }
-        */
+        System.out.println();
+        /* */
         // updating nextMove, which could be its own method
         // left shift the tree coordinates
         int[] truncatedLocation = new int[location.length - 1];
@@ -175,7 +176,8 @@ public class TicTacGrow implements Cloneable
                 System.out.print(nextMove[i] + ", ");
             }
         }
-        */
+        System.out.println();
+        /* */
         moves++;
     }
 

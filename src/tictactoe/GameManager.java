@@ -112,11 +112,7 @@ public class GameManager
         Coordinate coord = currentPlayer.move(gameBoard.clone());
         int[] thisMove = coord.getTreePath();
         this.printMove(thisMove, shape);
-        if (thisMove.length != gameBoard.getOrder())
-        {
-            throw new IllegalStateException("Temporary: Player BAD MOVE LENGTH");
-        }
-        if (!gameBoard.isValidMove(new Coordinate(thisMove))) // board split later
+        if (!gameBoard.isValidMove(new Coordinate(thisMove)))
         {
             System.out.println(shape + " made an illegal move!");
             this.callFoulForShape(shape);
@@ -124,6 +120,7 @@ public class GameManager
             return; // so it doesn't keep executing after the recursion calls
         }
         gameBoard.move(thisMove, shape);
+        this.printBoard();
     }
     
     /**
@@ -177,7 +174,7 @@ public class GameManager
         System.out.print(thisMove[thisMove.length - 1] + "]");
         System.out.println(" and cartesian coordinate ");
         int[] pair = Converter.toCartesianCoordinates(thisMove);
-        System.out.println("[" + pair[0] + ", " + pair[1] + "].\n\n");
+        System.out.println("[" + pair[0] + ", " + pair[1] + "].");
     }
     
     /**

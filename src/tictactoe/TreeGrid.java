@@ -182,14 +182,35 @@ public class TreeGrid implements Iterable<PlayEnum>, Cloneable
                 str.append(state);
                 // System.out.print("\n" + Arrays.toString(place) + ": " +  state);
             }
-            if (i % 3 == 2)
+            int power = 3;
+            while (i % power == power - 1)
             {
                 str.append("|");
+                power *= 3;
             }
-            else
+            if (i % 3 != 2)
             {
                 str.append(" ");
             }
+            power = cartesianMax;
+            while (i % power == power - 1)
+            {
+                if (power != cartesianMax)
+                {
+                    for (int j = 0; j < cartesianMax; j++)
+                    {
+                        str.append("- ");
+                    }
+                    str.append("-");
+                    for (int j = 0; j < order; j++)
+                    {
+                        str.append("|");
+                    }
+                }
+                str.append("\n");
+                power *= 3;
+            }
+            /*
             if (i % cartesianMax == cartesianMax - 1)
             {
                 str.append("\n");
@@ -202,6 +223,7 @@ public class TreeGrid implements Iterable<PlayEnum>, Cloneable
                 }
                 str.append("\n");
             }
+            */
         }
         return str.toString();
     }
