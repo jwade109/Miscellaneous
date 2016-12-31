@@ -1,7 +1,6 @@
 package tictactoe;
 
 import java.util.Iterator;
-import tictactoe.TreeGrid.BoardNode;
 
 /**
  * This class represents the area of tic tac toe cells that players play on.

@@ -12,7 +12,7 @@ import java.util.Iterator;
  * orderly manner.
  * 
  * @author William McDermott
- * @version 2016.12.27
+ * @version 2016.12.31
  */
 public class TicTacGrow implements Cloneable
 {
@@ -102,7 +102,6 @@ public class TicTacGrow implements Cloneable
      */
     public void move(int[] location, PlayEnum shape)
     {
-        /** Do we validate the move here, or allow GameManager to do so? */
         /*
         System.out.print("Debug for isValidMove:"
             + " location == [");
@@ -118,12 +117,14 @@ public class TicTacGrow implements Cloneable
             }
         }
         */
+        /*
         if (!this.isValidMove(new Coordinate(location)))
         {
             // fake handling
             throw new IllegalStateException(
                 "Move validation in TicTacGrow.move was bad yo");
         }
+        */
         
         board.setState(location, shape);
         this.updateWinnersAfterMove(location);
@@ -198,23 +199,23 @@ public class TicTacGrow implements Cloneable
             {
                 return;
             }
-            // int last = place[place.length - 1];
             this.updateWinnersAfterMove(this.truncateLastIndex(place));
-            // this.addIndexSuffix(place, last);
+            return;
         }
         
         // If the winner is U, then we can't determine a larger winner,
         // so we just end.
-        
         // ^^ FALSE! AND THIS SHALL REMAIN TO ADDRESS MY IGNORANCE!
         // The board can be tied, in which case winner != PlayEnum.U!
         if (this.isGameOverRecursive(place)) // I.E a tie
         {
+            System.out.println("TEST");
             if (place.length == 0)
             {
                 return;
             }
             this.updateWinnersAfterMove(this.truncateLastIndex(place));
+            return;
         }
     }
 
@@ -253,6 +254,21 @@ public class TicTacGrow implements Cloneable
                 }
             }
         }
+        // Checking for a tie
+        boolean isTied = true;
+        for (int i = 0; i < childrenStates.length; i++)
+        {
+            if (childrenStates[i] == PlayEnum.U)
+            {
+                isTied = false;
+            }
+        }
+        if (isTied == true)
+        {
+            return PlayEnum.T;
+        }
+        // We have checked for both winners and the tie state, so
+        // we now declare it undetermined.
         return PlayEnum.U;
     }
 
@@ -278,52 +294,40 @@ public class TicTacGrow implements Cloneable
      */
     private boolean isGameOverRecursive(int[] location)
     {
-        // debug
-        /*
-        if (location.length > 0)
-        {
-            System.out.print("Checking game over at location: [");
-        }
-        for (int i = 0; i < location.length; i++)
-        {
-            if (i == location.length - 1)
-            {
-                System.out.println(location[i] + "]");
-            }
-            else
-            {
-                System.out.print(location[i] + ", ");
-            }
-        }
-        System.out.println();
-        */
-        // end debug
-        
-        
         // These base cases could be better
         if (board.getState(location) != PlayEnum.U)
         {
             return true;
         }
-        // Undetermined parent case
+        // Undetermined case
         if (location.length == this.getOrder())
         {
             return board.getState(location) != PlayEnum.U;
         }
 
-        // For each undetermined board, determine if it is full.
+        // Undetermined inner node
+        // For each undetermined board, determine if it is over.
         PlayEnum[] shapes = board.getSubGrid(location);
-        if (shapes == null)
+        if (shapes == null && location.length != this.getOrder())
         {
             return false;
         }
+        // ^^ now we know that the node at this location has children,
+        // and isn't a currently nulled inner node
         for (int i = 0; i < shapes.length; i++)
         {
             // We ignore won boards, they are boring.
+            // Test that the subgrids have been played in
             if (shapes[i] == null)
             {
                 return false;
             }
+            // if a subgrid isn't finished... wait what?
+            if (shapes[i] == PlayEnum.U)
+            {
+                return false;
+            }
+            /*
             if (shapes[i] == PlayEnum.U)
             {
                 int[] newLocation = this.addIndexSuffix(location, i);
@@ -333,6 +337,7 @@ public class TicTacGrow implements Cloneable
                 }
                 newLocation = this.truncateLastIndex(newLocation);
             }
+            */
         }
         return true;
     }
@@ -402,42 +407,24 @@ public class TicTacGrow implements Cloneable
     }
     
     /**
-     * Tests whether this space or subGrid is already won,
-     * and thus if someone can move or not.
-     * 
-     * @param location  The location to be checked.
-     * @return  True if all sub coordinates of this one are not won,
-     * false otherwise.
-     */
-    private boolean isNotWon(int[] location)
-    {
-        boolean isNotWon = true;
-        for (int i = 0; i < board.getOrder(); i++)
-        {
-            if (!(board.getState(location) == PlayEnum.U))
-            {
-                isNotWon = false;
-            }
-            location = this.truncateLastIndex(location);
-        }
-        return isNotWon;
-    }
-    
-    /**
      * Recursively tests if a move is contained in a won grid or not.
      * 
      * @param location  The Tree path of a move, which must not be 
      * won at all levels.
      * @return Whether the move is in a won grid or not.
      */
-    private boolean isNotWonRecursive(int[] location)
+    private boolean isNotWon(int[] location)
     {
+        System.out.println(Arrays.toString(location));
         if (location.length == 0)
         {
-            return true;
+            return board.getState(location) == PlayEnum.U;
         }
-        
-        return false;
+        if (board.getState(location) != PlayEnum.U)
+        {
+            return false;
+        }
+        return this.isNotWon(this.truncateLastIndex(location));
     }
 
     /**

@@ -1,12 +1,13 @@
 package tictactoe;
 
 import java.util.Observable;
+import java.util.ArrayList;
 
 /**
  * Runs an instance of the game, by calling methods on the players and board.
  * 
  * @author William McDermott
- * @version 2016.12.28
+ * @version 2016.12.31
  */
 public class GameManager extends Observable
 {
@@ -55,7 +56,8 @@ public class GameManager extends Observable
     {
         while (!gameBoard.isGameOver())
         {
-            // this.printBoard();
+            this.printBoard();
+            System.out.println();
             this.makeMove();
         }
         this.printBoard();
@@ -83,11 +85,15 @@ public class GameManager extends Observable
         Coordinate coord = currentPlayer.move(gameBoard.clone());
         int[] thisMove = coord.getTreePath();
         this.printMove(thisMove, shape);
-        // this.printBoard();
         if (!gameBoard.isValidMove(coord))
         {
             System.out.println(shape + " made an illegal move!");
             this.callFoulForShape(shape);
+            // DEBUG
+            /* */
+            ArrayList<Coordinate> array = gameBoard.getValidMoves();
+            System.out.println(array.toString());
+            /* */
             this.makeMove();
             return; // so it doesn't keep executing after the recursion calls
         }

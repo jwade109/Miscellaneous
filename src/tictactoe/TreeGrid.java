@@ -13,7 +13,7 @@ import java.util.Arrays;
  * manipulated in the tree.
  * 
  * @author William McDermott
- * @version 2016.12.29
+ * @version 2016.12.31
  */
 public class TreeGrid implements Iterable<PlayEnum>, Cloneable
 {
@@ -71,7 +71,7 @@ public class TreeGrid implements Iterable<PlayEnum>, Cloneable
      * @param path  The tree coordinate of where the cell is
      * @return      The cell found at that coordinate.
      */
-    private BoardNode getCell(int[] path)
+    private BoardNode getCellSafe(int[] path)
     {
         BoardNode current = root;
         for (int i = 0; i < path.length; i++)
@@ -81,7 +81,7 @@ public class TreeGrid implements Iterable<PlayEnum>, Cloneable
                 break;
             }
             BoardNode next = current.getChild(path[i]);
-            if (i == path.length - 1 && next == null)
+            if (i == order - 1 && next == null)
             {
                 next = new BoardNode();
             }
@@ -96,14 +96,52 @@ public class TreeGrid implements Iterable<PlayEnum>, Cloneable
     }
     
     /**
-     * Sets the path of a cell to a certain state.
+     * Gets the state of a cell in the tree and returns it.
+     * 
+     * @param path  The path to the specified cell.
+     * @return      Null if not initialized, or the state of the cell.
+     */
+    public BoardNode getCell(int[] path)
+    {
+        BoardNode current = root;
+        for (int i = 0; i < path.length; i++)
+        {
+            if (current == null || !current.hasChildren())
+            {
+                break;
+            }
+            current = current.getChild(path[i]);
+        }
+        return current;
+    }
+    
+    /**
+     * Gets a cell to a certain state, with the specified path.
+     * This method cannot return null.
      * 
      * @param path  The path to the specified cell.
      * @return      The state of the cell that is located.
      */
+    public PlayEnum getStateSafe(int[] path)
+    {
+        return this.getCellSafe(path).getState();
+    }
+    
+    /**
+     * Gets the state of the cell, returning null if the tree structure is empty.
+     * 
+     * @param path  The path to the specified cell.
+     * @return      null if the tree is not initialized there,
+     * the PlayEnum state of the cell otherwise.
+     */
     public PlayEnum getState(int[] path)
     {
-        return this.getCell(path).getState();
+        BoardNode node = this.getCell(path);
+        if (node == null)
+        {
+            return null;
+        }
+        return node.getState();
     }
     
     /**
@@ -114,7 +152,11 @@ public class TreeGrid implements Iterable<PlayEnum>, Cloneable
      */
     public void setState(int[] path, PlayEnum shape)
     {
-        this.getCell(path).setState(shape);
+        BoardNode node = this.getCell(path);
+        if (node != null)
+        {
+            node.setState(shape);
+        }
     }
     
     /**
@@ -126,16 +168,7 @@ public class TreeGrid implements Iterable<PlayEnum>, Cloneable
     public PlayEnum[] getSubGrid(int[] place)
     {
         PlayEnum[] target = new PlayEnum[9];
-        /*
-        System.out.println("getSubGrid Debug!");
-        for (int i = 0; i < place.length; i++)
-        {
-            System.out.print(place[i] + ", ");
-        }
-        System.out.println();
-        System.out.println(this.getCell(place).getState());
-        */
-        Iterator<BoardNode> iter = this.getCell(place).iterator();
+        Iterator<BoardNode> iter = this.getCellSafe(place).iterator();
         if (iter == null)
         {
             return null;
@@ -159,30 +192,26 @@ public class TreeGrid implements Iterable<PlayEnum>, Cloneable
      * Returns a layer of the board in string format.
      * @return one layer of the board.
      */
-    public String layerToString(int index)
+    public String layerToString(int layerIndex)
     {
-        int cartesianMax = ((int) Math.pow(3, index));
+        int cartesianMax = (int) (Math.pow(3, layerIndex) + 0.001);
         StringBuilder str = new StringBuilder("Layer: ");
-        str.append(index);
+        str.append(layerIndex);
         str.append("\n");
-        for (int i = 0; i < (int) Math.pow(9, index); i++)
+        for (int i = 0; i < (int) (Math.pow(9, layerIndex) + 0.001); i++)
         {
             int[] cartesian = new int[2];
             cartesian[0] = i % cartesianMax;
             cartesian[1] = i / cartesianMax;
-            int[] place = Converter.toTreeCoordinates(cartesian, index);
-            // THIS IS CORRECT SO FAR
-            // System.out.print("\n" + Arrays.toString(place));
+            int[] place = Converter.toTreeCoordinates(cartesian, layerIndex);
             PlayEnum state = this.getState(place);
-            // System.out.print("\n" + Arrays.toString(place) + ": " +  state);
-            if (state == PlayEnum.U)
+            if (state == null || state == PlayEnum.U)
             {
                 str.append(" ");
             }
             else
             {
                 str.append(state);
-                // System.out.print("\n" + Arrays.toString(place) + ": " +  state);
             }
             int power = 3;
             while (i % power == power - 1)
@@ -194,7 +223,7 @@ public class TreeGrid implements Iterable<PlayEnum>, Cloneable
             {
                 str.append(" ");
             }
-            power = cartesianMax;
+            power = cartesianMax; // basically a different power variable now
             while (i % power == power - 1)
             {
                 if (power != cartesianMax)
@@ -382,7 +411,8 @@ public class TreeGrid implements Iterable<PlayEnum>, Cloneable
                 y++;
             }
             int[] treePath = Converter.toTreeCoordinates(new int[] {x, y}, order);
-            return getState(treePath);
+            // return getState(treePath);
+            return PlayEnum.T;
         }
     }
     

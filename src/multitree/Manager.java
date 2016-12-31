@@ -9,16 +9,13 @@ public class Manager
 
     public static void main(String[] args) throws Exception
     {
-        for (int i = 0; i < 10; i++)
-        {
         Manager m = new Manager(new RandomAI(), new RandomAI(), 3);
         while (!m.gameOver())
         {
-            // System.out.print(m.show());
+            System.out.print(m.show());
             m.turn();
         }
         System.out.println(m.show());
-        }
     }
 
     public Manager(Player player1, Player player2, int gameOrder)

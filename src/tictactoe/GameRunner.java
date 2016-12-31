@@ -4,7 +4,7 @@ package tictactoe;
  * Runs the tic tac grow game, initializing all the parts.
  * 
  * @author William McDermott
- * @version 2016.12.26
+ * @version 2016.12.30
  */
 public class GameRunner
 {
@@ -20,7 +20,8 @@ public class GameRunner
             gameOrder = Integer.valueOf(args[0]);
         }
         
-        for (int i = 0; i < 100; i++)
+        // I choose to run it a certain number of iterations just because
+        for (int i = 0; i < 1; i++)
         {
             System.out.println("RUN NUMBER: " + (i + 1));
             new GameManager(new TicTacGrow(gameOrder), 

@@ -9,5 +9,5 @@ package tictactoe;
  */
 public enum PlayEnum
 {
-    X, O, U;
+    X, O, T, U;
 }
