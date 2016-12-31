@@ -32,6 +32,15 @@ public class LegalRandomAIPlayer extends TestAIPlayer
     public Coordinate move(TicTacGrow gameBoard)
     {
         Coordinate move = super.move(gameBoard);
+        // DEBUG
+        /*
+        ArrayList<Coordinate> list = gameBoard.getValidMoves();
+        for (Coordinate c : list)
+        {
+            System.out.println(Arrays.toString(c.getTreePath()));
+        }
+        /* */
+        // System.out.println(gameBoard.toString());
         while (!gameBoard.isValidMove(move))
         {
             move = super.move(gameBoard);

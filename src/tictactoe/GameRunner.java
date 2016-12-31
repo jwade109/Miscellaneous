@@ -14,18 +14,18 @@ public class GameRunner
     public static void main(String[] args)
     {
         int gameOrder = 2;
-        // boolean player1AI = true;
-        // boolean player2AI = true;
         
         if (args.length > 0)
         {
             gameOrder = Integer.valueOf(args[0]);
-            // player1AI = Boolean.valueOf(args[1]);
-            // player2AI = Boolean.valueOf(args[2]);
         }
         
-        new GameManager(new TicTacGrow(gameOrder), 
-            new LegalRandomAIPlayer("X AI"),
-            new LegalRandomAIPlayer("O AI")).run();
+        for (int i = 0; i < 100; i++)
+        {
+            System.out.println("RUN NUMBER: " + (i + 1));
+            new GameManager(new TicTacGrow(gameOrder), 
+                new LegalRandomAIPlayer("X AI"),
+                new LegalRandomAIPlayer("O AI")).run();
+        }
     }
 }

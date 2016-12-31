@@ -1,6 +1,7 @@
 package tictactoe;
 
 import java.util.Iterator;
+import java.util.Arrays;
 
 /**
  * The equivalent of the pen and paper, this records moves in the game.
@@ -155,20 +156,21 @@ public class TreeGrid implements Iterable<PlayEnum>, Cloneable
     }
     
     /**
-     * Writes this object to a human readable string.
-     * @return  A string representation of this object.
+     * Returns a layer of the board in string format.
+     * @return one layer of the board.
      */
-    @Override
-    public String toString()
+    public String layerToString(int index)
     {
-        int cartesianMax = ((int) Math.pow(3, order));
-        StringBuilder str = new StringBuilder("Board:\n");
-        for (int i = 0; i < (int) Math.pow(9, order); i++)
+        int cartesianMax = ((int) Math.pow(3, index));
+        StringBuilder str = new StringBuilder("Layer: ");
+        str.append(index);
+        str.append("\n");
+        for (int i = 0; i < (int) Math.pow(9, index); i++)
         {
             int[] cartesian = new int[2];
             cartesian[0] = i % cartesianMax;
             cartesian[1] = i / cartesianMax;
-            int[] place = Converter.toTreeCoordinates(cartesian, order);
+            int[] place = Converter.toTreeCoordinates(cartesian, index);
             // THIS IS CORRECT SO FAR
             // System.out.print("\n" + Arrays.toString(place));
             PlayEnum state = this.getState(place);
@@ -210,20 +212,21 @@ public class TreeGrid implements Iterable<PlayEnum>, Cloneable
                 str.append("\n");
                 power *= 3;
             }
-            /*
-            if (i % cartesianMax == cartesianMax - 1)
-            {
-                str.append("\n");
-            }
-            if (i % (3 * cartesianMax) == (3 * cartesianMax) - 1)
-            {
-                for (int j = 0; j < cartesianMax; j++)
-                {
-                    str.append("- ");
-                }
-                str.append("\n");
-            }
-            */
+        }
+        return str.toString();
+    }
+    
+    /**
+     * Writes this object to a human readable string.
+     * @return  A string representation of this object.
+     */
+    @Override
+    public String toString()
+    {
+        StringBuilder str = new StringBuilder("Board:\n");
+        for (int i = 1; i < order + 1; i++)
+        {
+            str.append(this.layerToString(i));
         }
         return str.toString();
     }

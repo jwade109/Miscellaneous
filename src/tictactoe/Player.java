@@ -1,7 +1,5 @@
 package tictactoe;
 
-import java.util.Observer;
-
 /**
  * This interface dictates the moves and options that a player must be able to
  * do in tic tac grow.
