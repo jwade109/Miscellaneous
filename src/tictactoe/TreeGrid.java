@@ -81,7 +81,7 @@ public class TreeGrid implements Iterable<PlayEnum>, Cloneable
                 break;
             }
             BoardNode next = current.getChild(path[i]);
-            if (i == order - 1 && next == null)
+            if (i == path.length - 1 && next == null)
             {
                 next = new BoardNode();
             }
@@ -149,14 +149,17 @@ public class TreeGrid implements Iterable<PlayEnum>, Cloneable
      * 
      * @param path      The path to the specified cell.
      * @param shape     The shape to insert in the space.
+     * @return          True if the state was set, false if it was not initialized.
      */
-    public void setState(int[] path, PlayEnum shape)
+    public boolean setState(int[] path, PlayEnum shape)
     {
-        BoardNode node = this.getCell(path);
+        BoardNode node = this.getCellSafe(path);
         if (node != null)
         {
             node.setState(shape);
+            return true;
         }
+        return false;
     }
     
     /**
@@ -168,14 +171,14 @@ public class TreeGrid implements Iterable<PlayEnum>, Cloneable
     public PlayEnum[] getSubGrid(int[] place)
     {
         PlayEnum[] target = new PlayEnum[9];
-        Iterator<BoardNode> iter = this.getCellSafe(place).iterator();
-        if (iter == null)
+        BoardNode parent = this.getCell(place);
+        if (parent == null)
         {
             return null;
         }
-        for (int i = 0; iter.hasNext(); i++)
+        for (int i = 0; i < 9; i++)
         {
-            BoardNode next = iter.next();
+            BoardNode next = parent.getChild(i);
             if (next == null)
             {
                 target[i] = null;
@@ -186,6 +189,22 @@ public class TreeGrid implements Iterable<PlayEnum>, Cloneable
             }
         }
         return target;
+    }
+    
+    /**
+     * Clears a subgrid of this board, rendering it null after it is won.
+     * 
+     * @param place     The place to clear of its moves.
+     */
+    public void clearSubgrid(int[] place)
+    {
+        BoardNode cell = this.getCell(place);
+        if (cell != null)
+        {
+            PlayEnum state = cell.getState();
+            cell = new BoardNode();
+            cell.setState(state);
+        }
     }
     
     /**
@@ -333,7 +352,12 @@ public class TreeGrid implements Iterable<PlayEnum>, Cloneable
         {
             int[] treePath = Converter.expandToTreeCoordinates(index, order);
             index++;
-            return getCell(treePath).getState();
+            BoardNode node = getCell(treePath);
+            if (node == null)
+            {
+                return null;
+            }
+            return node.getState();
         }
     }
     
@@ -491,7 +515,7 @@ public class TreeGrid implements Iterable<PlayEnum>, Cloneable
         {
             if (subGrids == null)
             {
-                throw new IllegalStateException("Non-Existant Grid Access!");
+                return null;
             }
             return subGrids[index];
         }

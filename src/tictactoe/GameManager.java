@@ -56,8 +56,7 @@ public class GameManager extends Observable
     {
         while (!gameBoard.isGameOver())
         {
-            this.printBoard();
-            System.out.println();
+            // this.printBoard();
             this.makeMove();
         }
         this.printBoard();
@@ -88,6 +87,7 @@ public class GameManager extends Observable
         if (!gameBoard.isValidMove(coord))
         {
             System.out.println(shape + " made an illegal move!");
+            this.printBoard();
             this.callFoulForShape(shape);
             // DEBUG
             /* */
@@ -149,7 +149,7 @@ public class GameManager extends Observable
             System.out.print(thisMove[i] + ", ");
         }
         System.out.print(thisMove[thisMove.length - 1] + "]");
-        System.out.println(" and cartesian coordinate ");
+        System.out.print(" and cartesian coordinate ");
         int[] pair = Converter.toCartesianCoordinates(thisMove);
         System.out.println("[" + pair[0] + ", " + pair[1] + "].");
     }

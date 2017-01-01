@@ -21,7 +21,7 @@ public class GameRunner
         }
         
         // I choose to run it a certain number of iterations just because
-        for (int i = 0; i < 1; i++)
+        for (int i = 0; i < 100; i++)
         {
             System.out.println("RUN NUMBER: " + (i + 1));
             new GameManager(new TicTacGrow(gameOrder), 
