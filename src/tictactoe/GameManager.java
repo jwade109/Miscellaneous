@@ -7,7 +7,7 @@ import java.util.ArrayList;
  * Runs an instance of the game, by calling methods on the players and board.
  * 
  * @author William McDermott
- * @version 2016.12.31
+ * @version 2017.01.01
  */
 public class GameManager extends Observable
 {
@@ -51,16 +51,30 @@ public class GameManager extends Observable
     
     /**
      * Runs the game until a winner is found!
+     * 
+     * @return  The player of the game who won.
      */
-    public void run()
+    public Player run()
     {
         while (!gameBoard.isGameOver())
         {
-            // this.printBoard();
+            this.printBoard();
             this.makeMove();
         }
         this.printBoard();
         this.printWinner();
+        if (gameBoard.getWinner() == PlayEnum.X)
+        {
+            return playerX;
+        }
+        else if (gameBoard.getWinner() == PlayEnum.O)
+        {
+            return playerO;
+        }
+        else
+        {
+            return new TestAIPlayer();
+        }
     }
     
     /**
@@ -87,13 +101,8 @@ public class GameManager extends Observable
         if (!gameBoard.isValidMove(coord))
         {
             System.out.println(shape + " made an illegal move!");
-            this.printBoard();
+            // this.printBoard();
             this.callFoulForShape(shape);
-            // DEBUG
-            /* */
-            ArrayList<Coordinate> array = gameBoard.getValidMoves();
-            System.out.println(array.toString());
-            /* */
             this.makeMove();
             return; // so it doesn't keep executing after the recursion calls
         }

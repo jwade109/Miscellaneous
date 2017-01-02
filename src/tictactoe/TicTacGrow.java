@@ -1,7 +1,6 @@
 package tictactoe;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 
 /**
@@ -12,7 +11,7 @@ import java.util.Iterator;
  * orderly manner.
  * 
  * @author William McDermott
- * @version 2016.12.31
+ * @version 2017.01.01
  */
 public class TicTacGrow implements Cloneable
 {
@@ -420,6 +419,59 @@ public class TicTacGrow implements Cloneable
         return (state == PlayEnum.U || state == null)
             && this.isNotWon(this.truncateLastIndex(location));
     }
+    
+    /**
+     * Clones this object into another.
+     */
+    @Override
+    public TicTacGrow clone()
+    {
+        TicTacGrow clone = new TicTacGrow(this.board.getOrder());
+        // Copying the board
+        clone.board = this.copyBoard();
+        clone.nextMove = this.truncateLastIndex(this.addIndexSuffix(this.nextMove, 0));
+        clone.moves = this.moves;
+        return clone;
+    }
+    
+    
+    /**
+     * Clones this object's TreeGrid board into another one.
+     * 
+     * @return  A copy of this TicTacGrow's board variable.
+     */
+    public TreeGrid copyBoard()
+    {
+        TreeGrid clone = new TreeGrid(this.board.getOrder());
+        this.copySubgrid(new int[]{}, clone);
+        return clone;
+    }
+    
+    /**
+     * Recursively copies the values in this tree into a clone.
+     * 
+     * @param place     The location to copy, which will copy all of its
+     * children down as well.
+     */
+    public void copySubgrid(int[] place, TreeGrid board)
+    {
+        // base cases 
+        PlayEnum state = this.board.getState(place);
+        if (state == null)
+        {
+            return;
+        }
+        board.setState(place, state);
+        if (place.length == this.board.getOrder())
+        {
+            return;
+        }
+        // recursing down the tree
+        for (int i = 0; i < 9; i++)
+        {
+            this.copySubgrid(this.addIndexSuffix(place, i), board);
+        }
+    }
 
     /**
      * Adds a suffix integer to an array for recursive methods.
@@ -471,18 +523,4 @@ public class TicTacGrow implements Cloneable
     {
         return board.toString();
     }
-    
-    /**
-     * Clones this object into another.
-     */
-    @Override
-    public TicTacGrow clone()
-    {
-        TicTacGrow clone = new TicTacGrow(board.getOrder());
-        clone.board = this.board.clone();
-        clone.nextMove = Arrays.copyOf(this.nextMove, this.nextMove.length);
-        clone.moves = this.moves;
-        return clone;
-    }
-    
 }

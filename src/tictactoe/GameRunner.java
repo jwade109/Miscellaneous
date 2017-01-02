@@ -4,7 +4,7 @@ package tictactoe;
  * Runs the tic tac grow game, initializing all the parts.
  * 
  * @author William McDermott
- * @version 2016.12.30
+ * @version 2017.01.01
  */
 public class GameRunner
 {
@@ -21,12 +21,26 @@ public class GameRunner
         }
         
         // I choose to run it a certain number of iterations just because
-        for (int i = 0; i < 100; i++)
+        int xWins = 0;
+        int oWins = 0;
+        int runs = 10000;
+        for (int i = 0; i < runs; i++)
         {
             System.out.println("RUN NUMBER: " + (i + 1));
-            new GameManager(new TicTacGrow(gameOrder), 
+            Player p = new GameManager(new TicTacGrow(gameOrder), 
                 new LegalRandomAIPlayer("X AI"),
-                new LegalRandomAIPlayer("O AI")).run();
+                new LegalRandomAIPlayer("O AI ")).run();
+            if (p.getName().length() == 4)
+            {
+                xWins++;
+            }
+            else if (p.getName().length() == 5)
+            {
+                oWins++;
+            }
         }
+        System.out.println("X won " + xWins + " times!");
+        System.out.println("O won " + oWins + " times!");
+        System.out.println("Game tied " + (runs - xWins - oWins) + " times!");
     }
 }

@@ -13,7 +13,7 @@ import java.util.Arrays;
  * manipulated in the tree.
  * 
  * @author William McDermott
- * @version 2016.12.31
+ * @version 2017.01.01
  */
 public class TreeGrid implements Iterable<PlayEnum>, Cloneable
 {
@@ -81,7 +81,7 @@ public class TreeGrid implements Iterable<PlayEnum>, Cloneable
                 break;
             }
             BoardNode next = current.getChild(path[i]);
-            if (i == path.length - 1 && next == null)
+            if (i == order - 1 && next == null)
             {
                 next = new BoardNode();
             }
@@ -278,23 +278,6 @@ public class TreeGrid implements Iterable<PlayEnum>, Cloneable
         }
         return str.toString();
     }
-    
-    /**
-     * Clones this TreeGrid into a new one.
-     */
-    @Override
-    public TreeGrid clone()
-    {
-        TreeGrid clone = new TreeGrid();
-        for (int i = 0; i < Math.pow(9, order); i++)
-        {
-            int[] treePath = Converter.expandToTreeCoordinates(i, order);
-            clone.setState(treePath, this.getState(treePath));
-        }
-        clone.order = this.order;
-        return clone;
-    }
-    
     
     /**
      * Gets a new Iterator for Board.
