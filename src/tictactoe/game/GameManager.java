@@ -1,7 +1,8 @@
-package tictactoe;
+package tictactoe.game;
 
 import java.util.Observable;
-import java.util.ArrayList;
+import tictactoe.player.Player;
+import tictactoe.player.TestAIPlayer;
 
 /**
  * Runs an instance of the game, by calling methods on the players and board.
@@ -58,10 +59,10 @@ public class GameManager extends Observable
     {
         while (!gameBoard.isGameOver())
         {
-            this.printBoard();
+            this.printBoard(); // to display
             this.makeMove();
         }
-        // this.printBoard();
+        this.printBoard(); // to display
         this.printWinner();
         if (gameBoard.getWinner() == PlayEnum.X)
         {
@@ -73,7 +74,7 @@ public class GameManager extends Observable
         }
         else
         {
-            return new TestAIPlayer(); // Undetermined winner
+            return new TestAIPlayer(); // Tie "wins"
         }
     }
     
@@ -100,8 +101,7 @@ public class GameManager extends Observable
         this.printMove(thisMove, shape);
         if (!gameBoard.isValidMove(coord))
         {
-            System.out.println(shape + " made an illegal move!");
-            // this.printBoard();
+            System.out.println(shape + " made an illegal move!"); // to display
             this.callFoulForShape(shape);
             this.makeMove();
             return; // so it doesn't keep executing after the recursion calls
@@ -123,13 +123,17 @@ public class GameManager extends Observable
                 throw new IllegalStateException("X has fouled out!");
             }
         }
-        else
+        else if (shape == PlayEnum.O)
         {
             oFouls--;
             if (oFouls == 0)
             {
                 throw new IllegalStateException("O has fouled out!");
             }
+        }
+        else
+        {
+            throw new IllegalStateException("Illegal foul out!");
         }
     }
     
@@ -139,9 +143,12 @@ public class GameManager extends Observable
     private void printGameStarted()
     {
         StringBuilder str = new StringBuilder();
-        System.out.println("X is represented by player " + playerX.getName());
-        System.out.println("O is represented by player " + playerO.getName());
-        System.out.println("Begin!");
+        str.append("X is represented by player ");
+        str.append(playerX.getName());
+        str.append("O is represented by player ");
+        str.append(playerO.getName());
+        str.append("Begin!");
+        System.out.println(str.toString());
     }
     
     /**

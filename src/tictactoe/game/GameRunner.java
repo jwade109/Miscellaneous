@@ -1,7 +1,14 @@
-package tictactoe;
+package tictactoe.game;
+
+import tictactoe.player.LegalRandomAIPlayer;
+import tictactoe.player.Player;
 
 /**
  * Runs the tic tac grow game, initializing all the parts.
+ * 
+ * This is the version used in testing the tictactoe.game package,
+ * but it will not be use in the final simulation because it becomes
+ * difficult to integrate a display with this class also calling out.print().
  * 
  * @author William McDermott
  * @version 2017.01.05
@@ -22,7 +29,7 @@ public class GameRunner
             runs = Integer.valueOf(args[1]);
         }
         
-        // I choose to run it a certain number of iterations just because
+        // I choose to run it a certain number of iterations here for testing
         int xWins = 0;
         int oWins = 0;
         long beginTime = System.currentTimeMillis();

@@ -1,4 +1,7 @@
-package tictactoe;
+package tictactoe.player;
+
+import tictactoe.game.Coordinate;
+import tictactoe.game.TicTacGrow;
 
 /**
  * A great basic AI that moves with slightly less wild abandon.

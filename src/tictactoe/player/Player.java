@@ -1,4 +1,7 @@
-package tictactoe;
+package tictactoe.player;
+
+import tictactoe.game.Coordinate;
+import tictactoe.game.TicTacGrow;
 
 /**
  * This interface dictates the moves and options that a player must be able to

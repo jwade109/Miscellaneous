@@ -1,4 +1,4 @@
-package tictactoe;
+package tictactoe.game;
 
 import java.util.Iterator;
 

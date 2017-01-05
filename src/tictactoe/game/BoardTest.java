@@ -1,4 +1,4 @@
-package tictactoe;
+package tictactoe.game;
 
 import org.junit.*;
 import static org.junit.Assert.*;

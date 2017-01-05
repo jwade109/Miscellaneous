@@ -1,4 +1,7 @@
-package tictactoe;
+package tictactoe.player;
+
+import tictactoe.game.Coordinate;
+import tictactoe.game.TicTacGrow;
 
 /**
  * Basic AI that moves randomly with wild abandon,
