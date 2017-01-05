@@ -12,7 +12,7 @@ import java.util.Iterator;
  * orderly manner.
  * 
  * @author William McDermott
- * @version 2017.01.04
+ * @version 2017.01.05
  */
 public class TicTacGrow implements Cloneable
 {
@@ -102,15 +102,6 @@ public class TicTacGrow implements Cloneable
      */
     public void move(int[] location, PlayEnum shape)
     {
-        /*
-        if (!this.isValidMove(new Coordinate(location)))
-        {
-            // fake handling
-            throw new IllegalStateException(
-                "Move validation in TicTacGrow.move was bad yo");
-        }
-        */
-        
         board.setState(location, shape);
         this.updateWinnersAfterMove(this.truncateLastIndex(location));
         this.nextMove = this.findNextMove(location);
@@ -125,30 +116,17 @@ public class TicTacGrow implements Cloneable
      */
     public int[] findNextMove(int[] thisMove)
     {
-        // left shift the tree coordinates
-        /*
-        int[] shifted = new int[thisMove.length - 1];
-        for (int i = 0; i < thisMove.length - 1; i++)
-        {
-            shifted[i] = thisMove[i + 1];
-        }
-        */
-        // determining how far to truncate 
         int[] target = new int[0];
-        while (this.isNotWon(target) && target.length < thisMove.length - 1)
+        while (!this.isGameOverLocation(target) && target.length < thisMove.length - 1)
         {
             target = this.addIndexSuffix(target, thisMove[target.length + 1]);
         }
-        return target;
-        // while we move out of the solved layers, truncate the last coordinate
-        /*
-        while (this.isNotWon(truncatedLocation)
-            && truncatedLocation.length != 0)
+        // Because if we didn't hit the end, then we went one step too far.
+        if (!this.isNotWon(target))
         {
-            truncatedLocation = this.truncateLastIndex(truncatedLocation);
+            target = this.truncateLastIndex(target);
         }
-        */
-        // return truncatedLocation;
+        return target;
     }
 
 
@@ -185,7 +163,7 @@ public class TicTacGrow implements Cloneable
             {
                 return;
             }
-            // board.clearSubgrid(place); // doesn't work?
+            board.clearSubgrid(place); // doesn't work?
             this.updateWinnersAfterMove(this.truncateLastIndex(place));
             return;
         }

@@ -208,6 +208,21 @@ public class TreeGrid implements Iterable<PlayEnum>, Cloneable
     }
     
     /**
+     * Writes this object to a human readable string.
+     * @return  A string representation of this object.
+     */
+    @Override
+    public String toString()
+    {
+        StringBuilder str = new StringBuilder("Board:\n");
+        for (int i = 1; i < order + 1; i++)
+        {
+            str.append(this.layerToString(i));
+        }
+        return str.toString();
+    }
+    
+    /**
      * Returns a layer of the board in string format.
      * @return one layer of the board.
      */
@@ -249,42 +264,31 @@ public class TreeGrid implements Iterable<PlayEnum>, Cloneable
             {
                 if (power != cartesianMax)
                 {
-                    for (int j = 0; j < 2 * cartesianMax; j++)
+                    for (int j = 0; j < (cartesianMax / 3); j++)
+                    {
+                        str.append("-----");
+                    }
+                    int secondPower = 1;
+                    for (int j = 0; j < layerIndex - 1; j++)
+                    {
+                        for (int k = 0; k < secondPower; k++)
+                        {
+                            str.append("-");
+                        }
+                        secondPower *= 3;
+                    }
+                    // The last number of hyphens, minus the order.
+                    for (int k = 0; k < secondPower - layerIndex; k++)
                     {
                         str.append("-");
                     }
-                    /*
-                    for (int j = 0; j < layerIndex - 2; j++)
-                    {
-                        str.append("-");
-                    }
-                    */
                     for (int j = 0; j < layerIndex; j++)
                     {
                         str.append("|");
                     }
-                    for (int j = 0; j < 30; j++)
-                    {
-                        str.append(j % 10);
-                    }
                 }
                 str.append("\n");
             }
-        }
-        return str.toString();
-    }
-    
-    /**
-     * Writes this object to a human readable string.
-     * @return  A string representation of this object.
-     */
-    @Override
-    public String toString()
-    {
-        StringBuilder str = new StringBuilder("Board:\n");
-        for (int i = 1; i < order + 1; i++)
-        {
-            str.append(this.layerToString(i));
         }
         return str.toString();
     }
@@ -343,8 +347,12 @@ public class TreeGrid implements Iterable<PlayEnum>, Cloneable
         @Override
         public PlayEnum next()
         {
+            // this is not really an iterator because of the expansion.
+            // it would be better if we appended and removed indices from an array,
+            // and recursively went around or something
             int[] treePath = Converter.expandToTreeCoordinates(index, order);
             index++;
+            // This next line also makes it not much of an iterator
             BoardNode node = getCell(treePath);
             if (node == null)
             {
@@ -354,84 +362,6 @@ public class TreeGrid implements Iterable<PlayEnum>, Cloneable
         }
     }
     
-    /**
-     * Creates a new CartesianIterator for this object.
-     * 
-     * @param dummy     It has no purpose or effect actually.
-     * Just distinguishes this iterator from the other.
-     * @return          A CartesianIterator
-     */
-    public CartesianIterator iterator(boolean dummy)
-    {
-        return new CartesianIterator();
-    }
-    
-    /**
-     * A CartesianIterator traverses every leaf node in a Board object, by
-     * moving through the tree as though it was stacked like a two dimensional
-     * board, the original visualization for the game.
-     * 
-     * @author William McDermott
-     * @version 2016.12.28
-     */
-    private class CartesianIterator implements Iterator<PlayEnum>
-    {
-        /**
-         * Stores the location of the TreeIterator along the traversal in a
-         * horizantal direction.
-         */
-        private int x;
-        
-        /**
-         * Stores the location of the TreeIterator along the traversal in a
-         * vertical direction. This coordinate moves second.
-         */
-        private int y;
-
-        /**
-         * Constructs a new TreeIterator.
-         */
-        public CartesianIterator()
-        {
-            x = 0;
-            y = 0;
-        }
-
-        /**
-         * Checks whether the traversal is finished.
-         * 
-         * @return Whether there is another element in the iteration.
-         */
-        @Override
-        public boolean hasNext()
-        {
-            return y < Math.pow(3, order);
-        }
-
-        /**
-         * Gets the next element in the traversal.
-         * 
-         * @return A PlayEnum.
-         */
-        @Override
-        public PlayEnum next()
-        {
-            if (!this.hasNext())
-            {
-                throw new IllegalStateException("next() called illegally "
-                    + "in Cartesian Iterator!");
-            }
-            int max = ((int) (Math.pow(3,  order) + 0.001)) - 1;
-            if (x == max)
-            {
-                x = 0;
-                y++;
-            }
-            int[] treePath = Converter.toTreeCoordinates(new int[] {x, y}, order);
-            // return getState(treePath);
-            return PlayEnum.T;
-        }
-    }
     
     /**
      * Represents the nodes in the tree that hold the state of who won them.
@@ -442,7 +372,7 @@ public class TreeGrid implements Iterable<PlayEnum>, Cloneable
      * @author Wade Foster
      * @version 2016.12.25
      */
-    public class BoardNode implements Iterable<BoardNode>
+    public class BoardNode // implements Iterable<BoardNode>
     {
         /**
          * Represents the 9 grids under this one.
@@ -527,6 +457,7 @@ public class TreeGrid implements Iterable<PlayEnum>, Cloneable
             subGrids[index] = child;
         }
 
+        /*
         @Override
         public Iterator<BoardNode> iterator()
         {
@@ -537,6 +468,7 @@ public class TreeGrid implements Iterable<PlayEnum>, Cloneable
             return new NodeIterator();
         }
         
+        /*
         private class NodeIterator implements Iterator<BoardNode>
         {
             private int index;
@@ -560,5 +492,6 @@ public class TreeGrid implements Iterable<PlayEnum>, Cloneable
                 return node;
             }
         }
+        */
     }
 }

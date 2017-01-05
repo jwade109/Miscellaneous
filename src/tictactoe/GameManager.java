@@ -7,7 +7,7 @@ import java.util.ArrayList;
  * Runs an instance of the game, by calling methods on the players and board.
  * 
  * @author William McDermott
- * @version 2017.01.04
+ * @version 2017.01.05
  */
 public class GameManager extends Observable
 {
@@ -58,7 +58,7 @@ public class GameManager extends Observable
     {
         while (!gameBoard.isGameOver())
         {
-            // this.printBoard();
+            this.printBoard();
             this.makeMove();
         }
         // this.printBoard();
@@ -138,6 +138,7 @@ public class GameManager extends Observable
      */
     private void printGameStarted()
     {
+        StringBuilder str = new StringBuilder();
         System.out.println("X is represented by player " + playerX.getName());
         System.out.println("O is represented by player " + playerO.getName());
         System.out.println("Begin!");
@@ -152,15 +153,25 @@ public class GameManager extends Observable
      */
     private void printMove(int[] thisMove, PlayEnum shape)
     {
-        System.out.print(shape + " is moving at tree coordinate [");
+        StringBuilder str = new StringBuilder("Move number = ");
+        str.append(gameBoard.getMoves());
+        str.append("\n");
+        str.append(shape);
+        str.append(" is moving at tree coordinate [");
         for (int i = 0; i < thisMove.length - 1; i++)
         {
-            System.out.print(thisMove[i] + ", ");
+            str.append(thisMove[i]);
+            str.append(", ");
         }
-        System.out.print(thisMove[thisMove.length - 1] + "]");
-        System.out.print(" and cartesian coordinate ");
+        str.append(thisMove[thisMove.length - 1]);
+        str.append("] and cartesian coordinate ");
         int[] pair = Converter.toCartesianCoordinates(thisMove);
-        System.out.println("[" + pair[0] + ", " + pair[1] + "].");
+        str.append("[");
+        str.append(pair[0]);
+        str.append(", ");
+        str.append(pair[1]);
+        str.append("].\n");
+        System.out.println(str.toString());
     }
     
     /**

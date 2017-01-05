@@ -4,7 +4,7 @@ package tictactoe;
  * Runs the tic tac grow game, initializing all the parts.
  * 
  * @author William McDermott
- * @version 2017.01.02
+ * @version 2017.01.05
  */
 public class GameRunner
 {
@@ -25,6 +25,7 @@ public class GameRunner
         // I choose to run it a certain number of iterations just because
         int xWins = 0;
         int oWins = 0;
+        long beginTime = System.currentTimeMillis();
         for (int i = 0; i < runs; i++)
         {
             System.out.println("RUN NUMBER: " + (i + 1));
@@ -40,6 +41,10 @@ public class GameRunner
                 oWins++;
             }
         }
+        long diff = System.currentTimeMillis() - beginTime;
+        System.out.println("Total run time = " + diff + "ms");
+        System.out.println("Number of runs = " + runs);
+        System.out.println("Average run time = " + (diff + 0.0) / runs + "ms");
         System.out.println("X won " + xWins + " times!");
         System.out.println("O won " + oWins + " times!");
         System.out.println("Game tied " + (runs - xWins - oWins) + " times!");
