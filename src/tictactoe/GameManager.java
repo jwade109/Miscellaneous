@@ -7,7 +7,7 @@ import java.util.ArrayList;
  * Runs an instance of the game, by calling methods on the players and board.
  * 
  * @author William McDermott
- * @version 2017.01.01
+ * @version 2017.01.04
  */
 public class GameManager extends Observable
 {
@@ -58,10 +58,10 @@ public class GameManager extends Observable
     {
         while (!gameBoard.isGameOver())
         {
-            this.printBoard();
+            // this.printBoard();
             this.makeMove();
         }
-        this.printBoard();
+        // this.printBoard();
         this.printWinner();
         if (gameBoard.getWinner() == PlayEnum.X)
         {
@@ -73,7 +73,7 @@ public class GameManager extends Observable
         }
         else
         {
-            return new TestAIPlayer();
+            return new TestAIPlayer(); // Undetermined winner
         }
     }
     

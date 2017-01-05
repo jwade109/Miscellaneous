@@ -13,7 +13,7 @@ import java.util.Arrays;
  * manipulated in the tree.
  * 
  * @author William McDermott
- * @version 2017.01.01
+ * @version 2017.01.04
  */
 public class TreeGrid implements Iterable<PlayEnum>, Cloneable
 {
@@ -232,33 +232,43 @@ public class TreeGrid implements Iterable<PlayEnum>, Cloneable
             {
                 str.append(state);
             }
-            int power = 3;
-            while (i % power == power - 1)
+            // vertical separating bars, more at each major divide
+            for (int power = 3;
+                i % power == power - 1 
+                    && power < cartesianMax + 1;
+                power *= 3)
             {
                 str.append("|");
-                power *= 3;
             }
             if (i % 3 != 2)
             {
                 str.append(" ");
             }
-            power = cartesianMax; // basically a different power variable now
-            while (i % power == power - 1)
+            // horizontal separating bars, more at each major divide
+            for (int power = cartesianMax; i % power == power - 1; power *= 3)
             {
                 if (power != cartesianMax)
                 {
-                    for (int j = 0; j < cartesianMax; j++)
+                    for (int j = 0; j < 2 * cartesianMax; j++)
                     {
-                        str.append("- ");
+                        str.append("-");
                     }
-                    str.append("-");
-                    for (int j = 0; j < order; j++)
+                    /*
+                    for (int j = 0; j < layerIndex - 2; j++)
+                    {
+                        str.append("-");
+                    }
+                    */
+                    for (int j = 0; j < layerIndex; j++)
                     {
                         str.append("|");
                     }
+                    for (int j = 0; j < 30; j++)
+                    {
+                        str.append(j % 10);
+                    }
                 }
                 str.append("\n");
-                power *= 3;
             }
         }
         return str.toString();

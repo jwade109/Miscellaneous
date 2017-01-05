@@ -1,6 +1,7 @@
 package tictactoe;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 
 /**
@@ -11,7 +12,7 @@ import java.util.Iterator;
  * orderly manner.
  * 
  * @author William McDermott
- * @version 2017.01.01
+ * @version 2017.01.04
  */
 public class TicTacGrow implements Cloneable
 {
@@ -102,21 +103,6 @@ public class TicTacGrow implements Cloneable
     public void move(int[] location, PlayEnum shape)
     {
         /*
-        System.out.print("Debug for isValidMove:"
-            + " location == [");
-        for (int i = 0; i < location.length; i++)
-        {
-            if (i == location.length - 1)
-            {
-                System.out.print(location[location.length - 1]);
-            }
-            else
-            {
-                System.out.print(location[i] + ", ");
-            }
-        }
-        */
-        /*
         if (!this.isValidMove(new Coordinate(location)))
         {
             // fake handling
@@ -127,22 +113,42 @@ public class TicTacGrow implements Cloneable
         
         board.setState(location, shape);
         this.updateWinnersAfterMove(this.truncateLastIndex(location));
-        
-        // updating nextMove, which could be its own method
+        this.nextMove = this.findNextMove(location);
+        moves++;
+    }
+    
+    /**
+     * Calculates the nextMove based on a previous one.
+     * 
+     * @param thisMove  The move that was just made.
+     * @param nextMove  A truncated location of a move that must soon be made.
+     */
+    public int[] findNextMove(int[] thisMove)
+    {
         // left shift the tree coordinates
-        int[] truncatedLocation = new int[location.length - 1];
-        for (int i = 0; i < location.length - 1; i++)
+        /*
+        int[] shifted = new int[thisMove.length - 1];
+        for (int i = 0; i < thisMove.length - 1; i++)
         {
-            truncatedLocation[i] = location[i + 1];
+            shifted[i] = thisMove[i + 1];
         }
+        */
+        // determining how far to truncate 
+        int[] target = new int[0];
+        while (this.isNotWon(target) && target.length < thisMove.length - 1)
+        {
+            target = this.addIndexSuffix(target, thisMove[target.length + 1]);
+        }
+        return target;
         // while we move out of the solved layers, truncate the last coordinate
-        while (board.getState(truncatedLocation) != PlayEnum.U 
+        /*
+        while (this.isNotWon(truncatedLocation)
             && truncatedLocation.length != 0)
         {
             truncatedLocation = this.truncateLastIndex(truncatedLocation);
         }
-        nextMove = truncatedLocation;
-        moves++;
+        */
+        // return truncatedLocation;
     }
 
 
@@ -166,14 +172,11 @@ public class TicTacGrow implements Cloneable
      */
     private void updateWinnersAfterMove(int[] place)
     {
-        // System.out.println("Testing win condtions..");
-        // System.out.println(Arrays.toString(place));
         PlayEnum winner = this.whoWonGrid(place);
         if (winner == null)
         {
             return;
         }
-        // System.out.println(winner);
         // Now we recur, in case this win triggered a bigger one
         if (winner != PlayEnum.U)
         {
@@ -182,7 +185,7 @@ public class TicTacGrow implements Cloneable
             {
                 return;
             }
-            board.clearSubgrid(place); // doesn't work?
+            // board.clearSubgrid(place); // doesn't work?
             this.updateWinnersAfterMove(this.truncateLastIndex(place));
             return;
         }
@@ -191,18 +194,7 @@ public class TicTacGrow implements Cloneable
         // so we just end.
         // ^^ FALSE! AND THIS SHALL REMAIN TO ADDRESS MY IGNORANCE!
         // The board can be tied, in which case winner != PlayEnum.U!
-        /*
-        if (this.isGameOverRecursive(place)) // I.E a tie
-        {
-            System.out.println("TEST");
-            if (place.length == 0)
-            {
-                return;
-            }
-            this.updateWinnersAfterMove(this.truncateLastIndex(place));
-            return;
-        }
-        */
+        // Unless you introduce a T variable. Which is smart, thanks Wade.
     }
 
     /**
@@ -268,7 +260,7 @@ public class TicTacGrow implements Cloneable
      */
     public boolean isGameOver()
     {
-        return this.isGameOverRecursive(new int[0]);
+        return this.isGameOverLocation(new int[0]);
     }
 
 
@@ -280,56 +272,11 @@ public class TicTacGrow implements Cloneable
      *            The location to test for something being game over.
      * @return True if the no moves can be made, false otherwise.
      */
-    private boolean isGameOverRecursive(int[] location)
+    private boolean isGameOverLocation(int[] location)
     {
-        // These base cases could be better
         PlayEnum state = board.getState(location);
-        if (state == null)
-        {
-            return false;
-        }
-        if (state != PlayEnum.U)
-        {
-            return true;
-        }
-        // Undetermined case
-        if (location.length == this.getOrder())
-        {
-            return board.getState(location) != PlayEnum.U;
-        }
-
-        // Undetermined inner node
-        // For each undetermined board, determine if it is over.
-        PlayEnum[] shapes = board.getSubGrid(location);
-        if (shapes == null && location.length != this.getOrder())
-        {
-            return false;
-        }
-        // ^^ now we know that the node at this location has children,
-        // and isn't a currently nulled inner node
-        for (int i = 0; i < shapes.length; i++)
-        {
-            // We ignore won boards, they are boring.
-            // Test that the subgrids have been played in
-            if (shapes[i] == null || shapes[i] == PlayEnum.U)
-            {
-                return false;
-            }
-            /*
-            if (shapes[i] == PlayEnum.U)
-            {
-                int[] newLocation = this.addIndexSuffix(location, i);
-                if (!this.isGameOverRecursive(newLocation))
-                {
-                    return false;
-                }
-                newLocation = this.truncateLastIndex(newLocation);
-            }
-            */
-        }
-        return true;
+        return !(state == null || state == PlayEnum.U);
     }
-
 
     /**
      * Returns an array of all valid moves, where a move is encoded as an
@@ -370,6 +317,7 @@ public class TicTacGrow implements Cloneable
     public boolean isValidMove(Coordinate location)
     {
         int[] thisMove = location.getTreePath();
+        // System.out.println("isValidMove debug = " + Arrays.toString(thisMove));
         boolean bool1 = this.isMoveLegal(thisMove);
         boolean bool2 = this.isNotWon(thisMove);
         return bool1 && bool2;
@@ -404,19 +352,11 @@ public class TicTacGrow implements Cloneable
      */
     private boolean isNotWon(int[] location)
     {
-        // System.out.println(Arrays.toString(location));
-        PlayEnum state = board.getState(location);
         if (location.length == 0)
         {
-            return state == PlayEnum.U || state == null;
+            return !this.isGameOverLocation(location);
         }
-        /*
-        if (!(board.getState(location) == PlayEnum.U || state == null))
-        {
-            return false;
-        }
-        */
-        return (state == PlayEnum.U || state == null)
+        return !this.isGameOverLocation(location)
             && this.isNotWon(this.truncateLastIndex(location));
     }
     
@@ -429,7 +369,8 @@ public class TicTacGrow implements Cloneable
         TicTacGrow clone = new TicTacGrow(this.board.getOrder());
         // Copying the board
         clone.board = this.copyBoard();
-        clone.nextMove = this.truncateLastIndex(this.addIndexSuffix(this.nextMove, 0));
+        clone.nextMove = this.nextMove;
+        System.out.println("clone debug = " + Arrays.toString(nextMove));
         clone.moves = this.moves;
         return clone;
     }
