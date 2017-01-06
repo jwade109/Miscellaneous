@@ -5,7 +5,8 @@ import tictactoe.player.Player;
 import tictactoe.player.TestAIPlayer;
 
 /**
- * Runs an instance of the game, by calling methods on the players and board.
+ * Runs an instance of the game, by calling methods on the players
+ * and the board below this one.
  * 
  * @author William McDermott
  * @version 2017.01.05
@@ -59,10 +60,10 @@ public class GameManager extends Observable
     {
         while (!gameBoard.isGameOver())
         {
-            this.printBoard(); // to display
+            // this.printBoard(); // to display
             this.makeMove();
         }
-        this.printBoard(); // to display
+        // this.printBoard(); // to display
         this.printWinner();
         if (gameBoard.getWinner() == PlayEnum.X)
         {
@@ -98,7 +99,7 @@ public class GameManager extends Observable
         }
         Coordinate coord = currentPlayer.move(gameBoard.clone());
         int[] thisMove = coord.getTreePath();
-        this.printMove(thisMove, shape);
+        // this.printMove(thisMove, shape);
         if (!gameBoard.isValidMove(coord))
         {
             System.out.println(shape + " made an illegal move!"); // to display
@@ -107,6 +108,7 @@ public class GameManager extends Observable
             return; // so it doesn't keep executing after the recursion calls
         }
         gameBoard.move(thisMove, shape);
+        this.notifyObservers(thisMove);
     }
     
     /**
@@ -145,9 +147,9 @@ public class GameManager extends Observable
         StringBuilder str = new StringBuilder();
         str.append("X is represented by player ");
         str.append(playerX.getName());
-        str.append("O is represented by player ");
+        str.append("\nO is represented by player ");
         str.append(playerO.getName());
-        str.append("Begin!");
+        str.append("\nBegin!");
         System.out.println(str.toString());
     }
     
@@ -184,7 +186,7 @@ public class GameManager extends Observable
     /**
      * Prints out the gameBoard for viewing.
      */
-    public void printBoard()
+    private void printBoard()
     {
         System.out.println(gameBoard.toString());
     }
@@ -193,7 +195,7 @@ public class GameManager extends Observable
      * Prints out the winner of the game!
      * Could be more complicated later.
      */
-    public void printWinner()
+    private void printWinner()
     {
         System.out.println(gameBoard.getWinner() + " has won the game!");
     }

@@ -1,7 +1,6 @@
 package tictactoe.game;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 
 /**
@@ -348,7 +347,6 @@ public class TicTacGrow implements Cloneable
         // Copying the board
         clone.board = this.copyBoard();
         clone.nextMove = this.nextMove;
-        System.out.println("clone debug = " + Arrays.toString(nextMove));
         clone.moves = this.moves;
         return clone;
     }

@@ -1,7 +1,6 @@
 package tictactoe.game;
 
 import java.util.Iterator;
-import java.util.Arrays;
 
 /**
  * The equivalent of the pen and paper, this records moves in the game.

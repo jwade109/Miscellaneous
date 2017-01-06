@@ -1,7 +1,6 @@
 package tictactoe.game;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * Contains a number of converter methods, which are helpful when considering
