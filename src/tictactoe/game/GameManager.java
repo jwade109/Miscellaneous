@@ -60,10 +60,10 @@ public class GameManager extends Observable
     {
         while (!gameBoard.isGameOver())
         {
-            // this.printBoard(); // to display
+            this.printBoard(); // to display
             this.makeMove();
         }
-        // this.printBoard(); // to display
+        this.printBoard(); // to display
         this.printWinner();
         if (gameBoard.getWinner() == PlayEnum.X)
         {
