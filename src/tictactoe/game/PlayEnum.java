@@ -1,4 +1,4 @@
-package tictactoe;
+package tictactoe.game;
 
 /**
  * Represents the possible states of a node: won by X, won by O,
@@ -9,5 +9,5 @@ package tictactoe;
  */
 public enum PlayEnum
 {
-    X, O, U;
+    X, O, T, U;
 }

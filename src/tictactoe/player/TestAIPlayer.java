@@ -1,4 +1,7 @@
-package tictactoe;
+package tictactoe.player;
+
+import tictactoe.game.Coordinate;
+import tictactoe.game.TicTacGrow;
 
 /**
  * Basic AI that moves randomly with wild abandon,
@@ -69,8 +72,8 @@ public class TestAIPlayer implements Player
         int[] dummyMove = new int[gameBoard.getOrder()];
         for (int i = 0; i < gameBoard.getOrder(); i++)
         {
-            dummyMove[i] = (int) (9 * Math.random());
+            dummyMove[i] = (int) (9 * Math.random()); // - 0.0000001);
         }
-        return new Coordinate(dummyMove);
+        return new Coordinate(dummyMove); 
     }
 }

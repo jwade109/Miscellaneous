@@ -1,12 +1,17 @@
-package tictactoe;
+package tictactoe.game;
+
+import java.util.Observable;
+import tictactoe.player.Player;
+import tictactoe.player.TestAIPlayer;
 
 /**
- * Runs an instance of the game, by calling methods on the players and board.
+ * Runs an instance of the game, by calling methods on the players
+ * and the board below this one.
  * 
  * @author William McDermott
- * @version 2016.12.28
+ * @version 2017.01.05
  */
-public class GameManager
+public class GameManager extends Observable
 {
     /**
      * A TicTacGrow to play.
@@ -48,55 +53,38 @@ public class GameManager
     
     /**
      * Runs the game until a winner is found!
+     * 
+     * @return  The player of the game who won.
      */
-    public void run()
+    public Player run()
     {
         while (!gameBoard.isGameOver())
         {
+            this.printBoard(); // to display
             this.makeMove();
         }
-        this.printBoard();
+        this.printBoard(); // to display
         this.printWinner();
+        if (gameBoard.getWinner() == PlayEnum.X)
+        {
+            return playerX;
+        }
+        else if (gameBoard.getWinner() == PlayEnum.O)
+        {
+            return playerO;
+        }
+        else
+        {
+            return new TestAIPlayer(); // Tie "wins"
+        }
     }
     
     /**
      * Asks a player to make a move, updating the game and applying the move
-     * if it works.
+     * if it works, and fouling the player if it doesn't.
      */
     private void makeMove()
     {
-        /*
-         * I'm gonna write some code here which may not work exactly just yet,
-         * but I think it's a valid way to approach this conceptually
-         * 
-         * Player objects would need a single method called takeTurn(), which would take
-         * a TicTacGrow object as an argument and return the same object modified by one move.
-         * This is necessary because Players do not (should not) store references of the game
-         * they are playing. This allows the Manager to manage when Players take their turn,
-         * and allows TicTacGrow to ensure Players make valid moves.
-         */
-        
-        /**
-         * I'm going to use java doc comments to respond because it looks nice.
-         * You use the green ones, so the opposite color thing happens.
-         * We should really use a chat though rather than this lol.
-         * 
-         * So maybe I am wrong about this, but if we feed the players a board,
-         * won't they be able to do whatever the heck they want with it? Like move 5 times?
-         * I originally wrote some stuff with Observables, but I realized composition
-         * made more sense to me for how they all got the stuff put together.
-         * 
-         * I think I have updated some things, lke deleting TicTacGrow,
-         * so we need to make sure that we are on the same page, and not just 
-         * because one is right or wrong, I think that we have different
-         * good ideas and we need to converse so it is cohesive.
-         * 
-         * Also, I'm unsure whether we should have this method execute for each player,
-         * or one player every other time. This way seems strange to me.
-         */
-        /** X moves first in my mind, 
-         * also I think using % 2 on "moves" is easier. */
-        
         Player currentPlayer;
         PlayEnum shape;
         if (gameBoard.getMoves() % 2 == 0) 
@@ -111,16 +99,16 @@ public class GameManager
         }
         Coordinate coord = currentPlayer.move(gameBoard.clone());
         int[] thisMove = coord.getTreePath();
-        this.printMove(thisMove, shape);
-        if (!gameBoard.isValidMove(new Coordinate(thisMove)))
+        // this.printMove(thisMove, shape);
+        if (!gameBoard.isValidMove(coord))
         {
-            System.out.println(shape + " made an illegal move!");
+            System.out.println(shape + " made an illegal move!"); // to display
             this.callFoulForShape(shape);
             this.makeMove();
             return; // so it doesn't keep executing after the recursion calls
         }
         gameBoard.move(thisMove, shape);
-        this.printBoard();
+        this.notifyObservers(thisMove);
     }
     
     /**
@@ -137,13 +125,17 @@ public class GameManager
                 throw new IllegalStateException("X has fouled out!");
             }
         }
-        else
+        else if (shape == PlayEnum.O)
         {
             oFouls--;
             if (oFouls == 0)
             {
                 throw new IllegalStateException("O has fouled out!");
             }
+        }
+        else
+        {
+            throw new IllegalStateException("Illegal foul out!");
         }
     }
     
@@ -152,9 +144,13 @@ public class GameManager
      */
     private void printGameStarted()
     {
-        System.out.println("X is represented by player " + playerX.getName());
-        System.out.println("O is represented by player " + playerO.getName());
-        System.out.println("Begin!");
+        StringBuilder str = new StringBuilder();
+        str.append("X is represented by player ");
+        str.append(playerX.getName());
+        str.append("\nO is represented by player ");
+        str.append(playerO.getName());
+        str.append("\nBegin!");
+        System.out.println(str.toString());
     }
     
     /**
@@ -166,21 +162,31 @@ public class GameManager
      */
     private void printMove(int[] thisMove, PlayEnum shape)
     {
-        System.out.print(shape + " is moving at tree coordinate [");
+        StringBuilder str = new StringBuilder("Move number = ");
+        str.append(gameBoard.getMoves());
+        str.append("\n");
+        str.append(shape);
+        str.append(" is moving at tree coordinate [");
         for (int i = 0; i < thisMove.length - 1; i++)
         {
-            System.out.print(thisMove[i] + ", ");
+            str.append(thisMove[i]);
+            str.append(", ");
         }
-        System.out.print(thisMove[thisMove.length - 1] + "]");
-        System.out.println(" and cartesian coordinate ");
+        str.append(thisMove[thisMove.length - 1]);
+        str.append("] and cartesian coordinate ");
         int[] pair = Converter.toCartesianCoordinates(thisMove);
-        System.out.println("[" + pair[0] + ", " + pair[1] + "].");
+        str.append("[");
+        str.append(pair[0]);
+        str.append(", ");
+        str.append(pair[1]);
+        str.append("].\n");
+        System.out.println(str.toString());
     }
     
     /**
      * Prints out the gameBoard for viewing.
      */
-    public void printBoard()
+    private void printBoard()
     {
         System.out.println(gameBoard.toString());
     }
@@ -189,7 +195,7 @@ public class GameManager
      * Prints out the winner of the game!
      * Could be more complicated later.
      */
-    public void printWinner()
+    private void printWinner()
     {
         System.out.println(gameBoard.getWinner() + " has won the game!");
     }

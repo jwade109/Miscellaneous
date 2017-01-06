@@ -1,7 +1,6 @@
-package tictactoe;
+package tictactoe.game;
 
 import java.util.ArrayList;
-import java.util.Collection;
 
 /**
  * Contains a number of converter methods, which are helpful when considering
@@ -28,6 +27,9 @@ import java.util.Collection;
  * 
  * @author Wade Foster
  * @version 2016.12.25
+ * 
+ * @author William McDermott
+ * @version 2016.12.31
  */
 public class Converter
 {
@@ -109,22 +111,11 @@ public class Converter
             }
             return bad;
         }
-
-        // Don't think it works, at least it isn't this easy.
-        /*
-        int[] path = new int[dim];
-        for (int i = 0; i < dim; i++)
-        {
-            path[i] = index / (int) Math.pow(9, dim - i - 1);
-            index -= 9 * path[i];
-        }
-        */
-        // Actually, not sure this works either
         int[] path = new int[dim];
         for (int i = 0; i < dim; i++)
         {
             path[i] = index % 9;
-            index = index / 9;
+            index /= 9;
         }
         return path;
     }

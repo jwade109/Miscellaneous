@@ -1,10 +1,14 @@
-package tictactoe;
+package tictactoe.player;
+
+import tictactoe.game.Coordinate;
+import tictactoe.game.TicTacGrow;
 
 /**
- * 
+ * A great basic AI that moves with slightly less wild abandon.
+ * It moves randomly, but only if that random move is legal.
  * 
  * @author William McDermott (willm97)
- * @version 2016.12.26
+ * @version 2017.01.01
  */
 public class LegalRandomAIPlayer extends TestAIPlayer
 {

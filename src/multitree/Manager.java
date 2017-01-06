@@ -9,7 +9,7 @@ public class Manager
 
     public static void main(String[] args) throws Exception
     {
-        Manager m = new Manager(new RandomAI(), new RandomAI(), 2);
+        Manager m = new Manager(new RandomAI(), new RandomAI(), 3);
         while (!m.gameOver())
         {
             System.out.print(m.show());

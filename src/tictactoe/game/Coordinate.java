@@ -1,4 +1,4 @@
-package tictactoe;
+package tictactoe.game;
 
 /**
  * Stores an abstract coordinate for a method to use.
