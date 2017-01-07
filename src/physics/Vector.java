@@ -28,28 +28,30 @@ public class Vector
     }
 
     /**
-     * Gets a random vector, with all components between -1 and 1.
+     * Gets a random unit vector.
      * 
-     * @return A new random 3D vector.
+     * @return A new random 3D unit vector.
      */
     public static Vector random3D()
     {
         double x = Math.random() * 2 - 1;
         double y = Math.random() * 2 - 1;
         double z = Math.random() * 2 - 1;
-        return new Vector(x, y, z);
+        Vector u = new Vector(x, y, z); 
+        return u.divide(u.mag());
     }
 
     /**
-     * Gets a random vector, with all components between -1 and 1.
+     * Gets a random unit vector.
      * 
-     * @return A new random 2D vector.
+     * @return A new random 2D unit vector.
      */
     public static Vector random2D()
     {
         double x = Math.random() * 2 - 1;
         double y = Math.random() * 2 - 1;
-        return new Vector(x, y, 0);
+        Vector u = new Vector(x, y, 0); 
+        return u.divide(u.mag());
     }
 
     /**

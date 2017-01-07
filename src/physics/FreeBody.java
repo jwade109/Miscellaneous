@@ -20,8 +20,8 @@ public class FreeBody implements Accelerable
     /**
      * Constructs a new Free Body.
      * 
-     * @param mass
-     * @param inertia
+     * @param mass The mass of the body.
+     * @param inertia The moment of inertia of the body.
      */
     public FreeBody(double mass, double inertia)
     {
