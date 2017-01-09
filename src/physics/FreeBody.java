@@ -1,18 +1,19 @@
 package physics;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 public class FreeBody implements Accelerable
 {
     private ArrayList<Vector> forces;
-    private Vector acceleration;
-    private Vector velocity;
-    private Vector position;
+    public Vector acceleration;
+    public Vector velocity;
+    public Vector position;
 
     private ArrayList<Vector> moments;
-    private Vector angular_acceleration;
-    private Vector angular_velocity;
-    private Vector angular_position;
+    public Vector angular_acceleration;
+    public Vector angular_velocity;
+    public Vector angular_position;
 
     public final double mass;
     public final double moment_of_inertia;
@@ -110,6 +111,7 @@ public class FreeBody implements Accelerable
      */
     public String toString()
     {
+        DecimalFormat d = new DecimalFormat("#.###");
         StringBuilder out = new StringBuilder("Forces: ");
         out.append(forces.toString());
         out.append(" Newtons\nResultant: ");
@@ -133,7 +135,7 @@ public class FreeBody implements Accelerable
         out.append(" radians\nMass: ");
         out.append(mass);
         out.append(" kg\nMoment of Inertia: ");
-        out.append(moment_of_inertia);
+        out.append(d.format(moment_of_inertia));
         out.append(" kg*m^2");
         return out.toString();
     }

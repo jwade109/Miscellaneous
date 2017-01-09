@@ -1,6 +1,10 @@
 package physics;
 
-public interface Collidable
+public interface Collidable extends Accelerable
 {
-    boolean isCollidingWith(Collidable other);
+    public boolean isCollidingWith(Collidable other);
+    
+    public Vector getClosestPointTo(Vector point);
+    
+    public boolean contains(Vector point);
 }

@@ -26,6 +26,17 @@ public class Vector
         this.y = y;
         this.z = z;
     }
+    
+    /**
+     * Creates a new Vector object.
+     * 
+     * @param x The x component.
+     * @param y The y component.
+     */
+    public Vector(double x, double y)
+    {
+        this(x, y, 0);
+    }
 
     /**
      * Gets a random unit vector.
@@ -37,8 +48,7 @@ public class Vector
         double x = Math.random() * 2 - 1;
         double y = Math.random() * 2 - 1;
         double z = Math.random() * 2 - 1;
-        Vector u = new Vector(x, y, z); 
-        return u.divide(u.mag());
+        return new Vector(x, y, z).unit();
     }
 
     /**
@@ -50,8 +60,7 @@ public class Vector
     {
         double x = Math.random() * 2 - 1;
         double y = Math.random() * 2 - 1;
-        Vector u = new Vector(x, y, 0); 
-        return u.divide(u.mag());
+        return new Vector(x, y).unit();
     }
 
     /**
@@ -62,6 +71,16 @@ public class Vector
     public Vector neg()
     {
         return new Vector(-x, -y, -z);
+    }
+    
+    /**
+     * Returns the unit vector of this vector.
+     * 
+     * @return A vector with the same direction, but a unit magnitude.
+     */
+    public Vector unit()
+    {
+        return divide(mag());
     }
 
     /**
