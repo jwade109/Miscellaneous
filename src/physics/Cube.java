@@ -4,6 +4,7 @@ public class Cube extends FreeBody implements Collidable
 {
     public final double side;
     public final Vector span;
+    // test comment
     
     public static void main(String[] args)
     {
