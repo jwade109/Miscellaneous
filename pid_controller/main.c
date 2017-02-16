@@ -3,61 +3,79 @@
 #include <string.h>
 #include "pid_lib.h"
 
+void wait(int millis)
+{
+    for (int i = 0; i < millis * 200000; i++)
+    {
+        // do nothing
+    }
+}
+
 int main(int argc, char** argv)
-{    
-    int steps = 10;
-    double position = 0, seek = 100, dt = 0.01;
-    double P = 0.3, I = 0.1, D = 0;
+{
+    double position = 0, setpoint = 10, dt = 0.01;
+    double P = 1, I = 0, D = 800;
     
     for (int i = 1; i < argc; i++)
     {
         if (argc % 2 == 1)
         {
-            if (strcmp(argv[i], "-p") == 0)
+            if (strcmp(argv[i], "-P") == 0)
             {
                 i++;
-                P = atoi(argv[i]);
+                sscanf(argv[i], "%lf", &P);
             }
-            else if (strcmp(argv[i], "-i") == 0)
+            else if (strcmp(argv[i], "-I") == 0)
             {
                 i++;
-                I = atoi(argv[i]);
+                sscanf(argv[i], "%lf", &I);
             }
-            else if (strcmp(argv[i], "-d") == 0)
+            else if (strcmp(argv[i], "-D") == 0)
             {
                 i++;
-                D = atoi(argv[i]);
+                sscanf(argv[i], "%lf", &D);
             }
-            else if (strcmp(argv[i], "-a") == 0)
+            else if (strcmp(argv[i], "--initial") == 0)
             {
                 i++;
-                position = atoi(argv[i]);
+                sscanf(argv[i], "%lf", &position);
             }
-            else if (strcmp(argv[i], "-b") == 0)
+            else if (strcmp(argv[i], "--setpoint") == 0)
             {
                 i++;
-                seek = atoi(argv[i]);
-            }
-            else if (strcmp(argv[i], "-c") == 0)
-            {
-                i++;
-                steps = atoi(argv[i]);
+                sscanf(argv[i], "%lf", &setpoint);
             }
         }
         else
         {
-            printf("usage: [-p Kp] [-i Ki] [-d Kd] [-a start] [-b seek] [-c steps]\n");
+            printf("usage: [-P Kp] [-I Ki] [-D Kd] [--initial val] [--setpoint val]\n");
             return 1;
         }
     }
     
-    Controller c = pid_init(P, I, D, 15);
+    Controller c = pid_init(P, I, D, -1);
     
+    double velocity = 0;
+    printf("Kd: %.2f\tKi: %.2f\tKd: %.2f\n", c.Kp, c.Ki, c.Kd);
+    wait(4000);
     printf("%f\n", position);
-    for (double i = 0; i < steps * dt; i += dt)
+    for (double i = 0; i < 100000; i += dt)
     {
-        double stearing = pid_seek(&c, position, seek, i);
-        position += stearing;
-        printf("%f\t\t%f\n", position, stearing);
+        double response = pid_seek(&c, position, setpoint, i);
+        velocity += response * dt;
+        position += velocity * dt;
+        printf(" %.2f\t%.2f\t", i, position);
+        int i = 0;
+        for (int i = 0; i < 100; i++)
+        {
+            if (i == 50)
+                printf("*");
+            else if (i < position * 50 / setpoint)
+                printf("|");
+            else if (i < 50)
+                printf(" ");
+        }
+        printf("\n");
+        wait(dt * 1000);
     }
 }

@@ -22,9 +22,9 @@ void pid_zero(Controller* c)
     c->has_prev = 0;
 }
 
-double pid_seek(Controller* c, double current, double seek, double dt)
+double pid_seek(Controller* c, double actual, double setpoint, double dt)
 {
-    double error = seek - current, error_rate = 0;
+    double error = setpoint - actual, error_rate = 0;
     
     // assign steady state error with windup guards
     c->integral += error * dt;

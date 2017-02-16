@@ -20,7 +20,7 @@ Controller pid_init(double Kp, double Ki, double Kd, double max);
 
 void pid_zero(Controller* c);
 
-double pid_seek(Controller* c, double actual, double desired, double time);
+double pid_seek(Controller* c, double actual, double setpoint, double time);
 
 void print(Controller* c);
 
