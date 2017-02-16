@@ -1,41 +1,51 @@
 #include "pid_lib.h"
 #include <stdio.h>
 
-struct Controller pid_init(double Kp, double Ki, double Kd)
+Controller pid_init(double Kp, double Ki, double Kd, double max)
 {
-    struct Controller c;
+    Controller c;
     c.Kp = Kp;
     c.Ki = Ki;
     c.Kd = Kd;
-    c.lastP = 0;
-    c.currentTime = -1;
+    c.prev_error = 0;
     c.integral = 0;
+    c.has_prev = 0;
+    if (max > 0) c.max_int = max;
+    else c.max_int = 9999999;
     return c;
 }
 
-double pid_seek(struct Controller* c, double actual, double desired, double time)
+void pid_zero(Controller* c)
 {
-    double P = desired - actual, I, D;
-    if (c -> currentTime == -1)
-    {
-        I = 0;
-        D = 0;
-    }
-    else
-    {
-        double dt = time - c -> currentTime;
-        c -> integral += P * dt;
-        I = c -> integral;
-        D = (P - c -> lastP) * dt;
-        c -> lastP = P;
-    }
-    c -> currentTime = time;
-    
-    return c -> Kp * P + c -> Ki * I + c -> Kd * D;
+    c->prev_error = 0;
+    c->integral = 0;
+    c->has_prev = 0;
 }
 
-void print(struct Controller* c)
+double pid_seek(Controller* c, double current, double seek, double dt)
 {
-    struct Controller con = *c;
-    printf("Controller: time = %f, Kp = %f, Ki = %f, Kd = %f, lastP = %f, integral = %f\n", con.currentTime, con.Kp, con.Ki, con.Kd, con.lastP, con.integral);
+    double error = seek - current, error_rate = 0;
+    
+    // assign steady state error with windup guards
+    c->integral += error * dt;
+    if (c->integral > c->max_int)
+    {
+        c->integral = c->max_int;
+    }
+    else if (c->integral < -(c->max_int))
+    {
+        c->integral = -(c->max_int);
+    }
+    
+    // calculate error_rate if possible
+    if (c->has_prev)
+    {
+        error_rate = (error - c->prev_error) / dt;
+    }
+    
+    // store error for calculating error_rate next iteration
+    c->prev_error = error;
+    c->has_prev = 1;
+    
+    return (c->Kp * error) + (c->Ki * c->integral) + (c->Kd * error_rate);
 }

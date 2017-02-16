@@ -2,12 +2,26 @@
 #define PID_LIB_H
 
 #include <inttypes.h>
-#include "controller.h"
+#include <stdbool.h>
 
-struct Controller pid_init(double Kp, double Ki, double Kd);
+typedef struct
+{
+    double Kp; // proportional gain
+    double Ki; // integral gain
+    double Kd; // derivative gain
+    double prev_error;
+    double integral;
+    double max_int;
+    bool has_prev;
+}
+Controller;
 
-double pid_seek(struct Controller* c, double actual, double desired, double time);
+Controller pid_init(double Kp, double Ki, double Kd, double max);
 
-void print(struct Controller* c);
+void pid_zero(Controller* c);
+
+double pid_seek(Controller* c, double actual, double desired, double time);
+
+void print(Controller* c);
 
 #endif

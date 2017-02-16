@@ -6,8 +6,8 @@
 int main(int argc, char** argv)
 {    
     int steps = 10;
-    double position = 0, seek = 30, dt = 0.01;
-    double P = 0.3, I = 0.02, D = 0.2;
+    double position = 0, seek = 100, dt = 0.01;
+    double P = 0.3, I = 0.1, D = 0;
     
     for (int i = 1; i < argc; i++)
     {
@@ -51,7 +51,7 @@ int main(int argc, char** argv)
         }
     }
     
-    struct Controller c = pid_init(P, I, D);
+    Controller c = pid_init(P, I, D, 15);
     
     printf("%f\n", position);
     for (double i = 0; i < steps * dt; i += dt)
