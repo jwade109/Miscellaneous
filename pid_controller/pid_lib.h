@@ -12,6 +12,11 @@ typedef struct
     double prev_error;
     double integral;
     double max_int;
+    
+    double prev_p_response;
+    double prev_i_response;
+    double prev_d_response;
+    
     bool has_prev;
 }
 Controller;

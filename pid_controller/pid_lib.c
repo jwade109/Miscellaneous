@@ -47,5 +47,9 @@ double pid_seek(Controller* c, double actual, double setpoint, double dt)
     c->prev_error = error;
     c->has_prev = 1;
     
-    return (c->Kp * error) + (c->Ki * c->integral) + (c->Kd * error_rate);
+    c->prev_p_response = c->Kp * error;
+    c->prev_i_response = c->Ki * c->integral;
+    c->prev_d_response = c->Kd * error_rate;
+    
+    return c->prev_p_response + c->prev_i_response + c->prev_d_response;
 }
