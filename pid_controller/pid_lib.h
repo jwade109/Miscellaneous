@@ -27,6 +27,4 @@ void pid_zero(Controller* c);
 
 double pid_seek(Controller* c, double actual, double setpoint, double time);
 
-void print(Controller* c);
-
 #endif
