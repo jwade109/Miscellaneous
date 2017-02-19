@@ -72,7 +72,15 @@ int main(int argc, char** argv)
     Controller c = pid_init(P, I, D, -1);
     
     double velocity = 0;
-    printf("Kd: %.2f\tKi: %.2f\tKd: %.2f\n", c.Kp, c.Ki, c.Kd);
+    if (verbose)
+    {
+        printf("T\tP\tI\tD\tOP\tPV\t");
+    }
+    else
+    {
+        printf("T\tOP\tPV\t");
+    }
+    printf("Kd: %.2f\tKi: %.2f\tKd: %.2f\tSetpoint: %.2f\n", c.Kp, c.Ki, c.Kd, setpoint);
     wait(4000);
     int count = 0;
     for (double t = 0; t < 100000; t += dt)
@@ -85,10 +93,10 @@ int main(int argc, char** argv)
             velocity = -setpoint * 2;
         }
         position += velocity * dt;
-        printf(" %.2f:\t", t);
+        printf("%.2f:\t", t);
         if (verbose)
         {
-            printf("(%.2f | %.2f | %.2f > %.2f )\t", c.prev_p_response, c.prev_i_response, c.prev_d_response, response);
+            printf("%.2f\t%.2f\t%.2f\t%.2f\t", c.prev_p_response, c.prev_i_response, c.prev_d_response, response);
         }
         else
         {
