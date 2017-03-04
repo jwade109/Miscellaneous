@@ -12,6 +12,12 @@ past apogee or before burnout, so take care to ensure any
 function returns valid data.
 */
 
+double accel(double v_burn, double m, double k, double t)
+{
+    double v = vel(v_burn, m, k, t);
+    return -g - (k/m)*v*v;
+}
+
 double vel(double v_burn, double m, double k, double t) // 0.12 μs on average
 {
 	return sqrt(m*g/k)*tan(atan(v_burn*sqrt(k/(m*g)))-t*sqrt(g*k/m));
@@ -25,6 +31,11 @@ double alt(double y_burn, double v_burn, double m, double k, double t) // 0.30 �
 double t_a(double v_burn, double m, double k) // 0.10 μs on average
 {
     return atan(v_burn*sqrt(k/(m*g)))/sqrt(g*k/m);
+}
+
+double interp(double x, double x1, double x2, double y1, double y2)
+{
+    return y1+(x-x1)*(y2-y1)/(x2-x1);
 }
 
 double T(double mass, double velocity)
