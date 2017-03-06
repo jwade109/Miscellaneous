@@ -5,19 +5,21 @@
 #include <time.h>
 #include <string.h>
 
-    
+
 
 int main(int argc, char** argv)
 {
     system("clear");
     clock_t start = clock();
-    
+
     int noWait = 0;
     int noPrint = 0;
     int compact = 0;
-    
-    double yb = 160, vb = 100, kl = 0.005, kh = 0.015, m = 5, target = 400;
-    double dt = 0.5;
+    int graphical = 0;
+
+    double yb = 3100, vb = 210, kl = 0.005, kh = 0.012, m = 5, target = 3800;
+    double dt = 0.05;
+    double P = 1, I = 0, D = 0;
 
     for (int i = 1; i < argc; i++)
     {
@@ -62,12 +64,25 @@ int main(int argc, char** argv)
         {
             compact = 1;
         }
+        else if (!strcmp(argv[i], "tune"))
+        {
+            i++;
+            sscanf(argv[i], "%lf", &P);
+            i++;
+            sscanf(argv[i], "%lf", &I);
+            i++;
+            sscanf(argv[i], "%lf", &D);
+        }
+        else if (!strcmp(argv[i], "graphical"))
+        {
+            graphical = 1;
+        }
     }
-    
+
     double vi = vb;
     double yi = yb;
     double ki = kl;
-    
+
     double ld_ta = t_a(vb, m, kl);
     double ld_alt = alt(yb, vb, m, kl, ld_ta);
     double hd_ta = t_a(vb, m, kh);
@@ -77,59 +92,110 @@ int main(int argc, char** argv)
     {
         print_splash();
         printf("Burnout.\n");
-        printf("target:\t%d meters\nyb:\t%d meters\nvb:\t%g m/s\n", (int) target, (int) yb, vb);
-        printf("kl:\t%g kg/m\nkh:\t%g kg/m\nm:\t%g kg\n", kl, kh, m);
-        printf("- - - - - - - - - -\n");
-        
-        printf("target:\t\t\t%g meters\n", target);
-        printf("100%% passive alt:\t%d meters\n", (int) ld_alt);
-        printf("100%% active alt:\t%d meters\n", (int) hd_alt);
-        
+        printf("target:\t%d meters\r\t\t\t\t100p:\t%d meters\n", (int) target, (int)ld_alt);
+        printf("yb:\t%d meters\r\t\t\t\t100a:\t%d meters\n", (int) yb, (int) hd_alt); 
+        printf("vb:\t%g m/s\r\t\t\t\tdt:\t%g sec\n", vb, dt);
+        printf("kl:\t%g kg/m\n", kl);
+        printf("kh:\t%g kg/m\r\t\t\t\tPID:\t%g %g %g\n", kh, P, I, D); 
+        printf("m:\t%g kg\n", m);
+
         if (hd_alt > target)
-            printf("CANNOT BRAKE ENOUGH. Holding flaps open until apogee.\n");
+            printf("WARNING: WON'T REACH TARGET (TOO HIGH).");
         else if (ld_alt < target)
-            printf("WON'T REACH TARGET. Remaining passive until apogee.\n");
+            printf("WARNING: WON'T REACH TARGET (TOO LOW).");
         else
-            printf("Target can be reached. ");
-        printf("Beginning guidance.\n- - - - - - - - - -\n");
-        
-        printf("(All values are displayed in SI units.)\n");
-        printf("Time\t\tDest. Alt.\tFlap State\tAltitude\tVelocity\tAcceleration\n");
-    }
+            printf("Target can be reached.");
+        printf(" Beginning guidance.\n- - - - - - - - - -\n");
     
+        if (!graphical)
+        {
+            printf("(All values are displayed in SI units.)\n");
+            printf("Time\t\tDest. Alt.\tFlap State\tAltitude\tVelocity\tAcceleration\n");
+        }
+        else
+        {
+            printf("(Convergence graphically displayed as horizontal bar.)\n");
+            printf("Time\tDest. Alt.\tVelocity\tError\t- v +\n");
+        }
+    }
+
     if (!noWait) wait(2);
     double t = 0;
-    
-    Controller flaps = pid_init(1,0,0,-1);
-    
+
+    Controller flaps = pid_init(P,I,D,-1);
+
+    double max_error = 0;
     while(vi > 0)
     {
         double ta_passive = t_a(vi, m, kl);
         double ya_passive = alt(yi, vi, m, kl, ta_passive);
+
+        if (ya_passive - target > max_error)
+            max_error = ya_passive - target;
+
+        double error;
+        if (ya_passive > (target + dt * 15))
+            error = -pid_seek(&flaps, ya_passive, target, dt);
+        else
+            error = 0;
         
-        double error = -pid_seek(&flaps, ya_passive, target, dt);
         if (error > 1)
             ki = kh;
         else
             ki = kl;
-        
+
         yi = alt(yi, vi, m, ki, dt);
         vi = vel(vi, m, ki, dt);
         double ai = accel(vi, m, ki, dt);
+        
         if (!noPrint)
         {
-            if (compact) printf("\r                                                                  \r");
-            printf("%g\t\t%g\t\t%d\t\t%g\t\t%g\t\t%g", t, ya_passive, (int)error, yi, vi, ai);
+            if (!graphical)
+            {
+                printf("\r%g", t);
+                printf("\r\t\t%g", ya_passive);
+                printf("\r\t\t\t\t%d", (int) error);
+                printf("\r\t\t\t\t\t\t%g", yi);
+                printf("\r\t\t\t\t\t\t\t\t%g", vi);
+                printf("\r\t\t\t\t\t\t\t\t\t\t%g", ai);
+            }
+            else
+            {
+                printf("%g", t);
+                printf("\r\t%.4g", ya_passive);
+                printf("\r\t\t\t%g\r\t\t\t\t\t", vi);
+                for (int i = -10; i < 100; i++)
+                {
+                    int error = ya_passive - target;
+                    if (i == 0)
+                        printf(":");
+                    else if (error > 0 && i > 0 && i < error * 50 / max_error)
+                        printf("|");
+                    else if (error < 0 && i < 0 && i > error * 50 / max_error)
+                        printf("|");
+                    else if (i < 0)
+                        printf(" ");
+                }
+            }
             fflush(stdout);
         }
-        t += dt;
         if (!noWait) wait(dt*0.9);
-        if (!noPrint && !compact) printf("\n");
+        if (!noPrint) 
+        {
+            if (compact && vi > 0)
+            {
+                printf("\r                                                    ");
+                printf("                                                         \r");
+            }
+            if (!compact) printf("\n");
+        }
+        t += dt;
     }
-    
+
     double elapsed = ((double)(clock() - start))/CLOCKS_PER_SEC;
     if (compact) printf("\n");
-    printf("time elapsed: %g seconds (%g microseconds)\n\n", elapsed, 1000000*elapsed);
-    
+    printf("- - - - - - - - - -\nApogee.\n");
+    printf("Time elapsed: %g seconds (%g microseconds)\n\n", elapsed, 1000000*elapsed);
+
     return 0;
 }
