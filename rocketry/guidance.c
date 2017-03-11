@@ -4,22 +4,22 @@
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
-
-
+#include <allegro5/allegro.h>
+#include <allegro5/allegro_primitives.h>
 
 int main(int argc, char** argv)
 {
-    system("clear");
     clock_t start = clock();
 
     int noWait = 0;
     int noPrint = 0;
     int compact = 0;
     int graphical = 0;
+    int window = 0;
 
     double yb = 3100, vb = 210, kl = 0.005, kh = 0.012, m = 5, target = 3800;
     double dt = 0.05;
-    double P = 1, I = 0, D = 0;
+    double P = 1, I = 0, D = 0;    
 
     for (int i = 1; i < argc; i++)
     {
@@ -77,6 +77,20 @@ int main(int argc, char** argv)
         {
             graphical = 1;
         }
+        else if (!strcmp(argv[i], "window"))
+        {
+            window = 1;
+        }
+    }
+    
+    ALLEGRO_DISPLAY *display = NULL;
+    if (window)
+    {
+        al_init();
+        al_init_primitives_addon();
+        display = al_create_display(1000, 1000);
+        al_draw_filled_triangle(500,500,700,500,500,700, al_map_rgb(0,255,0));
+        al_flip_display();
     }
 
     double vi = vb;
@@ -90,7 +104,6 @@ int main(int argc, char** argv)
 
     if (!noPrint)
     {
-        print_splash();
         printf("Burnout.\n");
         printf("target:\t%d meters\r\t\t\t\t100p:\t%d meters\n", (int) target, (int)ld_alt);
         printf("yb:\t%d meters\r\t\t\t\t100a:\t%d meters\n", (int) yb, (int) hd_alt); 
@@ -179,7 +192,7 @@ int main(int argc, char** argv)
             }
             fflush(stdout);
         }
-        if (!noWait) wait(dt*0.9);
+        if (!noWait) al_rest(dt);
         if (!noPrint) 
         {
             if (compact && vi > 0)
@@ -193,9 +206,13 @@ int main(int argc, char** argv)
     }
 
     double elapsed = ((double)(clock() - start))/CLOCKS_PER_SEC;
-    if (compact) printf("\n");
-    printf("- - - - - - - - - -\nApogee.\n");
-    printf("Time elapsed: %g seconds (%g microseconds)\n\n", elapsed, 1000000*elapsed);
+    if (compact && !noPrint) printf("\n");
+    if (!noPrint) printf("- - - - - - - - - -\nApogee.\n");
+    printf("Time elapsed: %g seconds (%g microseconds)\n", elapsed, 1000000*elapsed);
+    if (!noPrint) printf("\n");
+
+    if (window) while(1);
+    al_destroy_display(display);
 
     return 0;
 }

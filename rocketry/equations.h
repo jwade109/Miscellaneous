@@ -1,7 +1,5 @@
 // equations.h
 
-#define g 9.81
-
 double accel(double v_burn, double m, double k, double t);
 
 double vel(double v_burn, double m, double k, double t);

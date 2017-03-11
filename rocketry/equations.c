@@ -12,6 +12,8 @@ past apogee or before burnout, so take care to ensure any
 function returns valid data.
 */
 
+static const double g = 9.81;
+
 double accel(double v_burn, double m, double k, double t)
 {
     double v = vel(v_burn, m, k, t);
