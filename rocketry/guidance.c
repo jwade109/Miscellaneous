@@ -1,5 +1,4 @@
 #include "equations.h"
-#include "../pid/pid_lib.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -7,16 +6,13 @@
 
 int main(int argc, char** argv)
 {
-    clock_t start = clock();
-
     int noWait = 0;
     int noPrint = 0;
     int compact = 0;
     int graphical = 0;
 
-    double yb = 3100, vb = 210, vmin = 2, kl = 0.005, kh = 0.012, m = 5, target = 3800;
+    double yb = 3100, vb = 210, vmin = 8, kl = 0.005, kh = 0.012, m = 5, target = 3800;
     double dt = 0.05;
-    double P = 1, I = 0, D = 0;
 
     /*
      * this god-awful for loop processes all the possible arguments for
@@ -70,15 +66,6 @@ int main(int argc, char** argv)
         {
             compact = 1;
         }
-        else if (!strcmp(argv[i], "tune"))
-        {
-            i++;
-            sscanf(argv[i], "%lf", &P);
-            i++;
-            sscanf(argv[i], "%lf", &I);
-            i++;
-            sscanf(argv[i], "%lf", &D);
-        }
         else if (!strcmp(argv[i], "graphical"))
         {
             graphical = 1;
@@ -113,9 +100,9 @@ int main(int argc, char** argv)
         printf("Burnout.\n");
         printf("target:\t%d meters\r\t\t\t\t100p:\t%d meters\n", (int) target, (int)ld_alt);
         printf("yb:\t%d meters\r\t\t\t\t100a:\t%d meters\n", (int) yb, (int) hd_alt); 
-        printf("vb:\t%g m/s\r\t\t\t\tdt:\t%g sec\n", vb, dt);
-        printf("kl:\t%g kg/m\n", kl);
-        printf("kh:\t%g kg/m\r\t\t\t\tPID:\t%g %g %g\n", kh, P, I, D); 
+        printf("vb:\t%g m/s\r\t\t\t\tvmin:\t%g m/s\n", vb, vmin);
+        printf("kl:\t%g kg/m\r\t\t\t\tdt:\t%g sec\n", kl, dt);
+        printf("kh:\t%g kg/m\n", kh);
         printf("m:\t%g kg\n", m);
 
         if (hd_alt > target)
@@ -129,7 +116,7 @@ int main(int argc, char** argv)
         if (!graphical)
         {
             printf("(All values are displayed in SI units.)\n");
-            printf("Time\t\tDest. Alt.\tFlap State\tAltitude\tVelocity\tAcceleration\n");
+            printf("Time\t\tDest. Alt.\tClrvoynt Alt.\tFlap State\tAltitude\tVelocity\tAcceleration\n");
         }
         else
         {
@@ -140,7 +127,6 @@ int main(int argc, char** argv)
     
     double t = 0; // keeps track of time since burnout
     double max_error = 0; // for graphical display. computationally unnecessary
-    Controller flaps = pid_init(P,I,D,-1);
     if (!noWait) wait(2);
     
     /*
@@ -148,8 +134,12 @@ int main(int argc, char** argv)
      * and runs calculations to attenuate the flaps and reach apogee, until
      * velocity reaches some threshold minimum (apogee is reached).
      */
-    while(vi > vmin)
+    int firstStep = 1;
+    clock_t start = clock();
+    while(vi > 0)
     {
+        clock_t step_start = clock();
+        
         /*
          * at this point in the loop the experimentally measured values
          * should be determined. for the algorithm to work, only instantaneous
@@ -159,8 +149,18 @@ int main(int argc, char** argv)
          * rates, though I think at least 5 Hz is necessary
          */
          
-        // TODO: calculate real vi (step velocity) and yi (step altitude)
-    
+        /*
+         * this block is unnecessary for the final algorithm - in this
+         * simulation, the next step's instantaneous altitude and velocity
+         * are calcuted using the ideal equations. in the field, they will
+         * be measured experimentally.
+         */        
+        if (!firstStep)
+        {
+            yi = alt(yi, vi, m, ki, dt);
+            vi = vel(vi, m, ki, dt);
+        }
+        
         /*
          * this block calculates the time to apogee and the height
          * of apogee if the rest of the flight is flown with passive
@@ -182,54 +182,31 @@ int main(int argc, char** argv)
          */ 
         double error;
         if (ya_passive > target)
-            error = -pid_seek(&flaps, ya_passive, target, dt);
+            error = ya_passive - target;
         else
             error = 0;
         
         /*
-         * decides to engage the flaps or not.
-         * if error is above a certain threshold, engage flaps.
+         * calculates the next step's predicted altitude to confirm
+         * that high drag should be chosen for this step.
+         * this is to avoid overshooting, since more drag
+         * can always be applied later.
          */
-        double ya_passive_next = 0;
-        int flap_state = 0;
-        if (error > 1)
+        double yi_next = alt(yi, vi, m, kh, dt);
+        double vi_next = vel(vi, m, kh, dt);
+        double ta_passive_next = t_a(vi_next, m, kl);
+        double ya_passive_next = alt(yi_next, vi_next, m, kl, ta_passive_next);
+        char* flap_state;
+        if (ya_passive_next > target && vi_next > vmin)
         {
-            /*
-             * calculates the next step's predicted altitude to confirm
-             * that high drag should be chosen for this step.
-             * this is to avoid overshooting, since more drag
-             * can always be applied later.
-             */
-            
-            double yi_next = alt(yi, vi, m, kh, dt);
-            double vi_next = vel(vi, m, kh, dt);
-            double ta_passive_next = t_a(vi_next, m, kl);
-            ya_passive_next = alt(yi_next, vi_next, m, kl, ta_passive_next);
-            if (ya_passive_next > target)
-            {
-                ki = kh;
-                flap_state = 1;
-            }
-            else
-            {
-                ki = kl;
-                flap_state = 0;
-            }
+            ki = kh;
+            flap_state = "ON";
         }
         else
         {
             ki = kl;
-            flap_state = 0;
+            flap_state = "--";
         }
-
-        /*
-         * this block is unnecessary for the final algorithm - in this
-         * simulation, the next step's instantaneous altitude and velocity
-         * are calcuted using the ideal equations. in the field, they will
-         * be measured experimentally.
-         */
-        yi = alt(yi, vi, m, ki, dt);
-        vi = vel(vi, m, ki, dt);
         
         /* unnecessary to calculate acceleration but useful to know. */
         double ai = accel(vi, m, ki, dt);
@@ -242,11 +219,11 @@ int main(int argc, char** argv)
             {
                 printf("\r%g", t);
                 printf("\r\t\t%g", ya_passive);
-                printf("\r\t\t\t\t%d    %d", flap_state, (int) error);
-                printf("\r\t\t\t\t\t\t%g", yi);
-                printf("\r\t\t\t\t\t\t\t\t%g", vi);
-                printf("\r\t\t\t\t\t\t\t\t\t\t%g", ai);
-                printf("\r\t\t\t\t\t\t\t\t\t\t\t\t%g", ya_passive_next);
+                printf("\r\t\t\t\t%g", ya_passive_next);
+                printf("\r\t\t\t\t\t\t%s (%d)", flap_state, (int) error);
+                printf("\r\t\t\t\t\t\t\t\t%g", yi);
+                printf("\r\t\t\t\t\t\t\t\t\t\t%g", vi);
+                printf("\r\t\t\t\t\t\t\t\t\t\t\t\t%g", ai);
             }
             /* prints 3 columns of data and an error bar if graphical is enabled */
             else
@@ -269,7 +246,6 @@ int main(int argc, char** argv)
             }
             fflush(stdout);
         }
-        if (!noWait) wait(dt*0.9); // wait dt seconds
         
         /* erases the old line if compact is enabled, starts a new line if not */
         if (!noPrint)
@@ -282,6 +258,9 @@ int main(int argc, char** argv)
             if (!compact) printf("\n");
         }
         t += dt; // advance t by dt
+        firstStep = 0;
+        double step_elapsed = ((double)(clock() - step_start))/CLOCKS_PER_SEC;
+        if (!noWait) wait(dt - step_elapsed); // wait dt seconds
     }
 
     double elapsed = ((double)(clock() - start))/CLOCKS_PER_SEC;
