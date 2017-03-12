@@ -6,6 +6,11 @@
 
 int main(int argc, char** argv)
 {
+    /*
+     * booleans for program behavior. noWait disables all realtime pausing.
+     * noPrint disables all printing and just does calculations for time trials.
+     * compact displays only one line of data. graphical displays a visual error bar.
+     */
     int noWait = 0;
     int noPrint = 0;
     int compact = 0;
@@ -91,8 +96,8 @@ int main(int argc, char** argv)
 
     /*
      * header information is printed here. this includes target, burnout height, burnout
-     * velocity, low drag constant, high drag constant, vehicle mass, low-drag altitude (100p),
-     * high-drag altitude (100a), the simulation timestep, and the PID tuning gains.
+     * velocity, low drag gain, high drag gain, vehicle mass, low-drag altitude (100p),
+     * high-drag altitude (100a), the minimum flap velocity, and the simulation timestep.
      */
 
     if (!noPrint)
@@ -138,8 +143,6 @@ int main(int argc, char** argv)
     clock_t start = clock();
     while(vi > 0)
     {
-        clock_t step_start = clock();
-        
         /*
          * at this point in the loop the experimentally measured values
          * should be determined. for the algorithm to work, only instantaneous
@@ -162,40 +165,22 @@ int main(int argc, char** argv)
         }
         
         /*
-         * this block calculates the time to apogee and the height
-         * of apogee if the rest of the flight is flown with passive
-         * drag. it appraises the state of the trajectory to predict
-         * if the target will be reached without further intervention.
+         * calculates a few things about possible trajectories and conservatively
+         * chooses to engage or disengage the flaps. this process prevents
+         * overshooting, but is likely to undershoot if the polling rate is too low
          */
+        
+        /* data about the current step */
         double ta_passive = t_a(vi, m, kl);
         double ya_passive = alt(yi, vi, m, kl, ta_passive);
-
-        /* computationally unnecessary. used for graphical display */
-        if (ya_passive - target > max_error)
-            max_error = ya_passive - target;
+        double error = ya_passive - target;
         
-        /*
-         * calculates the error between the predicted altitude
-         * and the target; only checks for positive error, since
-         * there's nothing we can do about negative error and it
-         * really shouldn't ever happen
-         */ 
-        double error;
-        if (ya_passive > target)
-            error = ya_passive - target;
-        else
-            error = 0;
-        
-        /*
-         * calculates the next step's predicted altitude to confirm
-         * that high drag should be chosen for this step.
-         * this is to avoid overshooting, since more drag
-         * can always be applied later.
-         */
+        /* data about the next step, if the flaps are deployed */
         double yi_next = alt(yi, vi, m, kh, dt);
         double vi_next = vel(vi, m, kh, dt);
         double ta_passive_next = t_a(vi_next, m, kl);
         double ya_passive_next = alt(yi_next, vi_next, m, kl, ta_passive_next);
+        
         char* flap_state;
         if (ya_passive_next > target && vi_next > vmin)
         {
@@ -208,8 +193,12 @@ int main(int argc, char** argv)
             flap_state = "--";
         }
         
-        /* unnecessary to calculate acceleration but useful to know. */
+        /* unnecessary to calculate acceleration but useful to know */
         double ai = accel(vi, m, ki, dt);
+        
+        /* computationally unnecessary. used for graphical display */
+        if (error > max_error)
+            max_error = error;
         
         /* prints out useful data */
         if (!noPrint)
@@ -233,7 +222,6 @@ int main(int argc, char** argv)
                 printf("\r\t\t\t%g\r\t\t\t\t\t", vi);
                 for (int i = -8; i < 100; i++)
                 {
-                    int error = ya_passive - target;
                     if (i == 0)
                         printf(":");
                     else if (error > 0 && i > 0 && i < error * 50 / max_error)
@@ -247,6 +235,10 @@ int main(int argc, char** argv)
             fflush(stdout);
         }
         
+        t += dt; // advance t by dt
+        firstStep = 0;
+        if (!noWait) wait(dt*0.85); // wait dt seconds
+        
         /* erases the old line if compact is enabled, starts a new line if not */
         if (!noPrint)
         {
@@ -257,10 +249,6 @@ int main(int argc, char** argv)
             }
             if (!compact) printf("\n");
         }
-        t += dt; // advance t by dt
-        firstStep = 0;
-        double step_elapsed = ((double)(clock() - step_start))/CLOCKS_PER_SEC;
-        if (!noWait) wait(dt - step_elapsed); // wait dt seconds
     }
 
     double elapsed = ((double)(clock() - start))/CLOCKS_PER_SEC;
