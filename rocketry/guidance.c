@@ -123,7 +123,7 @@ int main(int argc, char** argv)
         if (!graphical)
         {
             printf("(All values are displayed in SI units.)\n");
-            printf("Time\t\tDest. Alt.\tFlap State\tAltitude\tVelocity\tAcceleration\n");
+            printf("Time\t\tDest. Alt.\tFlap State\tAltitude\t\tVelocity\tAcceleration\n");
         }
         else
         {
@@ -169,15 +169,15 @@ int main(int argc, char** argv)
                 printf("\r\t\t%g", ya_passive);
                 printf("\r\t\t\t\t%d", (int) error);
                 printf("\r\t\t\t\t\t\t%g", yi);
-                printf("\r\t\t\t\t\t\t\t\t%g", vi);
-                printf("\r\t\t\t\t\t\t\t\t\t\t%g", ai);
+                printf("\r\t\t\t\t\t\t\t\t\t\t%g", vi);
+                printf("\r\t\t\t\t\t\t\t\t\t\t\t\t%g", ai);
             }
             else
             {
                 printf("%g", t);
                 printf("\r\t%.4g", ya_passive);
                 printf("\r\t\t\t%g\r\t\t\t\t\t", vi);
-                for (int i = -10; i < 100; i++)
+                for (int i = -8; i < 100; i++)
                 {
                     int error = ya_passive - target;
                     if (i == 0)
