@@ -2,14 +2,35 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <math.h>
 #include <string.h>
+
+double gaussianNoise(double mu, double sigma)
+{
+	double u1, u2;
+	do
+	{
+	   u1 = rand() * (1.0 / RAND_MAX);
+	   u2 = rand() * (1.0 / RAND_MAX);
+	}
+	while (u1 <= 0.0000001);
+
+	return mu + sigma * sqrt(-2.0 * log(u1)) * cos(2 * M_PI * u2);
+	wait(0.1);
+}
 
 int main(int argc, char** argv)
 {
     /*
+     * seeds the random number generator
+     */
+    srand(time(NULL));
+
+    /*
      * booleans for program behavior. noWait disables all realtime pausing.
      * noPrint disables all printing and just does calculations for time trials.
-     * compact displays only one line of data. graphical displays a visual error bar.
+     * compact displays only one line of data. graphical displays a visual error
+     * bar.
      */
     int noWait = 0;
     int noPrint = 0;
@@ -18,6 +39,7 @@ int main(int argc, char** argv)
 
     double yb = 3100, vb = 210, vmin = 8, kl = 0.005, kh = 0.012, m = 5, target = 3800;
     double dt = 0.05;
+    double alt_sigma = 0, vel_sigma = 0;
 
     /*
      * this god-awful for loop processes all the possible arguments for
@@ -75,6 +97,11 @@ int main(int argc, char** argv)
         {
             graphical = 1;
         }
+        else if (!strcmp(argv[i], "noisy"))
+        {
+            sscanf(argv[i+1], "%lf", &alt_sigma);
+            sscanf(argv[i+2], "%lf", &vel_sigma);
+        }
     }
 
     /*
@@ -94,12 +121,19 @@ int main(int argc, char** argv)
     double hd_ta = t_a(vb, m, kh);
     double hd_alt = alt(yb, vb, m, kh, hd_ta);
 
+
+    if (noPrint)
+    {
+        double data[20] = {9, 2, 5, 4, 12, 7, 8, 11, 9, 3, 7, 4, 12, 5, 4, 10, 9, 6, 9, 4};
+        int size = 20;
+        printf("%g\n", sigma(data, size));
+    }
+    
     /*
      * header information is printed here. this includes target, burnout height, burnout
      * velocity, low drag gain, high drag gain, vehicle mass, low-drag altitude (100p),
      * high-drag altitude (100a), the minimum flap velocity, and the simulation timestep.
      */
-
     if (!noPrint)
     {
         printf("Burnout.\n");
@@ -121,7 +155,7 @@ int main(int argc, char** argv)
         if (!graphical)
         {
             printf("(All values are displayed in SI units.)\n");
-            printf("Time\t\tDest. Alt.\tClrvoynt Alt.\tFlap State\tAltitude\tVelocity\tAcceleration\n");
+            printf("Time\t\tDest. Alt.\tClrvoynt Alt.\tFlap State\tAltitude\tVelocity\n");
         }
         else
         {
@@ -131,7 +165,7 @@ int main(int argc, char** argv)
     }
     
     double t = 0; // keeps track of time since burnout
-    double max_error = 0; // for graphical display. computationally unnecessary
+    double max_error = 0, min_error = target - yb; // for graphical display. computationally unnecessary
     if (!noWait) wait(2);
     
     /*
@@ -142,7 +176,7 @@ int main(int argc, char** argv)
     int firstStep = 1;
     clock_t start = clock();
     while(vi > 0)
-    {
+    {        
         /*
          * at this point in the loop the experimentally measured values
          * should be determined. for the algorithm to work, only instantaneous
@@ -165,19 +199,38 @@ int main(int argc, char** argv)
         }
         
         /*
+         * this block simulates sensor noise which follows a gaussian distribution
+         * around the expected value, which perfectly follows the ideal equations.
+         * this is unnecessary for the final program, since sensor noise is a given
+         */
+        double yi_measured = yi;
+        double vi_measured = vi;
+        
+        if (alt_sigma > 0 || vel_sigma > 0)
+        {
+            yi_measured = gaussianNoise(yi, alt_sigma);
+            vi_measured = gaussianNoise(vi, vel_sigma);
+        }
+        else
+        {
+            yi_measured = yi;
+            vi_measured = vi;
+        }
+        
+        /*
          * calculates a few things about possible trajectories and conservatively
          * chooses to engage or disengage the flaps. this process prevents
          * overshooting, but is likely to undershoot if the polling rate is too low
          */
         
-        /* data about the current step */
+        /* 100% accurate data about the current step, for the simulation */
         double ta_passive = t_a(vi, m, kl);
         double ya_passive = alt(yi, vi, m, kl, ta_passive);
         double error = ya_passive - target;
         
-        /* data about the next step, if the flaps are deployed */
-        double yi_next = alt(yi, vi, m, kh, dt);
-        double vi_next = vel(vi, m, kh, dt);
+        /* noisy data about the next step, if the flaps are deployed */
+        double yi_next = alt(yi_measured, vi_measured, m, kh, dt);
+        double vi_next = vel(vi_measured, m, kh, dt);
         double ta_passive_next = t_a(vi_next, m, kl);
         double ya_passive_next = alt(yi_next, vi_next, m, kl, ta_passive_next);
         
@@ -194,11 +247,13 @@ int main(int argc, char** argv)
         }
         
         /* unnecessary to calculate acceleration but useful to know */
-        double ai = accel(vi, m, ki, dt);
+        // double ai = accel(vi, m, ki, dt);
         
         /* computationally unnecessary. used for graphical display */
         if (error > max_error)
             max_error = error;
+        if (error < min_error)
+            min_error = error;
         
         /* prints out useful data */
         if (!noPrint)
@@ -210,9 +265,9 @@ int main(int argc, char** argv)
                 printf("\r\t\t%g", ya_passive);
                 printf("\r\t\t\t\t%g", ya_passive_next);
                 printf("\r\t\t\t\t\t\t%s (%d)", flap_state, (int) error);
-                printf("\r\t\t\t\t\t\t\t\t%g", yi);
-                printf("\r\t\t\t\t\t\t\t\t\t\t%g", vi);
-                printf("\r\t\t\t\t\t\t\t\t\t\t\t\t%g", ai);
+                printf("\r\t\t\t\t\t\t\t\t%g", yi_measured - yi);
+                printf("\r\t\t\t\t\t\t\t\t\t\t%g", vi_measured);
+                // printf("\r\t\t\t\t\t\t\t\t\t\t\t\t%g", ai);
             }
             /* prints 3 columns of data and an error bar if graphical is enabled */
             else
@@ -237,7 +292,7 @@ int main(int argc, char** argv)
         
         t += dt; // advance t by dt
         firstStep = 0;
-        if (!noWait) wait(dt*0.85); // wait dt seconds
+        if (!noWait) wait(dt*0.6); // wait dt seconds
         
         /* erases the old line if compact is enabled, starts a new line if not */
         if (!noPrint)
@@ -251,9 +306,12 @@ int main(int argc, char** argv)
         }
     }
 
+    
+
     double elapsed = ((double)(clock() - start))/CLOCKS_PER_SEC;
     if (compact && !noPrint) printf("\n");
-    if (!noPrint) printf("- - - - - - - - - -\nApogee.\n");
+    if (!noPrint) printf("- - - - - - - - - -\nApogee. Final error: ");
+    printf("%d meters\n", (int) min_error);
     printf("Time elapsed: %g seconds (%g microseconds)\n", elapsed, 1000000*elapsed);
     if (!noPrint) printf("\n");
 

@@ -61,39 +61,32 @@ void wait(double seconds)
     return;
 }
 
-void print_splash()
+double sigma(const double data[], int N)
 {
-    printf("\n\n");
-    printf("\t                 :Ns                                `-:/+++`\n");
-    printf("\t                +NNNh`                        `:+shNNNNNdo. \n");
-    printf("\t               sNmNNNd.          `:/.   `:+shNNNNNNNhs/.    \n");
-    printf("\t             `hN/ yNNNm-        dmdddyhmNNNNNNhs+:`         \n");
-    printf("\t            .dm-   oNNNN/     `sdmNNNNNNds+:.               \n");
-    printf("\t           -md.     /NNNN:.+ymNyNNdddds                     \n");
-    printf("\t          /Nh`       -yyhmmho/-`.-hdyo.                     \n");
-    printf("\t         oNs       -ohysyydh`                               \n");
-    printf("\t       `yNm     :syo-  `hNNNm.   `yhho     shhy             \n");
-    printf("\t      `dNNNdsshm+.       sNNNN:   :NNN:   +NNN-://////.     \n");
-    printf("\t     .mNNNNNNNd`          +NNNN/   /NNN. -NNN: ydmNNdd/     \n");
-    printf("\t    :NNNNNNNNNm:           :NNNNo   oNNh`dNN+    sNN-       \n");
-    printf("\t   +NNNNNNNNNNNNNhooooooooooyNNNNy`  yNNdNNs     sNN-       \n");
-    printf("\t  sNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNd. `dNNNh      sNN-         ΔVT inVenTs 2017.\n");
-    printf("\t :NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN+  `NNN`      /NN.         Invent the Future.\n");
-    printf("\n");
+    double mean = 0;
+    for (int i = 0; i < N; i++)
+    {
+        mean += (data[i]/N);
+    }
+    double mean_error = 0;
+    for (int i = 0; i < N; i++)
+    {
+        mean_error += (pow(data[i] - mean, 2)/N);
+    }
+    return sqrt(mean_error);
 }
 
-void load(int cycles)
+double sigma_sample(const double data[], int N)
 {
-    for (int i = 0; i < cycles; i++)
+    double mean = 0;
+    for (int i = 0; i < N; i++)
     {
-        for (int j = 0; j < 3; j++)
-        {
-            printf(".");
-            fflush(stdout);
-            wait(0.07);
-        }
-        printf("\r   \r");
-        fflush(stdout);
-        wait(0.1);
+        mean += (data[i]/N);
     }
+    double mean_error = 0;
+    for (int i = 0; i < N; i++)
+    {
+        mean_error += pow(data[i] - mean, 2);
+    }
+    return sqrt(mean_error/(N-1));
 }
