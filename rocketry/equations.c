@@ -6,11 +6,11 @@
 #include <string.h>
 
 /*
-Precondition: all functions are called with valid arguments.
-This is to save on computation time. Most functions are invalid
-past apogee or before burnout, so take care to ensure any
-function returns valid data.
-*/
+ * Precondition: all functions are called with valid arguments.
+ * This is to save on computation time. Most functions are invalid
+ * past apogee or before burnout, so take care to ensure any
+ * function returns valid data.
+ */
 
 static const double g = 9.81;
 
@@ -74,19 +74,4 @@ double sigma(const double data[], int N)
         mean_error += (pow(data[i] - mean, 2)/N);
     }
     return sqrt(mean_error);
-}
-
-double sigma_sample(const double data[], int N)
-{
-    double mean = 0;
-    for (int i = 0; i < N; i++)
-    {
-        mean += (data[i]/N);
-    }
-    double mean_error = 0;
-    for (int i = 0; i < N; i++)
-    {
-        mean_error += pow(data[i] - mean, 2);
-    }
-    return sqrt(mean_error/(N-1));
 }

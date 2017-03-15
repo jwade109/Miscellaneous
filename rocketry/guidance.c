@@ -5,6 +5,15 @@
 #include <math.h>
 #include <string.h>
 
+/*
+ * booleans for program behavior. noWait disables all realtime pausing.
+ * noPrint disables all printing and just does calculations for time trials.
+ * compact displays only one line of data
+ */
+int noWait = 0;
+int noPrint = 0;
+int compact = 0;
+
 int main(int argc, char** argv)
 {
     /*
@@ -12,20 +21,9 @@ int main(int argc, char** argv)
      */
     srand(time(NULL));
 
-    /*
-     * booleans for program behavior. noWait disables all realtime pausing.
-     * noPrint disables all printing and just does calculations for time trials.
-     * compact displays only one line of data. graphical displays a visual error
-     * bar.
-     */
-    int noWait = 0;
-    int noPrint = 0;
-    int compact = 0;
-    int graphical = 0;
-
     double yb = 3100, vb = 210, vmin = 8, kl = 0.005, kh = 0.012, m = 5, target = 3800;
     double dt = 0.05;
-
+    
     /*
      * this god-awful for loop processes all the possible arguments for
      * command line invokation
@@ -78,10 +76,6 @@ int main(int argc, char** argv)
         {
             compact = 1;
         }
-        else if (!strcmp(argv[i], "graphical"))
-        {
-            graphical = 1;
-        }
     }
 
     /*
@@ -124,20 +118,15 @@ int main(int argc, char** argv)
             printf("Target can be reached.");
         printf(" Beginning guidance.\n- - - - - - - - - -\n");
     
-        if (!graphical)
-        {
-            printf("(All values are displayed in SI units.)\n");
-            printf("Time\t\tDest. Alt.\tClrvoynt Alt.\tFlap State\tAltitude\tVelocity\n");
-        }
-        else
-        {
-            printf("(Convergence graphically displayed as horizontal bar.)\n");
-            printf("Time\tDest. Alt.\tVelocity\tError\t- v +\n");
-        }
+        printf("(All values are displayed in SI units.)\n");
+        printf("Time\t\tDest. Alt.\tClrvoynt Alt.\tFlap State\tAltitude\tVelocity\n");
     }
     
     double t = 0; // keeps track of time since burnout
-    double max_error = 0, min_error = target - yb; // for graphical display. computationally unnecessary
+    double max_alt = 0;
+    int firstStep = 1;
+    clock_t start = clock();
+    
     if (!noWait) wait(2);
     
     /*
@@ -145,10 +134,8 @@ int main(int argc, char** argv)
      * and runs calculations to attenuate the flaps and reach apogee, until
      * velocity reaches some threshold minimum (apogee is reached).
      */
-    int firstStep = 1;
-    clock_t start = clock();
     while(vi > 0)
-    {        
+    {
         /*
          * at this point in the loop the experimentally measured values
          * should be determined. for the algorithm to work, only instantaneous
@@ -169,7 +156,7 @@ int main(int argc, char** argv)
             yi = alt(yi, vi, m, ki, dt);
             vi = vel(vi, m, ki, dt);
         }
-        
+            
         /*
          * calculates a few things about possible trajectories and conservatively
          * chooses to engage or disengage the flaps. this process prevents
@@ -187,6 +174,8 @@ int main(int argc, char** argv)
         double ta_passive_next = t_a(vi_next, m, kl);
         double ya_passive_next = alt(yi_next, vi_next, m, kl, ta_passive_next);
         
+        if (yi > max_alt) max_alt = yi;
+        
         char* flap_state;
         if (ya_passive_next > target && vi_next > vmin)
         {
@@ -199,53 +188,21 @@ int main(int argc, char** argv)
             flap_state = "--";
         }
         
-        /* unnecessary to calculate acceleration but useful to know */
-        // double ai = accel(vi, m, ki, dt);
-        
-        /* computationally unnecessary. used for graphical display */
-        if (error > max_error)
-            max_error = error;
-        if (error < min_error)
-            min_error = error;
-        
-        /* prints out useful data */
         if (!noPrint)
         {
-            /* prints 6 columns of data if graphical is disabled */
-            if (!graphical)
-            {
-                printf("\r%g", t);
-                printf("\r\t\t%g", ya_passive);
-                printf("\r\t\t\t\t%g", ya_passive_next);
-                printf("\r\t\t\t\t\t\t%s (%d)", flap_state, (int) error);
-                printf("\r\t\t\t\t\t\t\t\t%g", yi);
-                printf("\r\t\t\t\t\t\t\t\t\t\t%g", vi);
-                // printf("\r\t\t\t\t\t\t\t\t\t\t\t\t%g", ai);
-            }
-            /* prints 3 columns of data and an error bar if graphical is enabled */
-            else
-            {
-                printf("%g", t);
-                printf("\r\t%.4g", ya_passive);
-                printf("\r\t\t\t%g\r\t\t\t\t\t", vi);
-                for (int i = -8; i < 100; i++)
-                {
-                    if (i == 0)
-                        printf(":");
-                    else if (error > 0 && i > 0 && i < error * 50 / max_error)
-                        printf("|");
-                    else if (error < 0 && i < 0 && i > error * 50 / max_error)
-                        printf("|");
-                    else if (i < 0)
-                        printf(" ");
-                }
-            }
+            /* prints 6 columns of data */
+            printf("\r%g", t);
+            printf("\r\t\t%g", ya_passive);
+            printf("\r\t\t\t\t%g", ya_passive_next);
+            printf("\r\t\t\t\t\t\t%s (%d)", flap_state, (int) error);
+            printf("\r\t\t\t\t\t\t\t\t%g", yi);
+            printf("\r\t\t\t\t\t\t\t\t\t\t%g", vi);
             fflush(stdout);
         }
         
         t += dt; // advance t by dt
         firstStep = 0;
-        if (!noWait) wait(dt*0.6); // wait dt seconds
+        if (!noWait) wait(dt*0.7); // wait dt seconds
         
         /* erases the old line if compact is enabled, starts a new line if not */
         if (!noPrint)
@@ -259,14 +216,17 @@ int main(int argc, char** argv)
         }
     }
 
-    
-
     double elapsed = ((double)(clock() - start))/CLOCKS_PER_SEC;
-    if (compact && !noPrint) printf("\n");
-    if (!noPrint) printf("- - - - - - - - - -\nApogee. Final error: ");
-    printf("%d meters\n", (int) min_error);
-    if (noPrint) printf("Time elapsed: %g seconds (%g microseconds)\n", elapsed, 1000000*elapsed);
-    if (!noPrint) printf("\n");
+    
+    if (!noPrint)
+    {
+        if (compact) printf("\n");
+        printf("- - - - - - - - - -\nApogee. Final error: ");
+        printf("%d meters\n", (int) (max_alt - target));
+        printf("\n");
+    }
+    else
+        printf("Time elapsed: %g seconds (%g microseconds)\n", elapsed, 1000000*elapsed);
 
     return 0;
 }

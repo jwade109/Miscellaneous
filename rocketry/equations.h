@@ -16,10 +16,4 @@ double V(double mass, double altitude);
 
 void wait(double seconds);
 
-void print_splash();
-
-void load(int cycles);
-
 double sigma(const double data[], int N);
-
-double sigma_sample(const double data[], int N);
