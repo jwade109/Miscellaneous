@@ -1,9 +1,16 @@
-package multitree;
+package tree;
 
 import java.util.ArrayList;
 
 public class RandomAI implements Player
 {
+    private String name;
+    
+    public RandomAI(String name)
+    {
+        this.name = name;
+    }
+    
     /**
      * Gets a random legal move given a TicTacGrow game.
      * 
@@ -28,6 +35,6 @@ public class RandomAI implements Player
     
     public String name()
     {
-        return "RandomAI";
+        return name;
     }
 }

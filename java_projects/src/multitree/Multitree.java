@@ -1,4 +1,4 @@
-package multitree;
+package tree;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -26,14 +26,14 @@ public class Multitree<T> implements Iterable<Node<T>>, Cloneable
      * 
      * @param depth The depth of the tree. A depth of 0 will generate a tree
      *        which is only a root node.
-     * @param width
+     * @param width The width of the tree.
      */
     public Multitree(int depth, int width)
     {
-        if (depth < 0 || width < 0)
+        if (depth < 0 || width < 1)
         {
             throw new IllegalArgumentException(
-                    "Depth and width must be greater than 0");
+                    "Depth and width must be atleast 0 and 1 respectively");
         }
         this.depth = depth;
         this.width = width;
@@ -153,7 +153,7 @@ public class Multitree<T> implements Iterable<Node<T>>, Cloneable
         }
         return clone;
     }
-    
+
     /**
      * Helper method which recursively compiles a String representation of the
      * Multitree.
@@ -232,12 +232,12 @@ public class Multitree<T> implements Iterable<Node<T>>, Cloneable
             incrementPath();
             return out;
         }
-        
+
         private int[] path()
         {
             return path.clone();
         }
-        
+
         private void incrementPath()
         {
             boolean max = true;

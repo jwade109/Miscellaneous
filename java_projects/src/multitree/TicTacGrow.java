@@ -1,4 +1,4 @@
-package multitree;
+package tree;
 
 import java.util.ArrayList;
 
@@ -12,7 +12,7 @@ import java.util.ArrayList;
  * @author Wade Foster
  * @version 2016.12.28
  */
-public class TicTacGrow
+public class TicTacGrow implements Cloneable
 {
     private Multitree<Play> m;
     private int boardWidth;
@@ -251,6 +251,33 @@ public class TicTacGrow
     }
 
     /**
+     * Gets a clone of this TicTacGrow board.
+     * 
+     * @return A clone of this TicTacGrow.
+     */
+    public TicTacGrow clone()
+    {
+        TicTacGrow clone = new TicTacGrow(m.clone(), legalSector, moveCount, nextPlayer);
+        clone.update();        
+        return clone;
+    }
+
+    /**
+     * Constructs a new TicTacGrow game given an underlying Multitree.
+     * 
+     * @param m The Multitree to use.
+     * @param legalSector The current legalSector.
+     */
+    private TicTacGrow(Multitree<Play> m, int legalSector, int moveCount, Play nextPlayer)
+    {
+        this(m.depth());
+        this.m = m;
+        this.legalSector = legalSector;
+        this.moveCount = moveCount;
+        this.nextPlayer = nextPlayer;
+    }
+
+    /**
      * Updates the state of every Node in the game to reflect the state of their
      * subgames, and updates the value of legalSector. Iterates through Nodes
      * from the bottom up in order to ensure all of them are updated correctly
@@ -280,7 +307,7 @@ public class TicTacGrow
      * @param level The level to represent.
      * @return A String representation of the game.
      */
-    private String toString(int level)
+    public String toString(int level)
     {
         StringBuilder out = new StringBuilder();
         ArrayList<Node<Play>> nodes = getLevel(level);

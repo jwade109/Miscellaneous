@@ -1,4 +1,4 @@
-package multitree;
+package tree;
 
 public enum Play
 {
