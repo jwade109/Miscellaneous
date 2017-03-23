@@ -1,14 +1,13 @@
 // data_utility.ino
 #include <Wire.h>
 #include <SPI.h>
-#include <SimpleKalmanFilter.h>
 
 #include "equations.h"
 #include "sensor_functions.h"
 
 #define BMP_SCK     13
 #define BMP_MISO    12
-#define BMP_MOSI    11 
+#define BMP_MOSI    11
 #define BMP_CS      10
 
 #define NOMINAL_DT  0.05
@@ -35,8 +34,6 @@ double ti = 0, ti_prev;
 double vi_acc;
 
 bool firstTime = true;
-
-SimpleKalmanFilter kalman(0.2, 0.1, 0.1);
 
 void setup()
 {
@@ -75,20 +72,6 @@ void loop()
     /* collects all raw data for this timestep */
     ti = t_start;
     double dt = ti - ti_prev;
-
-    double real_value = 50 + 10 * sin(1.5*ti);
-    double measurement = real_value + random(-200,200)/100.0;
-
-    Serial.print(15);
-    Serial.print(" ");
-    Serial.print(real_value);
-    Serial.print(" ");
-//    Serial.print(measurement);
-    
-    double filtered = kalman.updateEstimate(measurement);
-    
-    Serial.print(" ");
-    Serial.println(filtered);
 
     if (firstTime)
     {

@@ -1,11 +1,11 @@
+// Kalman.cpp
 #include <Eigen/Dense>
-#include <iostream>
-#include "kalman_lib.h"
+#include "Kalman.h"
 
 using namespace std;
 using namespace Eigen;
 
-KalmanFilter::KalmanFilter(const int M, const int N)
+Kalman::Kalman(const int M, const int N)
 {
     this-> M = M;
     this-> N = N;
@@ -17,7 +17,7 @@ KalmanFilter::KalmanFilter(const int M, const int N)
     Q = MatrixXd::Identity(N,N) * 0.1;
 }
 
-VectorXd KalmanFilter::step(const VectorXd Z)
+VectorXd Kalman::step(const VectorXd Z)
 {
     X = F*X;
     P = F*P*F.transpose() + Q;

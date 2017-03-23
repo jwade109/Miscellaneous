@@ -1,8 +1,8 @@
-#ifndef KALMAN_LIB_H
-#define KALMAN_LIB_H
+// Kalman.h
+#ifndef KALMAN_H
+#define KALMAN_H
 
 #include <Eigen/Dense>
-#include <math.h>
 
 using namespace std;
 using namespace Eigen;
