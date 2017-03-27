@@ -1,1 +1,1 @@
-g++ alt_filter.cpp SimpleKalman.cpp -o alt_filter -lm
+g++ alt_filter.cpp Kalman/SimpleKalman.cpp -o alt_filter -lm

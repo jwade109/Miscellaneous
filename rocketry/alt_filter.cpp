@@ -1,7 +1,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <math.h>
-#include "SimpleKalman.h"
+#include "Kalman/SimpleKalman.h"
 
 using namespace std;
 

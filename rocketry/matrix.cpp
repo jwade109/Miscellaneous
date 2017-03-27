@@ -1,28 +1,30 @@
-#include <Eigen/Dense>
-#include <iostream>
-
-#include "kalman_lib.h"
+#include <stdio.h>
+#include "MatrixMath/MatrixMath.h"
+#include "Kalman/KalmanLight.h"
+#include "Kalman/Defines.h"
 
 using namespace std;
-using namespace Eigen;
+
+void printm(float* A, int m, int n)
+{
+	for (int i = 0; i < m; i++)
+	{
+		for (int j = 0; j < n; j++)
+		{
+			printf("%g\t", A[n*i+j]);
+		}
+		printf("\n");
+	}
+}
+
+
+void println(void)
+{
+    printf("\n");
+}
 
 int main()
 {
-    int M, N;
-    cin >> M;
-    cin >> N;
-    KalmanFilter filter(M,N);
-    
-    filter.F(0,0) = 0.9;
-    filter.X(0) = 100;
-    
-    VectorXd Z = VectorXd::Zero(M);
-    int pos = 100;
-    for (int i = 0; i < 10; i++)
-    {
-        Z(0) = pos;
-        VectorXd x = filter.step(Z);
-        cout << x(0) << ", " << pos << endl;
-        pos = pos * 0.9;
-    }
+   
+    return 0;
 }
