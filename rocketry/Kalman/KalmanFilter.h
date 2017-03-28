@@ -1,9 +1,9 @@
-// KalmanLight.h
+// KalmanFilter.h
 
-#ifndef KALMAN_LIGHT_H
-#define KALMAN_LIGHT_H
+#ifndef KALMAN_FILTER_H
+#define KALMAN_FILTER_H
 
-#include "Defines.h"
+#include "Dims.h"
 
 using namespace std;
 
@@ -17,10 +17,12 @@ class KalmanFilter {
         float R[M][M]; // MxM
         float Q[N][N]; // NxN
         
-        KalmanFilter();
+        KalmanFilter(float sensorCov, float processCov);
         
         float* step(float* Z);
 
+    private:
+        float Identity[N][N];
 };
 
 #endif

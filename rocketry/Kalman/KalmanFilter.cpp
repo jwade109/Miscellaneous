@@ -1,11 +1,11 @@
-// KalmanLight.cpp
+// KalmanFilter.cpp
 
-#include "KalmanLight.h"
+#include "KalmanFilter.h"
 #include "MatrixMath.h"
 
 using namespace std;
 
-KalmanFilter::KalmanFilter()
+KalmanFilter::KalmanFilter(float sensorCov, float processCov)
 {
     for (int i = 0; i < N; i++)
     {
@@ -15,11 +15,13 @@ KalmanFilter::KalmanFilter()
             F[i][j] = 0;
             P[i][j] = 0;
             Q[i][j] = 0;
+            Identity[i][j] = 0;
             if (i == j)
             {
                 F[i][j] = 1;
                 P[i][j] = 1;
-                Q[i][j] = 0.01;
+                Q[i][j] = processCov;
+                Identity[i][j] = 1;
             }
         }
         for (int j = 0; j < M; j++)
@@ -34,7 +36,7 @@ KalmanFilter::KalmanFilter()
             R[i][j] = 0;
             if (i == j)
             {
-                R[i][j] = 0.5;
+                R[i][j] = sensorCov;
             }
         }
     }
@@ -97,18 +99,6 @@ float* KalmanFilter::step(float* Z)
     }
     // P = (Identity(N,N)-G*H)*P;
     {
-        float Identity[N][N];
-        for (int i = 0; i < N; i++)
-        {
-            for (int j = 0; j < N; j++)
-            {
-                Identity[i][j] = 0;
-                if (i == j)
-                {
-                    Identity[i][j] = 1;
-                }
-            }
-        }
         float GxH[N][N];
         Matrix::multiply((float*) G, (float*) H, N, M, N, (float*) GxH);
         float IminGxH[N][N];
