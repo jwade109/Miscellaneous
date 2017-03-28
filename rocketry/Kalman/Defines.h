@@ -1,3 +1,3 @@
-// Defines.h
-#define M 1
-#define N 1
+// Dims.h
+#define M 2 // measurements
+#define N 2 // state variables

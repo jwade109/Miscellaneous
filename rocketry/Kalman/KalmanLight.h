@@ -20,6 +20,7 @@ class KalmanFilter {
         KalmanFilter();
         
         float* step(float* Z);
+
 };
 
 #endif

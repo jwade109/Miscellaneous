@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "MatrixMath/MatrixMath.h"
+#include "Kalman/MatrixMath.h"
 #include "Kalman/KalmanLight.h"
 #include "Kalman/Defines.h"
 
@@ -17,7 +17,6 @@ void printm(float* A, int m, int n)
 	}
 }
 
-
 void println(void)
 {
     printf("\n");
@@ -25,6 +24,6 @@ void println(void)
 
 int main()
 {
-   
+    KalmanFilter filter;    
     return 0;
 }
