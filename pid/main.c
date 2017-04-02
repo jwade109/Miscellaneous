@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "Pid.h"
+#include "pid_lib.h"
 
 static char verbose = 0;
 static int whack = -1;
@@ -84,10 +84,9 @@ int main(int argc, char** argv)
         }
     }
     
-    PID control(P, I, D);
+    Controller c = pid_init(P, I, D, -1);
     double velocity = 0;
     int count = 0;
-    control.target(setpoint);
     
     if (verbose)
     {
@@ -97,12 +96,12 @@ int main(int argc, char** argv)
     {
         printf("Time\tOP\tPV\t");
     }
-    printf("Kd: %.2f\tKi: %.2f\tKd: %.2f\tSetpoint: %.2f\n", control.Kp, control.Ki, control.Kd, setpoint);
+    printf("Kd: %.2f\tKi: %.2f\tKd: %.2f\tSetpoint: %.2f\n", c.Kp, c.Ki, c.Kd, setpoint);
     wait(4000);
     
     for (double t = 0; t < 100000; t += dt)
     {
-        double response = control.seek(position, dt);
+        double response = pid_seek(&c, position, setpoint, dt);
         velocity += (response - external_error) * dt;
         if (count == whack * 100)
         {
@@ -111,7 +110,14 @@ int main(int argc, char** argv)
         }
         position += velocity * dt;
         printf("%.2f:\t", t);
-        printf("%.2f\t", response);
+        if (verbose)
+        {
+            printf("%.2f\t%.2f\t%.2f\t%.2f\t", c.prev_p_response, c.prev_i_response, c.prev_d_response, response);
+        }
+        else
+        {
+            printf("%.2f\t", response);
+        }
         printf("%.2f\t", position);
         for (int i = 0; i < 100; i++)
         {
