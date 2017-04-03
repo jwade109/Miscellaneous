@@ -2,20 +2,15 @@
 #include <Wire.h>
 #include <SPI.h>
 
-#include "equations.h"
 #include "sensor_functions.h"
+#include "RocketMath.h"
 
 #define BMP_SCK     13
 #define BMP_MISO    12
 #define BMP_MOSI    11
 #define BMP_CS      10
 
-#define NOMINAL_DT  0.05
-#define LOW_DRAG    0.005
-#define HIGH_DRAG   0.012
-#define MASS        5
-#define V_MIN       8
-#define TARGET      3800
+#define NOMINAL_DT 0.001
 
 Adafruit_BMP280 bmp(BMP_CS, BMP_MOSI, BMP_MISO,  BMP_SCK);
 Adafruit_BNO055 bno = Adafruit_BNO055();
@@ -25,15 +20,9 @@ double y0;
 imu::Vector<3> a0;
 imu::Vector<3> theta0;
 
-// altitude and previous altitude
-double yi, yi_prev;
+double alt_prev;
 
-// time and previous time
-double ti = 0, ti_prev;
-// accumulated velocity from acceleration
-double vi_acc;
-
-bool firstTime = true;
+KalmanFilter filter(0,0);
 
 void setup()
 {
@@ -50,39 +39,37 @@ void setup()
     }
     sensor_init(bmp, bno);
 
-    Serial.print("Calibrating.\n");
     y0 = getAltitude(50);
     a0 = getAcceleration(200);
     theta0 = getOrientation(50);
 
-    Serial.println("----------------------------------------------------");
-    ti = micros()/1000000.0;
+    filter.F[0][1] = 0.02;
+    filter.F[0][0] = 1;
+    filter.F[1][1] = 1;
+    filter.R[0][0] = 0.08;
+    filter.R[1][1] = 0.02;
 }
 
 void loop()
 {
-    yi_prev = yi;
-    
-    /* records the data from the last step */
-    ti_prev = ti;
+    double accel = getAcceleration().z() - a0.z();
+    double alt = getAltitude() - y0;
 
-    /* measures how long this step took to slow down for nominal dt */
-    double t_start = micros()/1000000.0;
+    float Z[2] = {alt, accel};
 
-    /* collects all raw data for this timestep */
-    ti = t_start;
-    double dt = ti - ti_prev;
+    float* X = filter.step((float*) Z);
 
-    if (firstTime)
-    {
-        firstTime = false;
-        return;
-    }
+    double better_alt = X[0];
+    double better_accel = X[1];
 
-    double actual_dt = micros()/1000000.0 - t_start;
-    if (actual_dt < NOMINAL_DT)
-    {
-        delay((NOMINAL_DT - actual_dt) * 1000);
-    }
+    double vel = better_alt - alt_prev;
+
+    alt_prev = better_alt;
+
+//    Serial.print(better_alt);
+    Serial.print("\t");
+    Serial.print(vel/0.02);
+    Serial.println("\t");
+//    Serial.println(better_accel);
 }
 
