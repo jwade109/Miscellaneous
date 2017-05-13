@@ -2,6 +2,7 @@
 #define MATRIX_H
 
 #include <cstdlib>
+#include <iostream>
 
 class Matrix
 {
@@ -9,8 +10,12 @@ class Matrix
     
         Matrix(size_t rows, size_t cols);
         
+        Matrix(const Matrix& other);
+        
         ~Matrix();
-    
+        
+        static Matrix identity(size_t rows, size_t cols);
+        
         size_t rows() const;
         
         size_t cols() const;
@@ -25,16 +30,22 @@ class Matrix
         
         void print() const;
         
-        Matrix operator+(const Matrix& other)
-        {
-            if (other.rows() != rows() || other.cols() != cols())
-            {
-                return Matrix(1, 1);
-            }
-            Matrix m(rows(), cols());
-            return m;
-        }
+        void print(const char* title) const;
         
+        Matrix transpose() const;
+        
+        Matrix inverse() const;
+        
+        Matrix& operator=(const Matrix& right);
+        
+        Matrix& operator=(std::initializer_list<double> list);
+        
+        Matrix operator+(const Matrix& right) const;
+        
+        Matrix operator-(const Matrix& right) const;
+        
+        Matrix operator*(const Matrix& right) const;
+                
     private:
     
         double* base;
@@ -43,5 +54,9 @@ class Matrix
         
         bool verify(size_t i, size_t j) const;
 };
+
+Matrix operator*(const Matrix& matrix, const double& factor);
+
+Matrix operator*(const double& factor, const Matrix& matrix);
 
 #endif

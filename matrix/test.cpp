@@ -3,14 +3,14 @@
 
 int main()
 {
-    Matrix m(4, 7);
-    for (size_t i = 0; i < m.size(); i++)
-    {
-    //    *(m.first() + i) = 121.5/(i+1);
-    }
-    m.write(3, 3, 1.23456789123456789);
-    Matrix y = m + m;
-    m.print();
-    y.print();
+    Matrix id(3, 3);
+    id = {4, 3, 1, 3, 2, 3, 1, 2, 2};
+    id.print("[id]");
+    Matrix n = id.inverse();
+    n.print("[n = id inverse]");
+    Matrix eye1 = id * n;
+    Matrix eye2 = n * id;
+    eye1.print("[id * n]");
+    eye2.print("[n * id]");
     return 0;
 }
