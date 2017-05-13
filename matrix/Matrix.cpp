@@ -3,12 +3,35 @@
 #include <iostream>
 #include <math.h>
 
+Matrix::Matrix()
+{
+    base = NULL;
+    M = N = 0;
+}
+
+Matrix::Matrix(size_t rows)
+{
+    base = (double*) malloc(sizeof(double) * rows);
+    if (!base)
+    {
+        M = N = 0;
+        return;
+    }
+    M = rows;
+    N = 1;
+    
+    for (size_t i = 0; i < size(); i++)
+    {
+        *(base + i) = 0;
+    }
+}
+
 Matrix::Matrix(size_t rows, size_t cols)
 {
     base = (double*) malloc(sizeof(double) * rows * cols);
     if (!base)
     {
-        printf("Failed to allocate.\n");
+        M = N = 0;
         return;
     }
     M = rows;
@@ -25,6 +48,11 @@ Matrix::Matrix(const Matrix& other)
     M = other.rows();
     N = other.cols();
     base = (double*) malloc(sizeof(double) * M * N);
+    if (!base)
+    {
+        M = N = 0;
+        return;
+    }
     
     for (size_t i = 0; i < size(); i++)
     {
@@ -34,8 +62,7 @@ Matrix::Matrix(const Matrix& other)
 
 Matrix::~Matrix()
 {
-    if (base != NULL) free(base);
-    base = NULL;
+    free(base);
 }
 
 Matrix Matrix::identity(size_t rows, size_t cols)
@@ -70,19 +97,19 @@ double* Matrix::first() const
 
 double Matrix::read(size_t i, size_t j) const
 {
-    if (!verify(i, j)) return 0;
+    if (i >= M || i < 0 || j >= N || j < 0)
+    {
+        printf("Cannot read from (%ld, %ld) in %ld x %ld matrix\n", i, j, M, N);
+        return 0;
+    }
     return *(base + i * N + j);
 }
 
 bool Matrix::write(size_t i, size_t j, double value)
 {
-    if (!verify(i, j))
+    if (i >= M || i < 0 || j >= N || j < 0)
     {
-        static int count;
-        count++;
-        printf("Cannot write to (%ld, %ld) in %ld x %ld matrix\n",
-            i, j, M, N);
-        if (count > 15) while(1);
+        printf("Cannot write to (%ld, %ld) in %ld x %ld matrix\n", i, j, M, N);
         return false;
     }
     *(base + i * N + j) = value;
@@ -96,9 +123,10 @@ void Matrix::print() const
 
 void Matrix::print(const char* title) const
 {
-    printf("%lu x %lu matrix %s\n", M, N, title);
+    printf(" %lu x %lu matrix %s\n", M, N, title);
     for (size_t i = 0; i < M; i++)
     {
+        printf("  ");
         for (size_t j = 0; j < N; j++)
         {
             printf("%5.3f\t", read(i, j));
@@ -244,11 +272,6 @@ Matrix Matrix::reduce() const
         }
     }
     return m;
-}
-
-bool Matrix::verify(size_t i, size_t j) const
-{
-    return (i < M) && (i >= 0) && (j < N) && (j >= 0);
 }
 
 Matrix& Matrix::operator=(const Matrix& right)

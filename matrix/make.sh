@@ -1,1 +1,1 @@
-g++ -g -o matrix -lm Matrix.cpp test.cpp -std="c++11"
+g++ -g -o matrix -lm Matrix.cpp Kalman.cpp test.cpp -std="c++11"

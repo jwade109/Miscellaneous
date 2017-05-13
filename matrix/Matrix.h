@@ -7,6 +7,10 @@
 class Matrix
 {
     public:
+        
+        Matrix();
+        
+        Matrix(size_t rows);
     
         Matrix(size_t rows, size_t cols);
         

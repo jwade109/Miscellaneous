@@ -1,27 +1,18 @@
 #include <stdio.h>
 #include "Matrix.h"
+#include "Kalman.h"
 
 int main()
 {
-    Matrix A(4, 4);
-    Matrix B(4, 4);
-    A = {0.8147,    0.6324,    0.9575,   0.9572,
-         0.9058,    0.0975,    0.9649,    0.4854,
-         0.1270,    0.2785,    0.1576,    0.8003,
-         0.9134,    0.5469,    0.9706,    0.1419};
-    B = {0.4218,    0.6557,    0.6787,    0.6555,
-         0.9157,    0.0357,    0.7577,    0.1712,
-         0.7922,    0.8491,    0.7431,    0.7060,
-         0.9595,    0.9340,    0.3922,    0.0318};
-    Matrix initial = (A/B.inverse()).transpose();
-    // initial.print();
-    
-    Matrix C(3, 4);
-    C = {1, 2, 0, 4,
-         2, 0, 6, -2,
-         0, 3, 1, 6};
-    C.print();
-    C.reduce().print();
-    
-    return 0;
+    {
+    const int M = 2, N = 2;
+    KalmanFilter kalman(M, N);
+    Matrix Z(M);
+    Z = {2, 1};
+    for (int i = 0; i < 10; i++)
+    {
+        kalman.X.print("[State]");
+        Z.print("[Measurement]");
+        kalman.step(Z);
+    }
 }
