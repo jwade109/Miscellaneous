@@ -101,7 +101,7 @@ void Matrix::print(const char* title) const
     {
         for (size_t j = 0; j < N; j++)
         {
-            printf("%5.2f\t", read(i, j));
+            printf("%5.3f\t", read(i, j));
         }
         printf("\n");
     }
@@ -131,7 +131,7 @@ Matrix Matrix::inverse() const
     Matrix m = *this;
     
     /*
-     *  Modified from the MatrixMath library by Charlie Matlack on 12/18/10,
+     *  Modified from the MatrixMath library by Charlie Matlack,
      *  modified from code by RobH45345 on Arduino Forums, algorithm from 
      *  NUMERICAL RECIPES: The Art of Scientific Computing.
      */
@@ -219,6 +219,33 @@ Matrix Matrix::inverse() const
     return m;
 }
 
+Matrix Matrix::reduce() const
+{
+    Matrix m = *this;
+    
+    for (size_t i = 0; i < M; i++)
+    {
+        for (size_t r = 0; r < M; r++)
+        {
+            float div = m.read(i, i);
+            float mult = m.read(r, i) / m.read(i, i);
+
+            for (int c = 0; c < N; c++)
+            {
+                if (r == i)
+                {
+                    m.write(r, c, m.read(r, c)/div);
+                }
+                else
+                {
+                    m.write(r, c, m.read(r, c) - (m.read(i, c) * mult));
+                }
+            }
+        }
+    }
+    return m;
+}
+
 bool Matrix::verify(size_t i, size_t j) const
 {
     return (i < M) && (i >= 0) && (j < N) && (j >= 0);
@@ -289,34 +316,28 @@ Matrix Matrix::operator*(const Matrix& right) const
         return Matrix(0, 0);
     }
     
-    // A = input matrix (m x p)
-	// B = input matrix (p x n)
-	// m = number of rows in A
-	// p = number of columns in A = number of rows in B
-	// n = number of columns in B
-	// C = output matrix = A*B (m x n)
-	
-	int m = this->rows();
-	int p = this->cols();
+	int m = M;
+	int p = N;
 	int n = right.cols();
-	
 	Matrix C(m, n);
 	
-	int i, j, k;
-	for (i=0;i<m;i++)
-		for(j=0;j<n;j++)
+	for (size_t i = 0; i < m; i++)
+	{
+		for(size_t j = 0; j < n; j++)
 		{
-			// C.write(i, j, 0);
-			for (k=0;k<p;k++)
+			for (size_t k = 0; k < p; k++)
 			{
-			    // double a = *(base + p*i+k);
-			    double a = read(i, k);
-			    // double b = *(right.first() + n*k+j);
-			    double b = right.read(k, j);
-				C.write(i, j, C.read(i, j)+a*b);
+				C.write(i, j, C.read(i, j) + read(i, k)* right.read(k, j));
 		    }
 		}
+    }
     return C;
+}
+
+Matrix Matrix::operator/(const Matrix& matrix) const
+{
+    Matrix inverse = matrix.inverse();
+    return *this * inverse;
 }
 
 Matrix operator*(const Matrix& matrix, const double& factor)
@@ -337,4 +358,14 @@ Matrix operator*(const double& factor, const Matrix& matrix)
         *(m.first() + i) *= factor;
     }
     return m;
+}
+
+Matrix operator/(const double& divisor, const Matrix& matrix)
+{
+    return matrix * (1/divisor);
+}
+
+Matrix operator/(const Matrix& matrix, const double& divisor)
+{
+    return matrix * (1/divisor);
 }

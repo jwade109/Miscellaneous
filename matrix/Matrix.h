@@ -36,6 +36,8 @@ class Matrix
         
         Matrix inverse() const;
         
+        Matrix reduce() const;
+        
         Matrix& operator=(const Matrix& right);
         
         Matrix& operator=(std::initializer_list<double> list);
@@ -45,6 +47,8 @@ class Matrix
         Matrix operator-(const Matrix& right) const;
         
         Matrix operator*(const Matrix& right) const;
+        
+        Matrix operator/(const Matrix& right) const;
                 
     private:
     
@@ -58,5 +62,9 @@ class Matrix
 Matrix operator*(const Matrix& matrix, const double& factor);
 
 Matrix operator*(const double& factor, const Matrix& matrix);
+
+Matrix operator/(const double& divisor, const Matrix& matrix);
+
+Matrix operator/(const Matrix& matrix, const double& divisor);
 
 #endif
