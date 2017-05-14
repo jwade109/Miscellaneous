@@ -166,16 +166,16 @@ Matrix Matrix::inverse() const
     
     // keeps track of current pivot row
     size_t pivrow;
-	// k: overall index along diagonal; i: row index; j: col index
-	size_t k, i, j;
-	// keeps track of rows swaps to undo at end
-	size_t pivrows[M];
-	// used for finding max value and making column swaps
-	float tmp;
+    // k: overall index along diagonal; i: row index; j: col index
+    size_t k, i, j;
+    // keeps track of rows swaps to undo at end
+    size_t pivrows[M];
+    // used for finding max value and making column swaps
+    float tmp;
 
-	for (k = 0; k < M; k++)
-	{
-	    // find pivot row, the row with biggest entry in current column
+    for (k = 0; k < M; k++)
+    {
+        // find pivot row, the row with biggest entry in current column
         tmp = 0;
         for (i = k; i < M; i++)
         {
@@ -339,20 +339,20 @@ Matrix Matrix::operator*(const Matrix& right) const
         return Matrix(0, 0);
     }
     
-	int m = M;
-	int p = N;
-	int n = right.cols();
-	Matrix C(m, n);
-	
-	for (size_t i = 0; i < m; i++)
-	{
-		for(size_t j = 0; j < n; j++)
-		{
-			for (size_t k = 0; k < p; k++)
-			{
-				C.write(i, j, C.read(i, j) + read(i, k)* right.read(k, j));
-		    }
-		}
+    int m = M;
+    int p = N;
+    int n = right.cols();
+    Matrix C(m, n);
+
+    for (size_t i = 0; i < m; i++)
+    {
+        for(size_t j = 0; j < n; j++)
+        {
+            for (size_t k = 0; k < p; k++)
+            {
+                C.write(i, j, C.read(i, j) + read(i, k)* right.read(k, j));
+            }
+        }
     }
     return C;
 }
