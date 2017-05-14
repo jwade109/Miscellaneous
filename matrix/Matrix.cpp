@@ -165,7 +165,7 @@ Matrix Matrix::inverse() const
      */
     
     // keeps track of current pivot row
-	size_t pivrow;
+    size_t pivrow;
 	// k: overall index along diagonal; i: row index; j: col index
 	size_t k, i, j;
 	// keeps track of rows swaps to undo at end
@@ -175,75 +175,75 @@ Matrix Matrix::inverse() const
 
 	for (k = 0; k < M; k++)
 	{
-		// find pivot row, the row with biggest entry in current column
-		tmp = 0;
-		for (i = k; i < M; i++)
-		{
-			if (fabs(m.read(i, k)) >= tmp)
-			{
-				tmp = fabs(m.read(i, k));
-				pivrow = i;
-			}
-		}
+	    // find pivot row, the row with biggest entry in current column
+        tmp = 0;
+        for (i = k; i < M; i++)
+        {
+            if (fabs(m.read(i, k)) >= tmp)
+            {
+                tmp = fabs(m.read(i, k));
+                pivrow = i;
+            }
+        }
 
-		// check for singular matrix
-		if (m.read(pivrow, k) == 0.0f)
-		{
-			printf("Cannot invert singular matrix\n");
-			return Matrix(0, 0);
-		}
+        // check for singular matrix
+        if (m.read(pivrow, k) == 0.0f)
+        {
+            printf("Cannot invert singular matrix\n");
+            return Matrix(0, 0);
+        }
 
-		// execute pivot (row swap) if needed
-		if (pivrow != k)
-		{
-			// swap row k with pivrow
-			for (j = 0; j < M; j++)
-			{
-				tmp = m.read(k, j);
-				m.write(k, j, m.read(pivrow, j));
-				m.write(pivrow, j, tmp);
-			}
-		}
-		pivrows[k] = pivrow; // record row swap (even if no swap happened)
+        // execute pivot (row swap) if needed
+        if (pivrow != k)
+        {
+            // swap row k with pivrow
+            for (j = 0; j < M; j++)
+            {
+                tmp = m.read(k, j);
+                m.write(k, j, m.read(pivrow, j));
+                m.write(pivrow, j, tmp);
+            }
+        }
+        pivrows[k] = pivrow; // record row swap (even if no swap happened)
 
-		tmp = 1.0f/m.read(k, k); // invert pivot element
-		// this element of input matrix becomes result matrix
-		m.write(k, k, 1.0f);		
+        tmp = 1.0f/m.read(k, k); // invert pivot element
+        // this element of input matrix becomes result matrix
+        m.write(k, k, 1.0f);		
 
-		// perform row reduction (divide every element by pivot)
-		for (j = 0; j < M; j++)
-		{
-			m.write(k, j, m.read(k, j) * tmp);
-		}
+        // perform row reduction (divide every element by pivot)
+        for (j = 0; j < M; j++)
+        {
+            m.write(k, j, m.read(k, j) * tmp);
+        }
 
-		// eliminate all other entries in this column
-		for (i = 0; i < M; i++)
-		{
-			if (i != k)
-			{
-				tmp = m.read(i, k);
-				m.write(i, k, 0.0f);
-				for (j = 0; j < M; j++)
-				{
-					m.write(i, j, m.read(i, j) - m.read(k, j) * tmp);
-				}
-			}
-		}
-	}
+        // eliminate all other entries in this column
+        for (i = 0; i < M; i++)
+        {
+            if (i != k)
+            {
+                tmp = m.read(i, k);
+                m.write(i, k, 0.0f);
+                for (j = 0; j < M; j++)
+                {
+                    m.write(i, j, m.read(i, j) - m.read(k, j) * tmp);
+                }
+            }
+        }
+    }
 
-	// undo pivot row swaps by doing column swaps in reverse order
-	for (k = M-1; k >= 0 && k < M; k--)
-	{
-		if (pivrows[k] != k)
-		{
-			for (i = 0; i < M; i++)
-			{
-				tmp = m.read(i, k);
-				m.write(i, k, m.read(i, pivrows[k]));
-				m.write(i, pivrows[k], tmp);
-			}
-		}
-	}
+    // undo pivot row swaps by doing column swaps in reverse order
+    for (k = M-1; k >= 0 && k < M; k--)
+    {
+        if (pivrows[k] != k)
+        {
+            for (i = 0; i < M; i++)
+            {
+                tmp = m.read(i, k);
+                m.write(i, k, m.read(i, pivrows[k]));
+                m.write(i, pivrows[k], tmp);
+            }
+        }
+    }
     return m;
 }
 
