@@ -75,6 +75,18 @@ Matrix Matrix::identity(size_t rows, size_t cols)
     return id;
 }
 
+Matrix Matrix::random(size_t rows, size_t cols)
+{
+    srand(time(0));
+
+    Matrix r(rows, cols);
+    for (size_t i = 0; i < r.size(); i++)
+    {
+        *(r.first() + i) = ((double) rand()/RAND_MAX) * 2 - 1;
+    }
+    return r;
+}
+
 size_t Matrix::rows() const
 {
     return M;
@@ -129,7 +141,7 @@ void Matrix::print(const char* title) const
         printf("  ");
         for (size_t j = 0; j < N; j++)
         {
-            printf("%5.3f\t", read(i, j));
+            printf("%8.3f  ", read(i, j));
         }
         printf("\n");
     }
@@ -289,6 +301,13 @@ Matrix& Matrix::operator=(const Matrix& right)
 
 Matrix& Matrix::operator=(std::initializer_list<double> list)
 {
+    if (list.size() == 1)
+    {
+        for (size_t i = 0; i < size(); i++)
+        {
+            *(base + i) = *list.begin();
+        }
+    }
     size_t i = 0;
     for (auto ptr = list.begin(); ptr < list.end() && i < size(); ptr++)
     {
@@ -363,7 +382,7 @@ Matrix Matrix::operator/(const Matrix& matrix) const
     return *this * inverse;
 }
 
-Matrix operator*(const Matrix& matrix, const double& factor)
+Matrix operator*(const Matrix& matrix, const double factor)
 {
     Matrix m = matrix;
     for (size_t i = 0; i < m.size(); i++)
@@ -373,7 +392,7 @@ Matrix operator*(const Matrix& matrix, const double& factor)
     return m;
 }
 
-Matrix operator*(const double& factor, const Matrix& matrix)
+Matrix operator*(const double factor, const Matrix& matrix)
 {
     Matrix m = matrix;
     for (size_t i = 0; i < m.size(); i++)
@@ -383,12 +402,12 @@ Matrix operator*(const double& factor, const Matrix& matrix)
     return m;
 }
 
-Matrix operator/(const double& divisor, const Matrix& matrix)
+Matrix operator/(const double divisor, const Matrix& matrix)
 {
     return matrix * (1/divisor);
 }
 
-Matrix operator/(const Matrix& matrix, const double& divisor)
+Matrix operator/(const Matrix& matrix, const double divisor)
 {
     return matrix * (1/divisor);
 }

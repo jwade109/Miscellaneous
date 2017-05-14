@@ -20,6 +20,8 @@ class Matrix
         
         static Matrix identity(size_t rows, size_t cols);
         
+        static Matrix random(size_t rows, size_t cols);
+        
         size_t rows() const;
         
         size_t cols() const;
@@ -63,12 +65,12 @@ class Matrix
         bool verify(size_t i, size_t j) const;
 };
 
-Matrix operator*(const Matrix& matrix, const double& factor);
+Matrix operator*(const Matrix& matrix, const double factor);
 
-Matrix operator*(const double& factor, const Matrix& matrix);
+Matrix operator*(const double factor, const Matrix& matrix);
 
-Matrix operator/(const double& divisor, const Matrix& matrix);
+Matrix operator/(const double divisor, const Matrix& matrix);
 
-Matrix operator/(const Matrix& matrix, const double& divisor);
+Matrix operator/(const Matrix& matrix, const double divisor);
 
 #endif
