@@ -1,6 +1,3 @@
-# Random
-A bunch of random projects which serve zero purpose whatsoever
+# Miscellaneous
 
-New projects get their own package
-
-Use Javadoc religiously, and don't be a dick
+A collection of now very old and badly written code for various ideas I've had
