@@ -1,1 +1,1 @@
-gcc -o register register.c -lm
+gcc -o register register.c -lm -std=c99
