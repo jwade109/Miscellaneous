@@ -13,7 +13,7 @@ namespace rvt
 
 // first two bytes at the beginning of every message,
 // used to synchronize parsers
-const unsigned short SYNC_BYTES = 0x9977;
+const unsigned short SYNC_BYTES = ('T' << 8) | 'V';
 
 /* -----------------------------------------------------------------*/
 /* GENERIC SERIALIZE-DESERIALIZE FUNCTIONS -------------------------*/
@@ -81,7 +81,7 @@ template <typename T> struct packet
     static const unsigned short sync_bytes = SYNC_BYTES; 
     static const unsigned short payload_type = T::payload_type;
 
-    packet() { }
+    packet() : _payload{0} { }
 
     packet(const T& payload)
     {
@@ -91,7 +91,6 @@ template <typename T> struct packet
     packet<T>& setPayload(const T& payload)
     {
         _payload = payload;
-        updateChecksum();
         return *this;
     }
 
@@ -103,7 +102,6 @@ template <typename T> struct packet
     packet<T>& setHeader(const header<T>& header)
     {
         _header = header;
-        updateChecksum();
         return *this;
     }
 
@@ -115,7 +113,6 @@ template <typename T> struct packet
     packet<T>& setTimestamp(unsigned long long ts)
     {
         _header.timestamp = ts;
-        updateChecksum();
         return *this;
     }
 
