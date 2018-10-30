@@ -5,15 +5,22 @@
 
 #include <iostream>
 #include <iomanip>
+#include <fstream>
 #include <array>
+#include <vector>
 #include <cstring>
+#include <sstream>
+#include <chrono>
+#include <stdexcept>
 
 namespace rvt
 {
 
 // first two bytes at the beginning of every message,
 // used to synchronize parsers
-const unsigned short SYNC_BYTES = ('T' << 8) | 'V';
+const unsigned short SYNC_BYTES = 0x14AA;
+
+using timestamp_t = unsigned long long;
 
 /* -----------------------------------------------------------------*/
 /* GENERIC SERIALIZE-DESERIALIZE FUNCTIONS -------------------------*/
@@ -41,23 +48,47 @@ T deserialize(const std::array<unsigned char, sizeof(T)>& buffer)
     return payload;
 }
 
+// same as above, but takes a pointer to sizeof(T) contiguous
+// bytes instead of an array of sizeof(T) bytes.
+template <typename T>
+T deserialize(const unsigned char *buffer)
+{
+    T payload;
+    if (!buffer) return T();
+    std::memcpy(&payload, buffer, sizeof(T));
+    return payload;
+}
+
+/* -----------------------------------------------------------------*/
+/* STANDARD TIMESTAMP FUNCTION--------------------------------------*/
+
+// returns a timestamp_t (unsigned long long) equal to the number
+// of nanoseconds since epoch (January 1st, 1970)
+timestamp_t now()
+{
+    auto now = std::chrono::system_clock::now();
+    return std::chrono::duration_cast<std::chrono::nanoseconds>
+        (now.time_since_epoch()).count();
+}
+
 /* -----------------------------------------------------------------*/
 /* PACKET HEADER DEFINITION ----------------------------------------*/
 
-template <typename T> class header
+class header
 {
     public:
 
-    static const unsigned short header_length = sizeof(header<T>);
-
-    const unsigned short sync_bytes = SYNC_BYTES;
-    const unsigned short payload_type = T::payload_type;
-    const unsigned short payload_length = sizeof(T);
-    unsigned long long timestamp = 0;
+    unsigned short sync_bytes = SYNC_BYTES;
+    unsigned short payload_type = 0;
+    unsigned short payload_length = 0;
+    timestamp_t timestamp = 0;
     unsigned long crc32 = 0;
 
-    const header<T>& operator = (const header<T>& other)
+    const header& operator = (const header& other)
     {
+        sync_bytes = other.sync_bytes;
+        payload_type = other.payload_type;
+        payload_length = other.payload_length;
         timestamp = other.timestamp;
         crc32 = other.crc32;
         return *this;
@@ -74,7 +105,7 @@ template <typename T> class header
 
 template <typename T> struct packet
 {
-    static const unsigned short header_length = sizeof(header<T>);
+    static const unsigned short header_length = sizeof(header);
     static const unsigned short payload_length = sizeof(T);
     static const unsigned short total_length = header_length + payload_length;
     
@@ -86,11 +117,15 @@ template <typename T> struct packet
     packet(const T& payload)
     {
         setPayload(payload);
+        _header.payload_type = T::payload_type;
+        _header.payload_length = payload_length;
+        updateChecksum();
     }
 
     packet<T>& setPayload(const T& payload)
     {
         _payload = payload;
+        updateChecksum();
         return *this;
     }
 
@@ -99,13 +134,14 @@ template <typename T> struct packet
         return _payload;
     }
 
-    packet<T>& setHeader(const header<T>& header)
+    packet<T>& setHeader(const header& header)
     {
         _header = header;
+        updateChecksum();
         return *this;
     }
 
-    const header<T>& getHeader() const
+    const header& getHeader() const
     {
         return _header;
     }
@@ -113,6 +149,7 @@ template <typename T> struct packet
     packet<T>& setTimestamp(unsigned long long ts)
     {
         _header.timestamp = ts;
+        updateChecksum();
         return *this;
     }
 
@@ -123,29 +160,46 @@ template <typename T> struct packet
         auto header_bytes = rvt::serialize(_header);
         std::memcpy(buffer.data(), header_bytes.data(), header_length);
         auto payload_bytes = rvt::serialize(_payload);
-        std::memcpy(buffer.data() + header_length, payload_bytes.data(), payload_length);
+        std::memcpy(buffer.data() + header_length,
+            payload_bytes.data(), payload_length);
         return buffer;
     }
 
-    // converts a byte array of length packet<T>::total_length to a packet<T>
-    // object; the type T cannot be deduced from the array, and must be provided,
-    // e.g.:
+    // converts a byte array of length packet<T>::total_length to
+    // a packet<T> object; the type T cannot be deduced from the array,
+    // and must be provided, e.g.:
     //      auto p = packet<msg_type>::deserialize(array);
-    static packet<T> deserialize(std::array<unsigned char, total_length>& buffer)
+    static packet<T>
+    deserialize(std::array<unsigned char, total_length>& buffer)
     {
         packet<T> pack;
         std::array<unsigned char, header_length> header_bytes;
         std::memcpy(header_bytes.data(), buffer.data(), header_length);
-        pack.setHeader(rvt::deserialize<header<T>>(header_bytes));
+        auto head = rvt::deserialize<header>(header_bytes);
+        auto read_checksum = head.crc32;
+        pack.setHeader(head);
         std::array<unsigned char, payload_length> payload_bytes;
-        std::memcpy(payload_bytes.data(), buffer.data() + header_length, payload_length);
+        std::memcpy(payload_bytes.data(),
+            buffer.data() + header_length, payload_length);
         pack.setPayload(rvt::deserialize<T>(payload_bytes));
+        auto calc_checksum = pack.getHeader().crc32;
+        if (calc_checksum != read_checksum)
+        {
+            std::stringstream error;
+            error << "Checksum error while parsing message type '"
+                << T::name << "' (expected 0x"
+                << std::hex << std::setw(4) << std::setfill('0')
+                << (int) calc_checksum << ", got 0x"
+                << std::hex << std::setw(4) << std::setfill('0')
+                << (int) read_checksum << ")";
+            throw std::runtime_error(error.str());
+        }
         return pack;
     }
 
     private:
 
-    header<T> _header;
+    header _header;
     T _payload;
 
     // calculates checksum for entire packet and writes to header
@@ -187,12 +241,106 @@ std::ostream& operator << (std::ostream& os, const packet<T>& pack)
     return os << "<0x" << hex << setfill('0') << setw(4) << head.sync_bytes
         << ", 0x" << dec << (int) head.payload_type
         << ", " << dec << (int) head.payload_length
-        << ", " << head.timestamp
+        << ", " << head.timestamp/1000000000
+        << "." << head.timestamp % 1000000000
         << ", 0x" << hex << setfill('0') << setw(4) << head.crc32
         << " " << pack.getPayload() << ">" << std::dec;
 } 
 
 /* -----------------------------------------------------------------*/
+/* ARCHIVE CLASS DEFINITION ----------------------------------------*/
+
+// archive is a helpful wrapper class for a binary log file or
+// internal buffer. it stores packets internally as a std::vector
+// of unsigned chars, and can can write to a file or accept a
+// filename as the constructor argument. it's also possible
+// to iterate over all of a specific kind of packet using the
+// getPackets() method.
+class archive
+{
+    public:
+
+    archive() { }
+
+    archive(const std::string& filename)
+    {
+        _bytes = fileToVector(filename);
+    }
+
+    template <typename T> std::vector<packet<T>> getPackets() const
+    {
+        std::vector<packet<T>> messages;
+        for (int i = 0; i < _bytes.size(); ++i)
+        {
+            auto head = deserialize<header>(_bytes.data() + i);
+            if (head.sync_bytes == rvt::SYNC_BYTES)
+            {
+                using namespace rvt;
+                if (head.payload_type == T::payload_type)
+                {
+                    const size_t plen = packet<T>::total_length;
+                    std::array<unsigned char, plen> buffer;
+                    std::copy(_bytes.begin() + i,
+                        _bytes.begin() + i + plen, buffer.begin());
+                    try
+                    {
+                        auto pack = packet<T>::deserialize(buffer);
+                        messages.push_back(pack);
+                        i += plen - 1;
+                    }
+                    catch (const std::exception& e)
+                    {
+                        std::cout << e.what() << std::endl;
+                    }
+                }
+            }
+        }
+        return messages;
+    }
+
+    template <typename T> void addPacket(const packet<T>& pack)
+    {
+        auto buffer = pack.serialize();
+        _bytes.insert(_bytes.end(), buffer.begin(), buffer.end());
+    }
+
+    const std::vector<unsigned char>& data() const
+    {
+        return _bytes;
+    }
+
+    bool toFile(const std::string& filename)
+    {
+        std::ofstream out(filename);
+        if (!out) return false;
+        out.write((const char*) _bytes.data(), _bytes.size());
+        out.close();
+        return true;
+    }
+
+    static archive fromFile(const std::string& filename)
+    {
+        return archive();
+    }
+
+    private:
+
+    std::vector<unsigned char> _bytes;
+
+    std::vector<unsigned char> fileToVector(const std::string& filename)
+    {
+        std::ifstream in(filename);
+        in.seekg(0, in.end);
+        size_t length = in.tellg();
+        in.seekg(0, in.beg);
+        std::vector<unsigned char> buffer(length);
+        in.read((char*) buffer.data(), length);
+        in.close();
+        return buffer;
+    }
+};
+
+/*------------------------------------------------------------------*/
 
 } // namespace rvt
 

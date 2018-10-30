@@ -13,7 +13,7 @@ struct sensor_raw
     static constexpr char const *name = "sensor_raw";
     static const unsigned short payload_type = 0x01;
 
-    double x, y, z, a, b, c, d, e, f, g, h, i, j, k;
+    double x, y, z, a;
 };
 
 /* MOTOR CONTROL COMMAND MESSAGE TYPE ------------------------------*/
@@ -38,7 +38,7 @@ std::ostream& operator << (std::ostream& os, const motor_ctrl& msg)
 
 struct string_msg
 {
-    static constexpr char const* name = "string_msg";
+    static constexpr char const *name = "string_msg";
     static const unsigned short payload_type = 0x03;
 
     char str[10];
