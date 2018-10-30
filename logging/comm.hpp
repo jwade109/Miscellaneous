@@ -112,7 +112,7 @@ template <typename T> struct packet
     static const unsigned short sync_bytes = SYNC_BYTES; 
     static const unsigned short payload_type = T::payload_type;
 
-    packet() : _payload{0} { }
+    packet() { }
 
     packet(const T& payload)
     {
@@ -213,6 +213,14 @@ template <typename T> struct packet
     }
 };
 
+/*------------------------------------------------------------------*/
+/* MAKE PACKET FACTORY FUNCTION ------------------------------------*/
+
+template <typename T> packet<T> makePacket(const T& msg)
+{
+    return packet<T>(msg);
+}
+
 /* -----------------------------------------------------------------*/
 /* PAYLOAD & PACKET OSTREAM OUTPUT ---------------------------------*/
 
@@ -242,7 +250,7 @@ std::ostream& operator << (std::ostream& os, const packet<T>& pack)
         << ", 0x" << dec << (int) head.payload_type
         << ", " << dec << (int) head.payload_length
         << ", " << head.timestamp/1000000000
-        << "." << head.timestamp % 1000000000
+        << "." << setfill('0') << setw(9) << head.timestamp % 1000000000
         << ", 0x" << hex << setfill('0') << setw(4) << head.crc32
         << " " << pack.getPayload() << ">" << std::dec;
 } 
@@ -270,7 +278,7 @@ class archive
     template <typename T> std::vector<packet<T>> getPackets() const
     {
         std::vector<packet<T>> messages;
-        for (int i = 0; i < _bytes.size(); ++i)
+        for (size_t i = 0; i < _bytes.size(); ++i)
         {
             auto head = deserialize<header>(_bytes.data() + i);
             if (head.sync_bytes == rvt::SYNC_BYTES)
@@ -309,7 +317,7 @@ class archive
         return _bytes;
     }
 
-    bool toFile(const std::string& filename)
+    bool write(const std::string& filename)
     {
         std::ofstream out(filename);
         if (!out) return false;
@@ -318,9 +326,10 @@ class archive
         return true;
     }
 
-    static archive fromFile(const std::string& filename)
+    archive& read(const std::string& filename)
     {
-        return archive();
+        _bytes = fileToVector(filename);
+        return *this;
     }
 
     private:
