@@ -69,6 +69,7 @@ template <typename T, typename U =
 std::vector<unsigned char>& operator >>
     (std::vector<unsigned char> &vec, T& data)
 {
+    data = T();
     if (sizeof(T) > vec.size()) return vec;
 
     std::vector<unsigned char> extract;
@@ -121,6 +122,21 @@ std::vector<unsigned char>& operator >>
     }
     return vec;
 }
+
+/// \brief Extracts bytes from a vector and inserts them into
+///        a null-terminated string
+std::vector<uint8_t>& operator >> (std::vector<uint8_t> &vec, std::string &str)
+{
+    std::vector<uint8_t> data;
+    size_t i = 0;
+    for (; i < vec.size() && vec[i] != 0; ++i)
+        data.push_back(vec[i]);
+    str = std::string(data.begin(), data.end());
+    if (vec.size() > i && vec[i] == 0) ++i;
+    vec.erase(vec.begin(), vec.begin() + i);
+    return vec;
+}
+
 
 std::string wrap(const std::string &str, size_t num_chars, size_t offset = 0)
 {
@@ -354,16 +370,9 @@ std::string packet2str(const packet &pack, const std::string &fmt = "")
         if (token == "#")
         {
             std::string str;
-            for (size_t i = 0; data[i] != 0 && i < data.size(); ++i)
-            {
-                str += data[i];
-            }
-            if (str.length() > 0)
-            {
-                data.erase(data.begin(), data.begin() + str.length() + 1);
-                if (result.size() > 0) result += " ";
-                result += "'" + str + "'";
-            }
+            data >> str;
+            if (result.size() > 0) result += " ";
+            result += str;
         }
         else if (token == "u8" && data.size() >= 1)
         {
@@ -520,29 +529,25 @@ class interpreter
     
         {0, [] (interpreter &interp, const packet &pack)
         {
-            std::string str = packet2str(pack, "# #");
-            auto tokens = split_quoted(str);
-            
-            if (tokens.size() > 3)
-            {
-                std::cout << "Add to context: " << tokens[2]
-                    << " = " << tokens[3] << std::endl;
-                interp.context[tokens[2]] = tokens[3];
-            }
+            std::vector<uint8_t> data(pack.data);
+            std::string key, value;
+            data >> key >> value;
+            if (key == "" || value == "") return 1;
+            std::cout << "Add to context: " << key
+                << " = " << value << std::endl;
+            interp.context[key] = value;
             return 0;
         }},
 
         {1, [] (interpreter &interp, const packet &pack)
         {
-            std::string str = packet2str(pack, "u16 #");
-            auto tokens = split_quoted(str);
-            if (tokens.size() > 3)
-            {
-                uint16_t id = std::stoull(tokens[2]);
-                std::cout << "Add to parse formats: "
-                    << id << " -> " << tokens[3] << std::endl;
-                interp.parse_formats[id] = tokens[3];
-            }
+            std::vector<uint8_t> data(pack.data);
+            uint16_t id;
+            std::string format;
+            data >> id >> format;
+            std::cout << "Add to parse formats: "
+                << id << " -> " << format << std::endl;
+            interp.parse_formats[id] = format;
             return 0;
         }}} { }
 
