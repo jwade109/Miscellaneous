@@ -2,6 +2,8 @@
 
 #include <transmission/serial.hpp>
 
+#include <iostream>
+
 namespace rvt
 {
 

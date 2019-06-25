@@ -17,18 +17,18 @@ class packet
     public:
 
     packet();
-
+    
+    std::vector<uint8_t> sync_bytes;
     std::chrono::system_clock::time_point time;
     uint16_t id;
     std::vector<uint8_t> data;
     uint16_t checksum;
-    std::string format;
     std::set<std::string> warnings;
 
     bool is_valid() const;
 };
 
-std::vector<uint8_t>& operator << (std::vector<uint8_t> &bytes, packet &pack);
+std::vector<uint8_t>& operator << (std::vector<uint8_t> &bytes, const packet &pack);
 
 std::vector<uint8_t>& operator >> (std::vector<uint8_t> &bytes, packet &pack);
 

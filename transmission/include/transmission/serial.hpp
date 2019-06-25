@@ -6,6 +6,7 @@
 #include <vector>
 #include <array>
 #include <string>
+#include <chrono>
 
 namespace rvt
 {
@@ -66,8 +67,10 @@ template <typename T, typename U =
 std::vector<unsigned char>& operator >>
     (std::vector<unsigned char> &vec, T& data)
 {
-    data = T();
-    if (sizeof(T) > vec.size()) return vec;
+    if (sizeof(T) > vec.size())
+    {
+        return vec;
+    }
 
     std::vector<unsigned char> extract;
     for (int i = sizeof(T) - 1; i >= 0; --i)
@@ -123,6 +126,30 @@ std::vector<unsigned char>& operator >>
 /// \brief Extracts bytes from a vector and inserts them into
 ///        a null-terminated string
 std::vector<uint8_t>& operator >> (std::vector<uint8_t> &vec, std::string &str);
+
+/// \brief Inserts a chrono::time_point into a vector;
+///        time is represented as a uint64_t of milliseconds
+template <typename Clock, typename Dur>
+std::vector<uint8_t>& operator << (std::vector<uint8_t> &vec,
+    const std::chrono::time_point<Clock, Dur> &tp)
+{
+    using namespace std::chrono;
+    auto since_epoch = tp.time_since_epoch();
+    auto sec = duration_cast<milliseconds>(since_epoch);
+    return vec << sec.count();
+}
+
+/// \brief Extracts a chrono::time_point from a vector
+template <typename Clock, typename Dur>
+std::vector<uint8_t>& operator >> (std::vector<uint8_t> &vec,
+    std::chrono::time_point<Clock, Dur> &tp)
+{
+    using namespace std::chrono;
+    uint64_t millis;
+    vec >> millis;
+    tp = time_point<Clock, Dur>(milliseconds(millis));
+    return vec;
+}
 
 } // namespace rvt
 

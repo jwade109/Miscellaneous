@@ -10,6 +10,17 @@
 namespace rvt
 {
 
+bool begins_with(const std::string &str, const std::string &begin)
+{
+    return str.rfind(begin, 0) == 0;
+};
+
+bool ends_with(const std::string &str, const std::string &ending)
+{
+    if (ending.length() > str.length()) return false;
+    return str.compare(str.length() - ending.length(), ending.length(), ending) == 0;
+};
+
 std::string wrap(const std::string &str, size_t num_chars, size_t offset)
 {
     std::string copy(str);
@@ -40,17 +51,20 @@ std::vector<std::string> split_quoted(const std::string &fstr)
         }
         else if (c == ' ' || i == fstr.length() - 1)
         {
-            if ((c != quote_char || quote_char == ' ') && c != ' ') token += c;
+            if (((c != quote_char || quote_char == ' ') && c != ' ')
+                || i == fstr.length() - 1) token += c;
             if (token.length() > 0) tokens.push_back(token);
             token = "";
         }
         else if ((c == '\'' || c == '"') && quote_char == ' ')
         {
             quote_char = c;
+            token += c;
         }
         else if (c == quote_char && c != ' ')
         {
             quote_char = ' ';
+            token += c;
         }
         else if (c != ' ')
         {

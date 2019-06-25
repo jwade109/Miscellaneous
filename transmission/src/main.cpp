@@ -1,5 +1,6 @@
 // main.cpp
 
+#include <transmission/util.hpp>
 #include <transmission/packet.hpp>
 #include <transmission/interpreter.hpp>
 
@@ -9,6 +10,16 @@
 #include <iomanip>
 #include <thread>
 #include <fstream>
+
+namespace rvt
+{
+
+const std::string underline = "\033[4m";
+const std::string reverse = "\033[7m";
+const std::string red = "\033[31;40m";
+const std::string clear = "\033[0m";
+
+}
 
 int main(int argc, char **argv)
 {
@@ -28,30 +39,29 @@ int main(int argc, char **argv)
     for (; std::getline(paramfile, line); linenumber++)
     {
         if (line.length() == 0) continue;
-        if (line[0] == '#') continue; // comments
-
-        std::stringstream linestream(line);
+        if (rvt::begins_with(line, "//")) continue; // comments
 
         rvt::packet pack;
         try
         {
-            uint16_t id;
-            linestream >> id;
-            std::string formatted(linestream.str());
-            pack = rvt::str2packet(std::chrono::system_clock::now(), formatted);
-            pack.id = id;
+            pack = rvt::str2packet(std::chrono::system_clock::now(), line);
+            std::cout << rvt::packet2str(pack, interp.get_format(pack.id)) << std::endl;
+            interp.call(pack);
         }
-        catch (std::exception)
+        catch (const std::invalid_argument &e)
         {
-            std::cout << filename << ": error parsing line "
-                << linenumber << ":\n > " << line << std::endl;
-            return 1;
+            std::cerr << rvt::red << filename << ": error parsing line "
+                << linenumber << " (invalid argument: " << e.what() << "):\n\n   "
+                << line << rvt::clear << "\n" << std::endl;
         }
-        std::cout << rvt::packet2str(pack, interp.get_format(pack.id)) << std::endl;
-        interp.call(pack);
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        // std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
     std::cout << interp << std::endl;
+
+    for (auto p : interp.history)
+    {
+        std::cout << p << std::endl;    
+    }
 
     return 0;
 }
