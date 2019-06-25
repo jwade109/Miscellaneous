@@ -1,211 +1,37 @@
-// interpreter.cpp
+// packet.cpp
+
+#include <transmission/serial.hpp>
+#include <transmission/packet.hpp>
+#include <transmission/util.hpp>
 
 #include <vector>
-#include <array>
-#include <map>
 #include <set>
 #include <chrono>
-#include <thread>
 #include <string>
 #include <iostream>
 #include <iomanip>
-#include <functional>
 #include <iterator>
 #include <sstream>
 
-/// \brief Converts a variable to bytes and stores them
-/// \param vec The vector to store the bytes in
-/// \param data A variable containing data to be converted
-/// \return The original vector with added bytes
-template <typename T, typename U =
-    std::enable_if_t<std::is_fundamental<T>::value, T>>
-std::vector<unsigned char>& operator <<
-    (std::vector<unsigned char> &vec, T data)
+namespace rvt
 {
-    unsigned char *c = reinterpret_cast<unsigned char*>(&data);
-    for (int i = sizeof(T) - 1; i >= 0; --i)
-    {
-        vec.push_back(c[i]);
-    }
-    return vec;
+
+packet::packet() : time(), id(0), data{}, checksum(0), format() { }
+
+bool packet::is_valid() const
+{
+    return false;
 }
 
-/// \brief Converts a variable to bytes and stores them
-/// \param vec The vector to store the bytes in
-/// \param data A vector of data to be converted
-/// \return The original vector with added bytes
-template <typename T, typename U =
-    std::enable_if_t<std::is_fundamental<T>::value, T>>
-std::vector<unsigned char>& operator <<
-    (std::vector<unsigned char> &vec,
-    const std::vector<T> &data)
+std::vector<uint8_t>& operator << (std::vector<uint8_t> &bytes, packet &pack)
 {
-    for (auto e : data)
-        vec << e;
-    return vec;
+    return bytes;
 }
 
-/// \brief Converts a variable to bytes and stores them
-/// \param vec The vector to store the bytes in
-/// \param data An array of data to be converted
-/// \return The original vector with added bytes
-template <typename T, size_t N, typename U =
-    std::enable_if_t<std::is_fundamental<T>::value, T>>
-std::vector<unsigned char>& operator <<
-    (std::vector<unsigned char> &vec,
-    const std::array<T, N> &data)
+std::vector<uint8_t>& operator >> (std::vector<uint8_t> &bytes, packet &pack)
 {
-    for (auto e : data)
-        vec << e;
-    return vec;
+    return bytes;
 }
-
-/// \brief Extracts bytes from a vector
-/// \param vec The vector of bytes
-/// \param data The variable to fill with bytes
-/// \return The original vector, with a few less bytes
-template <typename T, typename U =
-    std::enable_if_t<std::is_fundamental<T>::value, T>>
-std::vector<unsigned char>& operator >>
-    (std::vector<unsigned char> &vec, T& data)
-{
-    data = T();
-    if (sizeof(T) > vec.size()) return vec;
-
-    std::vector<unsigned char> extract;
-    for (int i = sizeof(T) - 1; i >= 0; --i)
-    {
-        extract.push_back(vec[i]);
-    }
-    vec.erase(vec.begin(), vec.begin() + extract.size());
-    unsigned char *ptr = reinterpret_cast<unsigned char*>(&data);
-    std::copy(extract.begin(), extract.end(), ptr);
-    return vec;
-}
-
-/// \brief Extracts bytes from a vector
-/// \param vec The vector of bytes
-/// \param data A vector of variables to populate
-/// \return The original vector, with some bytes missing
-template <typename T, typename U =
-    std::enable_if_t<std::is_fundamental<T>::value, T>>
-std::vector<unsigned char>& operator >>
-    (std::vector<unsigned char> &vec,
-     std::vector<T> &data)
-{
-    while (vec.size() >= sizeof(T))
-    {
-        T elem;
-        vec >> elem;
-        data.push_back(elem);
-    }
-    return vec;
-}
-
-/// \brief Extracts bytes from a vector
-/// \param vec The vector of bytes
-/// \param data An array of variables to populate
-/// \return The original vector, with some bytes missing
-template <typename T, size_t N, typename U =
-    std::enable_if_t<std::is_fundamental<T>::value, T>>
-std::vector<unsigned char>& operator >>
-    (std::vector<unsigned char> &vec,
-     std::array<T, N> &data)
-{
-    size_t index = 0;
-    while (vec.size() >= sizeof(T) && index < N)
-    {
-        T elem;
-        vec >> elem;
-        data[index] = elem;
-        ++index;
-    }
-    return vec;
-}
-
-/// \brief Extracts bytes from a vector and inserts them into
-///        a null-terminated string
-std::vector<uint8_t>& operator >> (std::vector<uint8_t> &vec, std::string &str)
-{
-    std::vector<uint8_t> data;
-    size_t i = 0;
-    for (; i < vec.size() && vec[i] != 0; ++i)
-        data.push_back(vec[i]);
-    str = std::string(data.begin(), data.end());
-    if (vec.size() > i && vec[i] == 0) ++i;
-    vec.erase(vec.begin(), vec.begin() + i);
-    return vec;
-}
-
-
-std::string wrap(const std::string &str, size_t num_chars, size_t offset = 0)
-{
-    std::string copy(str);
-    std::stringstream ss;
-    ss << std::right;
-    while (copy.length() > num_chars)
-    {
-        ss << std::setw(num_chars + offset + 1)
-           << copy.substr(0, num_chars) + "\n";
-        copy = copy.substr(num_chars, copy.length());
-    }
-    ss << std::setw(offset) << "" << copy;
-    return ss.str();
-}
-
-
-std::vector<std::string> split_quoted(const std::string &fstr)
-{
-    std::vector<std::string> tokens;
-    std::string token;
-    char quote_char = ' ';
-    for (size_t i = 0; i < fstr.length(); ++i)
-    {
-        char c = fstr[i];
-        if (c == ' ' && quote_char != ' ')
-        {
-            token += c;
-        }
-        else if (c == ' ' || i == fstr.length() - 1)
-        {
-            if ((c != quote_char || quote_char == ' ') && c != ' ') token += c;
-            if (token.length() > 0) tokens.push_back(token);
-            token = "";
-        }
-        else if ((c == '\'' || c == '"') && quote_char == ' ')
-        {
-            quote_char = c;
-        }
-        else if (c == quote_char && c != ' ')
-        {
-            quote_char = ' ';
-        }
-        else if (c != ' ')
-        {
-            token += c;
-        }
-    }
-    return tokens;
-}
-
-class packet
-{
-    public:
-
-    packet() : time(), id(0), data{}, checksum(0), format() { }
-
-    std::chrono::system_clock::time_point time;
-    uint16_t id;
-    std::vector<uint8_t> data;
-    uint16_t checksum;
-    std::string format;
-    std::set<std::string> warnings;
-
-    bool is_valid() const
-    {
-        return false;
-    }
-};
 
 packet str2packet(const std::chrono::system_clock::time_point &time,
                   const std::string &fstr)
@@ -228,7 +54,7 @@ packet str2packet(const std::chrono::system_clock::time_point &time,
 
     for (auto token : tokens)
     {
-        std::string value = ""; 
+        std::string value = "";
         if (begins_with(token, "0x"))
         {
             if (token.length() > 2)
@@ -341,7 +167,7 @@ packet str2packet(const std::chrono::system_clock::time_point &time,
     return pack;
 }
 
-std::string packet2str(const packet &pack, const std::string &fmt = "")
+std::string packet2str(const packet &pack, const std::string &fmt)
 {
     std::string format(fmt);
     if (format == "") format = pack.format;
@@ -361,8 +187,7 @@ std::string packet2str(const packet &pack, const std::string &fmt = "")
     std::stringstream header;
     header << "@" << sec.count() << "." << std::setw(3)
            << std::setfill('0') << std::right << ms.count()
-           << " *" << std::setw(7) << std::setfill(' ')
-           << std::left << pack.id;
+           << " *" << pack.id;
 
     std::string result(header.str());
     for (auto token : tokens)
@@ -379,77 +204,77 @@ std::string packet2str(const packet &pack, const std::string &fmt = "")
             uint8_t num;
             data >> num;
             if (result.size() > 0) result += " ";
-            result += std::to_string(num);
+            result += std::to_string(num) + "u8";
         }
         else if (token == "u16" && data.size() >= 2)
         {
             uint16_t num;
             data >> num;
             if (result.size() > 0) result += " ";
-            result += std::to_string(num);
+            result += std::to_string(num) + "u16";
         }
         else if (token == "u32" && data.size() >= 4)
         {
             uint32_t num;
             data >> num;
             if (result.size() > 0) result += " ";
-            result += std::to_string(num);
+            result += std::to_string(num) + "u32";
         }
         else if (token == "u64" && data.size() >= 8)
         {
             uint64_t num;
             data >> num;
             if (result.size() > 0) result += " ";
-            result += std::to_string(num);
+            result += std::to_string(num) + "u64";
         }
         else if (token == "n8" && data.size() >= 1)
         {
             int8_t num;
             data >> num;
             if (result.size() > 0) result += " ";
-            result += std::to_string(num);
+            result += std::to_string(num) + "n8";
         }
         else if (token == "n16" && data.size() >= 2)
         {
             int16_t num;
             data >> num;
             if (result.size() > 0) result += " ";
-            result += std::to_string(num);
+            result += std::to_string(num) + "n16";
         }
         else if (token == "n32" && data.size() >= 4)
         {
             int32_t num;
             data >> num;
             if (result.size() > 0) result += " ";
-            result += std::to_string(num);
+            result += std::to_string(num) + "n32";
         }
         else if (token == "n64" && data.size() >= 8)
         {
             int64_t num;
             data >> num;
             if (result.size() > 0) result += " ";
-            result += std::to_string(num);
+            result += std::to_string(num) + "n64";
         }
         else if (token == "f" && data.size() >= 1)
         {
             float num;
             data >> num;
             if (result.size() > 0) result += " ";
-            result += std::to_string(num);
+            result += std::to_string(num) + "f";
         }
         else if (token == "d" && data.size() >= 1)
         {
             double num;
             data >> num;
             if (result.size() > 0) result += " ";
-            result += std::to_string(num);
+            result += std::to_string(num) + "d";
         }
         else if (token == "0x" && data.size() >= 1)
         {
             uint8_t num;
             data >> num;
             std::stringstream ss;
-            ss << std::hex << std::setfill('0')
+            ss << "0x" << std::hex << std::setfill('0')
                << std::setw(2) << std::right << static_cast<int>(num);
             if (result.size() > 0) result += " ";
             result += ss.str();
@@ -516,129 +341,5 @@ std::ostream& operator << (std::ostream &os, const packet &pack)
     return os << ss.str() << std::endl;
 }
 
-class interpreter
-{
-    using callback = std::function<int(interpreter&, const packet&)>;
-
-    public:
-
-    interpreter() : history(),
-                    context{{"version", "1.0.0"},
-                             {"sync bytes", "0xAA 0x14"}},
-                    callbacks{
-    
-        {0, [] (interpreter &interp, const packet &pack)
-        {
-            std::vector<uint8_t> data(pack.data);
-            std::string key, value;
-            data >> key >> value;
-            if (key == "" || value == "") return 1;
-            std::cout << "Add to context: " << key
-                << " = " << value << std::endl;
-            interp.context[key] = value;
-            return 0;
-        }},
-
-        {1, [] (interpreter &interp, const packet &pack)
-        {
-            std::vector<uint8_t> data(pack.data);
-            uint16_t id;
-            std::string format;
-            data >> id >> format;
-            std::cout << "Add to parse formats: "
-                << id << " -> " << format << std::endl;
-            interp.parse_formats[id] = format;
-            return 0;
-        }}} { }
-
-    int call(const packet& pack)
-    {
-        history.push_back(pack);
-        auto iter = callbacks.find(pack.id);
-        if (iter != callbacks.end())
-        {
-            int ret = iter->second(*this, pack);
-            std::cout << "Callback " << iter->first << " with packet ("
-                      << packet2str(pack, get_format(pack.id)) << ")"
-                      << " returned " << ret << std::endl;
-            return ret;
-        }
-        return -1;
-    }
-
-    std::string get_format(uint16_t id) const
-    {
-        auto iter = parse_formats.find(id);
-        if (iter != parse_formats.end())
-        {
-            return iter->second;
-        }
-        return "";
-    }
-
-    std::vector<packet> history;
-    std::map<std::string, std::string> context;
-    std::map<uint16_t, callback> callbacks;
-    std::map<uint16_t, std::string> parse_formats;
-};
-
-std::ostream& operator << (std::ostream &os, const interpreter &interp)
-{
-    std::stringstream ss;
-    ss << "< Context >" << std::endl;
-    for (auto e : interp.context)
-    {
-        ss << std::setw(20) << e.first << ": "
-           << e.second << std::endl;
-    }
-    ss << "< Callbacks >" << std::endl;
-    for (auto e : interp.callbacks)
-    {
-        ss << std::hex << std::right << std::setw(12) << e.first << ": "
-           << std::left << e.second.target_type().name() << std::endl;
-    }
-    ss << "< Parse Formats >" << std::endl;
-    for (auto e : interp.parse_formats)
-    {
-        ss << std::right << std::dec << std::setw(12) << e.first << ": "
-           << std::left << e.second << std::endl;
-    }
-    ss << "< History >" << std::endl;
-    for (int64_t i = interp.history.size() - 1; i >= 0; --i)
-    {
-        auto pack = interp.history[i];
-        ss << packet2str(pack, interp.get_format(pack.id)) << std::endl;
-    }
-    return os << ss.str();
-}
-
-int main(int argc, char **argv)
-{
-    interpreter interp;
-    std::vector<std::string> pstrs;
-
-    /*
-    std::string def("3u8 15900u16 1823942u32 2348923499102912u64 "
-                    "-7n8 83n16 -412n32 -291n64 "
-                    "0x2f 4.001d 9.23f "
-                    "#Hey #\"Hello there!\"");
-    */
-
-    for (int i = 1; i < argc - 1; i+= 2)
-    {
-        uint16_t id = std::stoull(argv[i]);
-        std::string formatted(argv[i+1]);
-
-        auto pack = str2packet(std::chrono::system_clock::now(), formatted);
-        pack.id = id;
-        pack.format = "";
-        std::cout << packet2str(pack, interp.get_format(pack.id)) << std::endl;
-        interp.call(pack);
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    }
-    std::cout << interp << std::endl;
-
-    return 0;
-}
-
+} // namespace rvt
 

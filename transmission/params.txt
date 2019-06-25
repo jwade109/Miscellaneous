@@ -1,0 +1,13 @@
+# params.txt
+
+# declare parse formats
+1 0u16 #"# #"
+1 1u16 #"u16 #"
+
+# declare context variables
+0 #blue #red
+0 #version #1.1.0
+
+# test string
+1 100u16 #"u8 u16 u32 u64 n8 n16 n32 n64 0x d f # #"
+100 3u8 15900u16 1823942u32 2348923499102912u64 -7n8 83n16 -412n32 -291n64 0x2f 4.001d 9.23f #Hey #"Hello there!"
