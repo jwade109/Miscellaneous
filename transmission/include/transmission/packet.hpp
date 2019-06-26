@@ -26,6 +26,8 @@ class packet
     std::set<std::string> warnings;
 
     bool is_valid() const;
+
+    uint16_t updateChecksum();
 };
 
 std::vector<uint8_t>& operator << (std::vector<uint8_t> &bytes, const packet &pack);

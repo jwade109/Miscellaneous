@@ -22,7 +22,18 @@ packet::packet() :
 
 bool packet::is_valid() const
 {
-    return false;
+    std::vector<uint8_t> hexdump;
+    hexdump << *this;
+    uint16_t cs = xorchecksum(hexdump);
+    std::cout << "computed checksum is " << cs << std::endl;
+    return cs == 0;
+}
+
+uint16_t packet::updateChecksum()
+{
+    std::vector<uint8_t> bytes;
+    bytes << sync_bytes << time << id << data;
+    return checksum = xorchecksum(bytes);
 }
 
 packet str2packet(const std::chrono::system_clock::time_point &time,

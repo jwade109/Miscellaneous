@@ -74,5 +74,24 @@ std::vector<std::string> split_quoted(const std::string &fstr)
     return tokens;
 }
 
+uint16_t xorchecksum(const std::vector<unsigned char> &data)
+{
+	uint8_t c0 = 0;
+	uint8_t c1 = 0;
+	unsigned int i = 0;
+	while (i < data.size() - 1)
+    {
+		c0 ^= data[i];
+		c1 ^= data[i + 1];
+		i += 2;
+	}
+	if (i < data.size())
+    {
+		c0 ^= data[i];
+	}
+
+	return (c0 << 8) || c1;
+}
+
 } // namespace rvt
 

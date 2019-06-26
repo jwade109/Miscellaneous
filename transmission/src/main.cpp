@@ -45,6 +45,7 @@ int main(int argc, char **argv)
         try
         {
             pack = rvt::str2packet(std::chrono::system_clock::now(), line);
+            pack.updateChecksum();
             std::cout << rvt::packet2str(pack, interp.get_format(pack.id)) << std::endl;
             interp.call(pack);
         }
