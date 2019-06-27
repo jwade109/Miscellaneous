@@ -17,23 +17,32 @@ namespace rvt
 {
 
 packet::packet() :
-    sync_bytes{0xAA, 0x14},
-    time(), id(0), data{}, checksum(0) { }
+    sync_bytes(0),
+    time{}, id(0), data{}, checksum(0),
+    format(), warnings() { }
 
 bool packet::is_valid() const
 {
     std::vector<uint8_t> hexdump;
     hexdump << *this;
     uint16_t cs = xorchecksum(hexdump);
-    std::cout << "computed checksum is " << cs << std::endl;
+    if (cs != 0)
+    {
+        std::stringstream warn;
+        warn << "Checksum mismatch -- " << std::hex << checksum
+            << " given, " << cs << " computed";
+        warnings.insert(warn.str());
+    }
     return cs == 0;
 }
 
 uint16_t packet::updateChecksum()
 {
     std::vector<uint8_t> bytes;
-    bytes << sync_bytes << time << id << data;
-    return checksum = xorchecksum(bytes);
+    bytes << sync_bytes << time << id
+        << static_cast<uint16_t>(data.size()) << data;
+    uint16_t cs = xorchecksum(bytes);
+    return checksum = cs;
 }
 
 packet str2packet(const std::chrono::system_clock::time_point &time,
@@ -47,7 +56,12 @@ packet str2packet(const std::chrono::system_clock::time_point &time,
     for (auto token : tokens)
     {
         std::string value = "";
-        if (begins_with(token, "#") && token.length() > 1)
+        if (begins_with(token, "!") && token.length() > 1)
+        {
+            value = token.substr(1);
+            pack.sync_bytes = std::stoull(value, 0, 16);
+        }
+        else if (begins_with(token, "#") && token.length() > 1)
         {
             value = token.substr(1);
             pack.id = std::stoull(value);
@@ -58,6 +72,7 @@ packet str2packet(const std::chrono::system_clock::time_point &time,
             uint8_t byte_value = std::stoull(value, 0, 16);
             std::vector<uint8_t> bytes{byte_value};
             pack.data.insert(pack.data.end(), bytes.begin(), bytes.end());
+            pack.format += " 0x";
         }
         else if (token.length() >= 2 &&
                ((begins_with(token, "'")  && ends_with(token, "'")) ||
@@ -67,6 +82,7 @@ packet str2packet(const std::chrono::system_clock::time_point &time,
             std::vector<uint8_t> bytes(value.begin(), value.end());
             bytes.push_back(0);
             pack.data.insert(pack.data.end(), bytes.begin(), bytes.end());
+            pack.format += " s";
         }
         else if (ends_with(token, "u8") && token.length() > 2)
         {
@@ -74,6 +90,7 @@ packet str2packet(const std::chrono::system_clock::time_point &time,
             uint8_t byte_value = std::stoull(value);
             std::vector<uint8_t> bytes{byte_value};
             pack.data.insert(pack.data.end(), bytes.begin(), bytes.end());
+            pack.format += " u8";
         }
         else if (ends_with(token, "u16"))
         {
@@ -82,6 +99,7 @@ packet str2packet(const std::chrono::system_clock::time_point &time,
             std::vector<uint8_t> bytes;
             bytes << num;
             pack.data.insert(pack.data.end(), bytes.begin(), bytes.end());
+            pack.format += " u16";
         }
         else if (ends_with(token, "u32"))
         {
@@ -90,6 +108,7 @@ packet str2packet(const std::chrono::system_clock::time_point &time,
             std::vector<uint8_t> bytes;
             bytes << num;
             pack.data.insert(pack.data.end(), bytes.begin(), bytes.end());
+            pack.format += " u32";
         }
         else if (ends_with(token, "u64"))
         {
@@ -98,6 +117,7 @@ packet str2packet(const std::chrono::system_clock::time_point &time,
             std::vector<uint8_t> bytes;
             bytes << num;
             pack.data.insert(pack.data.end(), bytes.begin(), bytes.end());
+            pack.format += " u64";
         }
         else if (ends_with(token, "n8"))
         {
@@ -106,6 +126,7 @@ packet str2packet(const std::chrono::system_clock::time_point &time,
             std::vector<uint8_t> bytes;
             bytes << num;
             pack.data.insert(pack.data.end(), bytes.begin(), bytes.end());
+            pack.format += " n8";
         }
         else if (ends_with(token, "n16"))
         {
@@ -114,6 +135,7 @@ packet str2packet(const std::chrono::system_clock::time_point &time,
             std::vector<uint8_t> bytes;
             bytes << num;
             pack.data.insert(pack.data.end(), bytes.begin(), bytes.end());
+            pack.format += " n16";
         }
         else if (ends_with(token, "n32"))
         {
@@ -122,6 +144,7 @@ packet str2packet(const std::chrono::system_clock::time_point &time,
             std::vector<uint8_t> bytes;
             bytes << num;
             pack.data.insert(pack.data.end(), bytes.begin(), bytes.end());
+            pack.format += " n32";
         }
         else if (ends_with(token, "n64"))
         {
@@ -130,6 +153,7 @@ packet str2packet(const std::chrono::system_clock::time_point &time,
             std::vector<uint8_t> bytes;
             bytes << num;
             pack.data.insert(pack.data.end(), bytes.begin(), bytes.end());
+            pack.format += " n64";
         }
         else if (ends_with(token, "f"))
         {
@@ -138,6 +162,7 @@ packet str2packet(const std::chrono::system_clock::time_point &time,
             std::vector<uint8_t> bytes;
             bytes << num;
             pack.data.insert(pack.data.end(), bytes.begin(), bytes.end());
+            pack.format += " f";
         }
         else if (ends_with(token, "d"))
         {
@@ -146,6 +171,7 @@ packet str2packet(const std::chrono::system_clock::time_point &time,
             std::vector<uint8_t> bytes;
             bytes << num;
             pack.data.insert(pack.data.end(), bytes.begin(), bytes.end());
+            pack.format += " d";
         }
         else
         {
@@ -153,8 +179,13 @@ packet str2packet(const std::chrono::system_clock::time_point &time,
                       << token << "'" << std::endl;
         }
     }
-
+    pack.updateChecksum();
     return pack;
+}
+
+std::string packet2str(const packet &pack)
+{
+    return packet2str(pack, pack.format);
 }
 
 std::string packet2str(const packet &pack, const std::string &format)
@@ -173,7 +204,9 @@ std::string packet2str(const packet &pack, const std::string &format)
     auto ms = duration_cast<milliseconds>(since_epoch - sec);
 
     std::stringstream result;
-    result << "@" << sec.count() << "." << std::setw(3)
+    result << "!" << std::setw(4) << std::right << std::setfill('0')
+           << std::hex << pack.sync_bytes << std::dec
+           << " @" << sec.count() << "." << std::setw(3)
            << std::setfill('0') << std::right << ms.count()
            << " #" << pack.id;
 
@@ -270,22 +303,37 @@ std::string packet2str(const packet &pack, const std::string &format)
     }
 
     if (data.size() > 0)
-        result << " ..." << std::dec << data.size() << "...";
+    {
+        result << " (" << data.size() << " bytes)";
+    }
+
+    result << " " << std::setw(4) << std::setfill('0')
+        << std::right << std::hex << pack.checksum;
+
     return result.str();
 }
 
 std::vector<uint8_t>& operator << (std::vector<uint8_t> &vec,
                                    const packet &pack)
 {
+    uint16_t size = pack.data.size();
     return vec << pack.sync_bytes << pack.time
-        << pack.id << pack.data << pack.checksum;
+        << pack.id << size
+        << pack.data << pack.checksum;
 }
 
 std::vector<uint8_t>& operator >> (std::vector<uint8_t> &vec,
                                    packet &pack)
 {
-    return vec >> pack.sync_bytes >> pack.time
-        >> pack.id >> pack.data >> pack.checksum;
+    uint16_t size = 0;
+    vec >> pack.sync_bytes >> pack.time >> pack.id >> size;
+
+    if (size > vec.size()) size = 0;
+
+    pack.data.insert(pack.data.begin(), vec.begin(), vec.begin() + size);
+    vec.erase(vec.begin(), vec.begin() + size);
+
+    return vec >> pack.checksum;
 }
 
 std::ostream& operator << (std::ostream &os, const packet &pack)
@@ -297,12 +345,10 @@ std::ostream& operator << (std::ostream &os, const packet &pack)
     auto ms = duration_cast<milliseconds>(since_epoch) - sec;
 
     std::stringstream ss;
-    ss << " --- packet ---" << std::endl
-       << std::setfill(' ') << std::setw(18) << std::dec << std::right
-       << "time: " << std::left
-       << sec.count() << "."
-       << std::setw(3) << std::setfill('0')
-       << std::right << ms.count() << " -- ";
+    ss << std::setfill(' ') << std::setw(18) << std::dec << std::right
+       << "time: " << std::left << std::setfill('0')
+       << std::setw(9) << sec.count() << "."
+       << std::setw(3) << std::right << ms.count() << " -- ";
 
     auto time = std::chrono::system_clock::to_time_t(pack.time);
     std::stringstream datestr;
@@ -311,20 +357,20 @@ std::ostream& operator << (std::ostream &os, const packet &pack)
         << std::setfill('0') << ms.count();
 
     ss << datestr.str() << std::endl << std::setfill(' ')
-       << std::setw(18) << "sync_bytes: ";
+       << std::setw(18) << "sync bytes: " << std::hex << std::setw(4)
+       << std::setfill('0') << pack.sync_bytes << std::endl;
 
-    for (auto e : pack.sync_bytes)
-    {
-        ss << std::setw(2) << std::right << std::hex
-           << std::setfill('0') << static_cast<int>(e) << " ";
-    }
-    ss << std::endl << std::setfill(' ') << std::dec;
+    std::vector<uint8_t> bytestring;
+    bytestring << pack;
 
-    ss << std::setw(18) << "id: " << pack.id << std::endl
-       << std::setw(18) << "length: " << pack.data.size() << std::endl
+    ss << std::setfill(' ') << std::setw(18) << "id: " << std::dec << pack.id
+       << std::endl << std::setw(18) << "length: " << pack.data.size()
+       << " / " << bytestring.size() << std::endl
        << std::setw(18) << "checksum: " << std::hex << std::setw(4)
        << std::setfill('0') << pack.checksum << std::endl << std::setfill(' ')
-       << std::setw(18) << "is_valid: " << std::boolalpha << pack.is_valid() << std::endl
+       << std::setw(18) << "format: " << pack.format << std::endl
+       << std::setw(18) << "string: " << packet2str(pack) << std::endl
+       << std::setw(18) << "valid: " << std::boolalpha << pack.is_valid() << std::endl
        << std::setw(18) << "warnings: ";
     size_t set_iterator = 0;
     for (auto warn : pack.warnings)
@@ -338,25 +384,27 @@ std::ostream& operator << (std::ostream &os, const packet &pack)
         ss << "none" << std::endl;
     }
 
-    ss << std::setw(18) << std::right << "data: "; 
+    ss << std::setfill(' ') << std::setw(18) << std::right << "data: "; 
     for (size_t i = 0; i < pack.data.size(); ++i)
     {
         uint8_t e = pack.data[i];
         ss << std::right << std::hex << std::setw(2)
             << std::setfill('0') << static_cast<int>(e) << " ";
-        if (i % 16 == 15) ss << std::endl << std::setw(18) << std::setfill(' ') << "";
+        if (i % 16 == 7) ss << " ";
+        if (i % 16 == 15 && i < pack.data.size() - 1)
+            ss << std::endl << std::setw(18) << std::setfill(' ') << "";
     }
     ss << std::endl;
 
-    std::vector<uint8_t> bytestring;
-    bytestring << pack;
     ss << std::setfill(' ') << std::setw(18) << std::right << "hexdump: "; 
     for (size_t i = 0; i < bytestring.size(); ++i)
     {
         uint8_t e = bytestring[i];
         ss << std::right << std::hex << std::setw(2)
             << std::setfill('0') << static_cast<int>(e) << " ";
-        if (i % 16 == 15) ss << std::endl << std::setw(18) << std::setfill(' ') << "";
+        if (i % 16 == 7) ss << " ";
+        if (i % 16 == 15 && i < bytestring.size() - 1)
+            ss << std::endl << std::setw(18) << std::setfill(' ') << "";
     }
 
     return os << ss.str() << std::endl;

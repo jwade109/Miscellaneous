@@ -1,6 +1,7 @@
 // utility.cpp
 
 #include <transmission/util.hpp>
+#include <transmission/serial.hpp>
 
 #include <string>
 #include <vector>
@@ -78,19 +79,20 @@ uint16_t xorchecksum(const std::vector<unsigned char> &data)
 {
 	uint8_t c0 = 0;
 	uint8_t c1 = 0;
-	unsigned int i = 0;
-	while (i < data.size() - 1)
-    {
+	for (size_t i = 0; i < data.size(); i += 2)
 		c0 ^= data[i];
-		c1 ^= data[i + 1];
-		i += 2;
-	}
-	if (i < data.size())
-    {
-		c0 ^= data[i];
-	}
+	for (size_t i = 1; i < data.size(); i += 2)
+		c1 ^= data[i];
 
-	return (c0 << 8) || c1;
+    std::vector<uint8_t> cs;
+    if (data.size() % 2 == 0)
+        cs << c0 << c1;
+    else
+        cs << c1 << c0;
+    uint16_t sum = 0;
+    cs >> sum;
+
+	return sum;
 }
 
 } // namespace rvt

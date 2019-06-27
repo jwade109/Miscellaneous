@@ -1,27 +1,27 @@
 // params.txt
 
 // declare parse formats
-#1 0u16 "s s"
-#1 1u16 "u16 s"
-#1 231u16 "u8 u16 u32 u64 n8 n16 n32 n64 0x d f s s"
-#1 430u16 "u8 u16 u32 u64 n8 n16 n32 n64 0x d f s s s s s s s s s u8 u16 u32 u64 n8 n16 n32 n64 0x d f s"
+!aa14 #1 0u16 "s s"
+!aa14 #1 1u16 "u16 s"
+!aa14 #1 231u16 "u8 u16 u32 u64 n8 n16 n32 n64 0x d f s s"
+!aa14 #1 430u16 "u8 u16 u32 u64 n8 n16 n32 n64 0x d f s s s s s s s s s u8 u16 u32 u64 n8 n16 n32 n64 0x d f s"
 
 // declare context variables
-#0 "blue" "red"
-#0 "version" "1.1.0"
+!aa14 #0 "blue" "red"
+!aa14 #0 "version" "1.1.0"
 
 // test string
-#231 3u8 15900u16 1823942u32 2348923499102912u64 -7n8 83n16 -412n32 -291n64 0x2f 4.001d 9.23f "Hey" "Hello there!"
+!aa14 #231 3u8 15900u16 1823942u32 2348923499102912u64 -7n8 83n16 -412n32 -291n64 0x2f 4.001d 9.23f "Hey" "Hello there!"
 
 // string designed to break things
-// #430 Ru16 Ku32 Mu64 Kn8 Zn16 Fn32 -291n64 0x2f 4.001d 9.23f "Hey" "Hello there!"
-// #430 1u8 2u16 3u32 4u64 -5n8 -6n16 -7n32 -8n64 0xf9 10.10d 11.11f "Hey" "Hello there!"
+// !aa14 #430 Ru16 Ku32 Mu64 Kn8 Zn16 Fn32 -291n64 0x2f 4.001d 9.23f "Hey" "Hello there!"
+// !aa14 #430 1u8 2u16 3u32 4u64 -5n8 -6n16 -7n32 -8n64 0xf9 10.10d 11.11f "Hey" "Hello there!"
 
 // steady state operation
-#231 1u8 2u16 3u32 4u64 -5n8 -6n16 -7n32 -8n64 0xf9 10.10d 11.11f "Hey" "Hello there!"
-#231 1u8 2u16 3u32 4u64 -5n8 -6n16 -7n32 -8n64 0xf9 10.10d 11.11f "Hey" "Hello there!"
-#1 231u16 "u8 u16 u32"
-#231 1u8 2u16 3u32 4u64 -5n8 -6n16 -7n32 -8n64 0xf9 10.10d 11.11f "Hey" "Hello there!"
+!aa14 #231 1u8 2u16 3u32 4u64 -5n8 -6n16 -7n32 -8n64 0xf9 10.10d 11.11f "Hey" "Hello there!"
+!aa14 #231 1u8 2u16 3u32 4u64 -5n8 -6n16 -7n32 -8n64 0xf9 10.10d 11.11f "Hey" "Hello there!"
+!aa14 #1 231u16 "u8 u16 u32"
+!aa14 #231 1u8 2u16 3u32 4u64 -5n8 -6n16 -7n32 -8n64 0xf9 10.10d 11.11f "Hey" "Hello there!"
 
 // remove parse format
-// #430 3u8 15900u16 1823942u32
+// !aa14 #430 3u8 15900u16 1823942u32

@@ -69,6 +69,7 @@ std::vector<unsigned char>& operator >>
 {
     if (sizeof(T) > vec.size())
     {
+        vec.clear();
         return vec;
     }
 

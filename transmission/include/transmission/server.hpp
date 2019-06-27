@@ -1,7 +1,7 @@
-// interpreter.hpp
+// server.hpp
 
-#ifndef RVT_INTERPRETER_HPP
-#define RVT_INTERPRETER_HPP
+#ifndef RVT_SERVER_HPP
+#define RVT_SERVER_HPP
 
 #include <transmission/packet.hpp>
 
@@ -10,17 +10,20 @@
 #include <string>
 #include <iostream>
 #include <functional>
+#include <deque>
 
 namespace rvt
 {
 
-class interpreter
+class server
 {
-    using callback = std::function<int(interpreter&, const packet&)>;
+    using callback = std::function<int(server&, const packet&)>;
 
     public:
 
-    interpreter(); 
+    server();
+
+    void load(const std::string &infile);
 
     int call(const packet& pack);
 
@@ -32,8 +35,8 @@ class interpreter
     std::map<uint16_t, std::string> parse_formats;
 };
 
-std::ostream& operator << (std::ostream &os, const interpreter &interp);
+std::ostream& operator << (std::ostream &os, const server &serv);
 
 } // namespace rvt
 
-#endif // RVT_INTERPRETER_HPP
+#endif // RVT_SERVER_HPP

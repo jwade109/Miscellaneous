@@ -18,12 +18,13 @@ class packet
 
     packet();
     
-    std::vector<uint8_t> sync_bytes;
+    uint16_t sync_bytes;
     std::chrono::system_clock::time_point time;
     uint16_t id;
     std::vector<uint8_t> data;
     uint16_t checksum;
-    std::set<std::string> warnings;
+    std::string format;
+    mutable std::set<std::string> warnings;
 
     bool is_valid() const;
 
@@ -37,7 +38,9 @@ std::vector<uint8_t>& operator >> (std::vector<uint8_t> &bytes, packet &pack);
 packet str2packet(const std::chrono::system_clock::time_point &time,
                   const std::string &fstr);
 
-std::string packet2str(const packet &pack, const std::string &fmt = "");
+std::string packet2str(const packet &pack);
+
+std::string packet2str(const packet &pack, const std::string &fmt);
 
 std::ostream& operator << (std::ostream &os, const packet &pack);
 

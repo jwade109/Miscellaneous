@@ -13,7 +13,7 @@ include_directories(include/)
 
 add_library(transmission
     src/packet.cpp
-    src/interpreter.cpp
+    src/server.cpp
     src/serial.cpp
     src/util.cpp
 )
