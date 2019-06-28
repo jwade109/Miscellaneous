@@ -35,6 +35,9 @@ std::vector<uint8_t>& operator << (std::vector<uint8_t> &bytes, const packet &pa
 
 std::vector<uint8_t>& operator >> (std::vector<uint8_t> &bytes, packet &pack);
 
+bool nextPacket(packet &pack, std::vector<uint8_t>::iterator &begin,
+                        const std::vector<uint8_t>::iterator &end);
+
 packet str2packet(const std::chrono::system_clock::time_point &time,
                   const std::string &fstr);
 

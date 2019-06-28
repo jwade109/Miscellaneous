@@ -21,3 +21,5 @@ add_library(transmission
 add_executable(main src/main.cpp)
 target_link_libraries(main transmission)
 
+add_executable(hexdump src/hexdump.cpp)
+target_link_libraries(hexdump transmission)

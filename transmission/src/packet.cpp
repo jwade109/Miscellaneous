@@ -45,6 +45,57 @@ uint16_t packet::updateChecksum()
     return checksum = cs;
 }
 
+bool nextPacket(packet &pack, std::vector<uint8_t>::iterator &begin,
+                        const std::vector<uint8_t>::iterator &end)
+{
+    static const uint8_t packet_min_size = 16;
+    static const uint8_t packet_header_size = 14;
+
+    for (; begin < end; ++begin)
+    {
+        auto read_iter(begin);
+        // not enough data for a min-size packet
+        if (end - read_iter < packet_min_size)
+        {
+            return false;
+        }
+
+        std::vector<uint8_t> buffer(read_iter, read_iter + packet_min_size);
+        
+        decltype(pack.sync_bytes) sync_bytes = 0;
+        uint16_t data_length = 0;
+        buffer >> sync_bytes >> pack.time >> pack.id >> data_length;
+
+        if (sync_bytes != pack.sync_bytes)
+        {
+            continue;
+        }
+       
+        // not enough data in the buffer 
+        if (end - read_iter < packet_min_size + data_length)
+        {
+            return false;
+        }
+
+        pack.data.clear();
+        pack.data.insert(pack.data.end(), read_iter + packet_header_size,
+            read_iter + packet_header_size + data_length);
+        
+        buffer.clear();
+        buffer.insert(buffer.end(),
+            read_iter + packet_header_size + data_length,
+            read_iter + packet_min_size + data_length);
+        buffer >> pack.checksum;
+
+        if (pack.is_valid())
+        {
+            begin += packet_min_size + data_length;
+            return true;
+        }
+    }
+    return false;
+}
+
 packet str2packet(const std::chrono::system_clock::time_point &time,
                   const std::string &fstr)
 {
