@@ -19,7 +19,7 @@ server::server() :
     {
         {0, [] (server &serv, const packet &pack)
         {
-            std::vector<uint8_t> data(pack.data);
+            std::vector<uint8_t> data(pack.data());
             std::string key, value;
             data >> key >> value;
             if (key == "" || value == "") return 1;
@@ -31,7 +31,7 @@ server::server() :
 
         {1, [] (server &serv, const packet &pack)
         {
-            std::vector<uint8_t> data(pack.data);
+            std::vector<uint8_t> data(pack.data());
             uint16_t id;
             std::string format;
             data >> id >> format;
@@ -39,32 +39,39 @@ server::server() :
                 << id << " -> " << format << std::endl;
             serv.parse_formats[id] = format;
             return 0;
+        }},
+        
+        {2, [] (server &serv, const packet &pack)
+        {
+            std::vector<uint8_t> data(pack.data());
+            uint16_t id;
+            std::string name;
+            data >> id >> name;
+            std::cout << "Add to names: "
+                << id << " -> " << name << std::endl;
+            serv.message_names[id] = name;
+            return 0;
         }}
-    } { }
-
-void server::load(const std::string &ifname)
-{
-    std::ifstream infile(ifname, std::ios::binary);
-    std::vector<uint8_t> bytes(
-        std::istreambuf_iterator<char>{infile}, {});
-
-    while (bytes.size() > 0)
-    {
-        packet pack;
-        bytes >> pack;
-        call(pack);
-    }
-}
+    },
+    parse_formats{{0, "s s"},
+                  {1, "u16 s"},
+                  {2, "u16 s"}},
+    message_names{{0, "DEF"},
+                  {1, "FMT"},
+                  {2, "NAME"}} { }
 
 int server::call(const packet& pack)
 {
-    history.push_back(pack);
-    auto iter = callbacks.find(pack.id);
+    packet copy(pack);
+    copy.format() = get_format(pack.id());
+    copy.name() = get_name(pack.id());
+    history.push_back(copy);
+    auto iter = callbacks.find(copy.id());
     if (iter != callbacks.end())
     {
-        int ret = iter->second(*this, pack);
+        int ret = iter->second(*this, copy);
         std::cout << "Callback " << iter->first << " with packet ("
-                  << packet2str(pack, get_format(pack.id)) << ")"
+                  << packet2str(copy) << ")"
                   << " returned " << ret << std::endl;
         return ret;
     }
@@ -75,6 +82,16 @@ std::string server::get_format(uint16_t id) const
 {
     auto iter = parse_formats.find(id);
     if (iter != parse_formats.end())
+    {
+        return iter->second;
+    }
+    return "";
+}
+
+std::string server::get_name(uint16_t id) const
+{
+    auto iter = message_names.find(id);
+    if (iter != message_names.end())
     {
         return iter->second;
     }
@@ -102,14 +119,19 @@ std::ostream& operator << (std::ostream &os, const server &serv)
         ss << std::right << std::dec << std::setw(12) << e.first << ": "
            << std::left << e.second << std::endl;
     }
+    ss << "< Message Names >" << std::endl;
+    for (auto e : serv.message_names)
+    {
+        ss << std::right << std::dec << std::setw(12) << e.first << ": "
+           << std::left << e.second << std::endl;
+    }
     ss << "< History >" << std::endl;
     for (int64_t i = 0; i < serv.history.size(); ++i)
     {
         auto pack = serv.history[i];
         ss << "  " << std::setw(4) << std::setfill('0')
            << std::hex << std::right << i << " "
-           << packet2str(pack, serv.get_format(pack.id))
-           << std::endl;
+           << packet2str(pack) << std::endl;
     }
     return os << ss.str();
 }

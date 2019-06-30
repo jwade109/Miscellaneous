@@ -85,14 +85,28 @@ uint16_t xorchecksum(const std::vector<unsigned char> &data)
 		c1 ^= data[i];
 
     std::vector<uint8_t> cs;
-    if (data.size() % 2 == 0)
-        cs << c0 << c1;
-    else
-        cs << c1 << c0;
+    cs << c0 << c1;
     uint16_t sum = 0;
     cs >> sum;
-
 	return sum;
+}
+
+
+
+std::string dateString(const std::chrono::system_clock::time_point& time)
+{
+    using namespace std::chrono;
+
+    auto since_epoch = time.time_since_epoch();
+    auto sec = duration_cast<seconds>(since_epoch);
+    auto ms = duration_cast<milliseconds>(since_epoch) - sec;
+
+    auto tt = system_clock::to_time_t(time);
+    std::stringstream datestr;
+    datestr << std::put_time(std::gmtime(&tt), "%Y-%m-%d %H:%M:%S")
+        << "." << std::right << std::setw(3)
+        << std::setfill('0') << ms.count() << " UTC";
+    return datestr.str();
 }
 
 } // namespace rvt

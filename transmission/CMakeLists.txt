@@ -13,13 +13,23 @@ include_directories(include/)
 
 add_library(transmission
     src/packet.cpp
+    src/pprintf.cpp
     src/server.cpp
     src/serial.cpp
     src/util.cpp
 )
+
+add_executable(rvc src/compiler.cpp)
+target_link_libraries(rvc transmission)
 
 add_executable(main src/main.cpp)
 target_link_libraries(main transmission)
 
 add_executable(hexdump src/hexdump.cpp)
 target_link_libraries(hexdump transmission)
+
+add_executable(play src/play.cpp)
+target_link_libraries(play transmission)
+
+add_executable(asio src/asio.cpp)
+target_link_libraries(asio "-lpthread")

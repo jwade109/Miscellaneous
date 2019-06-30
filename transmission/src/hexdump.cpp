@@ -15,17 +15,18 @@ namespace rvt
 const std::string underline = "\033[4m";
 const std::string reverse = "\033[7m";
 const std::string red = "\033[31;40m";
-const std::string yellow = "\033[33;40m";
+const std::string yellow = "\033[39;40m";
 const std::string blue = "\033[34;40m";
+const std::string green = "\033[40;40m";
+const std::string orange = "\033[202;40m";
 const std::string cyan = "\033[36;40m";
+const std::string gray = "\033[245;40m";
 const std::string clear = "\033[0m";
 
 }
 
 int main(int argc, char **argv)
 {
-    std::vector<uint8_t> sync_bytes{ 0xAA, 0x14 };
-
     if (argc < 2)
     {
         std::cerr << std::string(argv[0]) << ": "
@@ -48,11 +49,11 @@ int main(int argc, char **argv)
     std::vector<rvt::packet> packets;
     auto read_iter(begin(bytes)), ending(end(bytes));
     rvt::packet pack;
-    pack.sync_bytes = 0xaa14;
+    pack.syncBytes() = 0xaa14;
     auto last_read_iter = read_iter;
     while (rvt::nextPacket(pack, read_iter, ending))
     {
-        size_t address = (read_iter - pack.data.size() - 16) - begin(bytes);
+        size_t address = (read_iter - pack.data().size() - 16) - begin(bytes);
         addresses.push_back(address);
         packets.push_back(pack);
         std::cout << pack << std::endl;
@@ -75,15 +76,17 @@ int main(int argc, char **argv)
 
                 auto pack = packets.at(packet_num);
                 size_t minaddr = addresses[packet_num];
-                size_t maxaddr = minaddr + 16 + pack.data.size();
+                size_t maxaddr = minaddr + 16 + pack.data().size();
                 size_t addr = i + j;
                 if (btwn(addr, minaddr, minaddr + 2)) std::cout << rvt::red;
-                if (btwn(addr, minaddr + 2, minaddr + 10)) std::cout << rvt::blue;
-                if (btwn(addr, minaddr + 10, minaddr + 12)) std::cout << rvt::yellow;
-                if (btwn(addr, minaddr + 12, minaddr + 14)) std::cout << rvt::cyan;
-                if (btwn(addr, minaddr + 14 + pack.data.size(),
-                               minaddr + 16 + pack.data.size()))
-                    std::cout << rvt::yellow;
+                if (btwn(addr, minaddr + 2, minaddr + 10)) std::cout << rvt::gray;
+                if (btwn(addr, minaddr + 10, minaddr + 12)) std::cout << rvt::blue;
+                if (btwn(addr, minaddr + 12, minaddr + 14)) std::cout << rvt::green;
+                if (btwn(addr, minaddr + 14, minaddr + 14 + pack.data().size()))
+                    std::cout << rvt::gray;
+                if (btwn(addr, minaddr + 14 + pack.data().size(),
+                               minaddr + 16 + pack.data().size()))
+                    std::cout << rvt::orange;
                 std::cout << std::setw(2) << static_cast<int>(bytes[addr]);
                 std::cout << rvt::clear << " ";
                 if (addr == maxaddr - 1) ++packet_num;

@@ -1,0 +1,16 @@
+!aa14   @397.99 #1  4u16 "s"
+!aa14   @397.99 #2  4u16 "TIME"
+
+!aa14   @400    #4  "This should appear first."
+!aa14   @401    #4  "This one second later."
+!aa14   @403    #4  "This soon after."
+
+!aa14   @405    #4  "Quick!"
+!aa14   @405    #4  "Quick!"
+!aa14   @405    #4  "Quick!"
+
+!aa14   @406.1  #4  "Quick!"
+!aa14   @406.2  #4  "Quick!"
+!aa14   @406.3  #4  "Quick!"
+
+!aa14   @398    #4  "Out of order."

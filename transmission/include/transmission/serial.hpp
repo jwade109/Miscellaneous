@@ -29,6 +29,25 @@ std::vector<unsigned char>& operator <<
 }
 
 /// \brief Converts a variable to bytes and stores them
+/// \param arr The array to store the bytes in
+/// \param data A variable containing data to be converted
+/// \return The original array with added bytes
+template <typename T, size_t N, typename U =
+    std::enable_if_t<std::is_fundamental<T>::value, T>>
+std::array<uint8_t, N + sizeof(T)> operator <<
+    (std::array<uint8_t, N> arr, T data)
+{
+    std::array<uint8_t, N + sizeof(T)> ret;
+    std::copy(begin(arr), end(arr), begin(ret));
+    unsigned char *c = reinterpret_cast<unsigned char*>(&data);
+    for (int i = sizeof(T) - 1 + N; i >= N; --i)
+    {
+        ret[i] = c[i];
+    }
+    return ret;
+}
+
+/// \brief Converts a variable to bytes and stores them
 /// \param vec The vector to store the bytes in
 /// \param data A vector of data to be converted
 /// \return The original vector with added bytes
@@ -138,6 +157,18 @@ std::vector<uint8_t>& operator << (std::vector<uint8_t> &vec,
     auto since_epoch = tp.time_since_epoch();
     auto sec = duration_cast<milliseconds>(since_epoch);
     return vec << sec.count();
+}
+
+/// \brief Inserts a chrono::time_point into an array;
+///        time is represented as a uint64_t of milliseconds
+template <typename Clock, typename Dur, size_t N>
+std::array<uint8_t, N + 8>  operator << (std::array<uint8_t, N> arr,
+    const std::chrono::time_point<Clock, Dur> &tp)
+{
+    using namespace std::chrono;
+    auto since_epoch = tp.time_since_epoch();
+    uint64_t sec = duration_cast<milliseconds>(since_epoch).count();
+    return arr << sec;
 }
 
 /// \brief Extracts a chrono::time_point from a vector

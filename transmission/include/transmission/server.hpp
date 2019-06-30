@@ -28,11 +28,13 @@ class server
     int call(const packet& pack);
 
     std::string get_format(uint16_t id) const;
+    std::string get_name(uint16_t id) const;
 
     std::vector<packet> history;
     std::map<std::string, std::string> context;
     std::map<uint16_t, callback> callbacks;
     std::map<uint16_t, std::string> parse_formats;
+    std::map<uint16_t, std::string> message_names;
 };
 
 std::ostream& operator << (std::ostream &os, const server &serv);
