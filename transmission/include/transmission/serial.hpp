@@ -7,6 +7,7 @@
 #include <array>
 #include <string>
 #include <chrono>
+#include <iostream>
 
 namespace rvt
 {
@@ -17,10 +18,10 @@ namespace rvt
 /// \return The original vector with added bytes
 template <typename T, typename U =
     std::enable_if_t<std::is_fundamental<T>::value, T>>
-std::vector<unsigned char>& operator <<
-    (std::vector<unsigned char> &vec, T data)
+std::vector<uint8_t>& operator <<
+    (std::vector<uint8_t> &vec, T data)
 {
-    unsigned char *c = reinterpret_cast<unsigned char*>(&data);
+    uint8_t *c = reinterpret_cast<unsigned char*>(&data);
     for (int i = sizeof(T) - 1; i >= 0; --i)
     {
         vec.push_back(c[i]);
@@ -39,10 +40,10 @@ std::array<uint8_t, N + sizeof(T)> operator <<
 {
     std::array<uint8_t, N + sizeof(T)> ret;
     std::copy(begin(arr), end(arr), begin(ret));
-    unsigned char *c = reinterpret_cast<unsigned char*>(&data);
-    for (int i = sizeof(T) - 1 + N; i >= N; --i)
+    uint8_t *c = reinterpret_cast<unsigned char*>(&data);
+    for (int i = 0; i < sizeof(T); ++i)
     {
-        ret[i] = c[i];
+        ret[i + N] = c[sizeof(T) - 1 - i];
     }
     return ret;
 }
@@ -53,8 +54,8 @@ std::array<uint8_t, N + sizeof(T)> operator <<
 /// \return The original vector with added bytes
 template <typename T, typename U =
     std::enable_if_t<std::is_fundamental<T>::value, T>>
-std::vector<unsigned char>& operator <<
-    (std::vector<unsigned char> &vec,
+std::vector<uint8_t>& operator <<
+    (std::vector<uint8_t> &vec,
     const std::vector<T> &data)
 {
     for (auto e : data)
@@ -68,8 +69,8 @@ std::vector<unsigned char>& operator <<
 /// \return The original vector with added bytes
 template <typename T, size_t N, typename U =
     std::enable_if_t<std::is_fundamental<T>::value, T>>
-std::vector<unsigned char>& operator <<
-    (std::vector<unsigned char> &vec,
+std::vector<uint8_t>& operator <<
+    (std::vector<uint8_t> &vec,
     const std::array<T, N> &data)
 {
     for (auto e : data)
@@ -83,8 +84,8 @@ std::vector<unsigned char>& operator <<
 /// \return The original vector, with a few less bytes
 template <typename T, typename U =
     std::enable_if_t<std::is_fundamental<T>::value, T>>
-std::vector<unsigned char>& operator >>
-    (std::vector<unsigned char> &vec, T& data)
+std::vector<uint8_t>& operator >>
+    (std::vector<uint8_t> &vec, T& data)
 {
     if (sizeof(T) > vec.size())
     {
@@ -92,13 +93,13 @@ std::vector<unsigned char>& operator >>
         return vec;
     }
 
-    std::vector<unsigned char> extract;
+    std::vector<uint8_t> extract;
     for (int i = sizeof(T) - 1; i >= 0; --i)
     {
         extract.push_back(vec[i]);
     }
     vec.erase(vec.begin(), vec.begin() + extract.size());
-    unsigned char *ptr = reinterpret_cast<unsigned char*>(&data);
+    uint8_t *ptr = reinterpret_cast<unsigned char*>(&data);
     std::copy(extract.begin(), extract.end(), ptr);
     return vec;
 }
@@ -109,8 +110,8 @@ std::vector<unsigned char>& operator >>
 /// \return The original vector, with some bytes missing
 template <typename T, typename U =
     std::enable_if_t<std::is_fundamental<T>::value, T>>
-std::vector<unsigned char>& operator >>
-    (std::vector<unsigned char> &vec,
+std::vector<uint8_t>& operator >>
+    (std::vector<uint8_t> &vec,
      std::vector<T> &data)
 {
     while (vec.size() >= sizeof(T))
@@ -128,8 +129,8 @@ std::vector<unsigned char>& operator >>
 /// \return The original vector, with some bytes missing
 template <typename T, size_t N, typename U =
     std::enable_if_t<std::is_fundamental<T>::value, T>>
-std::vector<unsigned char>& operator >>
-    (std::vector<unsigned char> &vec,
+std::vector<uint8_t>& operator >>
+    (std::vector<uint8_t> &vec,
      std::array<T, N> &data)
 {
     size_t index = 0;

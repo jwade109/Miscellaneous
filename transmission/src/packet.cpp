@@ -17,10 +17,12 @@
 namespace rvt
 {
 
+const std::string packet::print_format = "[%@][%#][%$]: %s";
+
 packet::packet() :
     _sync_bytes(0),
     _time{}, _id(0), _name(), _data{}, _checksum(0),
-    _format(), _warnings() { }
+    _format() { }
 
 packet::packet(const packet& pack) :
     _sync_bytes(pack.syncBytes()),
@@ -29,8 +31,7 @@ packet::packet(const packet& pack) :
     _name(pack.name()),
     _data(pack.data()),
     _checksum(pack.checksum()),
-    _format(pack.format()),
-    _warnings(pack.warnings()) { }
+    _format(pack.format()) { }
 
 packet::packet(const std::string& fmt) : packet()
 {
@@ -119,29 +120,11 @@ std::string& packet::format()
     return _format;
 }
 
-const std::set<std::string>& packet::warnings() const
-{
-    return _warnings;
-}
-
-std::set<std::string>& packet::warnings()
-{
-    return _warnings;
-}
-
 bool packet::isValid() const
 {
     std::vector<uint8_t> hexdump;
     hexdump << *this;
-    uint16_t cs = xorchecksum(hexdump);
-    if (cs != 0)
-    {
-        std::stringstream warn;
-        warn << "Checksum mismatch -- " << std::hex << _checksum
-            << " given, " << cs << " computed";
-        _warnings.insert(warn.str());
-    }
-    return cs == 0;
+    return 0 == xorchecksum(hexdump);
 }
 
 uint16_t packet::updateChecksum()
@@ -193,7 +176,6 @@ bool nextPacket(packet &pack, std::vector<uint8_t>::iterator &begin,
        
         if (pack.isValid())
         {
-            pack.warnings().clear();
             begin += packet::header_length + data_length;
             return true;
         }
@@ -350,128 +332,6 @@ packet str2packet(const std::chrono::system_clock::time_point &time,
     return pack;
 }
 
-std::string packet2str(const packet &pack)
-{
-    return packet2str(pack, pack.format());
-}
-
-std::string packet2str(const packet &pack, const std::string &format)
-{
-    using namespace std::chrono;
-
-    std::vector<uint8_t> data(pack.data());
-    std::vector<std::string> tokens;
-    std::istringstream iss(format);
-    std::copy(std::istream_iterator<std::string>(iss),
-              std::istream_iterator<std::string>(),
-              std::back_inserter(tokens));
-
-    auto since_epoch = pack.time().time_since_epoch();
-    auto sec = duration_cast<seconds>(since_epoch);
-    auto ms = duration_cast<milliseconds>(since_epoch - sec);
-
-    std::stringstream result;
-
-    for (auto token : tokens)
-    {
-        if (token == "s")
-        {
-            std::string str = "";
-            data >> str;
-            if (str.size() > 0)
-            {
-                if (result.tellp() > 0) result << " ";
-                result << '"' << str << '"';
-            }
-        }
-        else if (token == "u8" && data.size() >= 1)
-        {
-            uint8_t num = 0;
-            data >> num;
-            if (result.tellp() > 0) result << " ";
-            result << std::to_string(num) << "u8";
-        }
-        else if (token == "u16" && data.size() >= 2)
-        {
-            uint16_t num = 0;
-            data >> num;
-            if (result.tellp() > 0) result << " ";
-            result << std::to_string(num) << "u16";
-        }
-        else if (token == "u32" && data.size() >= 4)
-        {
-            uint32_t num = 0;
-            data >> num;
-            if (result.tellp() > 0) result << " ";
-            result << num << "u32";
-        }
-        else if (token == "u64" && data.size() >= 8)
-        {
-            uint64_t num = 0;
-            data >> num;
-            if (result.tellp() > 0) result << " ";
-            result << std::to_string(num) << "u64";
-        }
-        else if (token == "n8" && data.size() >= 1)
-        {
-            int8_t num = 0;
-            data >> num;
-            if (result.tellp() > 0) result << " ";
-            result << std::to_string(num) << "n8";
-        }
-        else if (token == "n16" && data.size() >= 2)
-        {
-            int16_t num = 0;
-            data >> num;
-            if (result.tellp() > 0) result << " ";
-            result << std::to_string(num) << "n16";
-        }
-        else if (token == "n32" && data.size() >= 4)
-        {
-            int32_t num = 0;
-            data >> num;
-            if (result.tellp() > 0) result << " ";
-            result << std::to_string(num) << "n32";
-        }
-        else if (token == "n64" && data.size() >= 8)
-        {
-            int64_t num = 0;
-            data >> num;
-            if (result.tellp() > 0) result << " ";
-            result << std::to_string(num) << "n64";
-        }
-        else if (token == "f" && data.size() >= 1)
-        {
-            float num = 0;
-            data >> num;
-            if (result.tellp() > 0) result << " ";
-            result << std::to_string(num) << "f";
-        }
-        else if (token == "d" && data.size() >= 1)
-        {
-            double num = 0;
-            data >> num;
-            if (result.tellp() > 0) result << " ";
-            result << std::to_string(num) << "d";
-        }
-        else if (token == "0x" && data.size() >= 1)
-        {
-            uint8_t num = 0;
-            data >> num;
-            if (result.tellp() > 0) result << " ";
-            result << "0x" << std::hex << std::setfill('0')
-                << std::setw(2) << std::right << static_cast<int>(num);
-        }
-    }
-
-    if (data.size() > 0)
-    {
-        result << " (" << data.size() << " bytes)";
-    }
-
-    return result.str();
-}
-
 std::vector<uint8_t>& operator << (std::vector<uint8_t> &vec,
                                    const packet &pack)
 {
@@ -523,45 +383,31 @@ std::ostream& operator << (std::ostream &os, const packet &pack)
        << std::setfill('0') << pack.checksum() << std::endl << std::setfill(' ')
        << std::setw(18) << "format: " << pack.format() << std::endl
        << std::setw(18) << "name: " << pack.name() << std::endl
-       << std::setw(18) << "string: " << packet2str(pack) << std::endl
-       << std::setw(18) << "valid: " << std::boolalpha << pack.isValid() << std::endl
-       << std::setw(18) << "warnings: ";
-    size_t set_iterator = 0;
-    for (auto warn : pack.warnings())
-    {
-        if (set_iterator > 0) ss << std::setw(18) << std::setfill(' ') << "";
-        ss << std::left << warn << std::endl;
-        ++set_iterator;
-    }
-    if (pack.warnings().size() == 0)
-    {
-        ss << "none" << std::endl;
-    }
+       << std::setw(18) << "string: " << pprintf("%s", pack) << std::endl
+       << std::setw(18) << "valid: " << std::boolalpha << pack.isValid() << std::endl;
 
-    ss << std::setfill(' ') << std::setw(18) << std::right << "data: "; 
-    for (size_t i = 0; i < pack.data().size(); ++i)
+    auto print_vec = [&] (const std::string& name,
+                          const std::vector<uint8_t> data)
     {
-        uint8_t e = pack.data()[i];
-        ss << std::right << std::hex << std::setw(2)
-            << std::setfill('0') << static_cast<int>(e) << " ";
-        if (i % 16 == 7) ss << " ";
-        if (i % 16 == 15 && i < pack.data().size() - 1)
-            ss << std::endl << std::setw(18) << std::setfill(' ') << "";
-    }
-    ss << std::endl;
+        ss << std::setfill(' ') << std::setw(18) << std::right << name; 
+        for (size_t i = 0; i < data.size(); ++i)
+        {
+            uint8_t e = data[i];
+            ss << std::right << std::hex << std::setw(2)
+                << std::setfill('0') << static_cast<int>(e) << " ";
+            if (i % 16 == 7) ss << " ";
+            if (i % 16 == 15 && i < data.size() - 1)
+                ss << std::endl << std::setw(18) << std::setfill(' ') << "";
+        }
+        ss << std::endl;
+    };
 
-    ss << std::setfill(' ') << std::setw(18) << std::right << "hexdump: "; 
-    for (size_t i = 0; i < bytestring.size(); ++i)
-    {
-        uint8_t e = bytestring[i];
-        ss << std::right << std::hex << std::setw(2)
-            << std::setfill('0') << static_cast<int>(e) << " ";
-        if (i % 16 == 7) ss << " ";
-        if (i % 16 == 15 && i < bytestring.size() - 1)
-            ss << std::endl << std::setw(18) << std::setfill(' ') << "";
-    }
+    auto header = pack.header();
+    std::vector<uint8_t> vec(begin(header), end(header));
+    print_vec("header: ", vec);
+    print_vec("data: ", pack.data());
 
-    return os << ss.str() << std::endl;
+    return os << ss.str();
 }
 
 std::vector<packet> fromFile(const std::string &ifname, uint16_t sync_bytes)

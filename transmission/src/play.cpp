@@ -35,8 +35,6 @@ int main(int argc, char **argv)
         serv.call(p);
     }
 
-    std::cout << serv << std::endl;
-
     auto real_start = std::chrono::system_clock::now();
     auto sim_start = packets[0].time();
 
@@ -47,7 +45,7 @@ int main(int argc, char **argv)
         while (real_time - real_start < sim_time - sim_start)
             real_time = std::chrono::system_clock::now();
 
-        std::cout << packet2str(p) << std::endl;
+        std::cout << pprintf(rvt::packet::print_format, p) << std::endl;
     }
 
     return 0;

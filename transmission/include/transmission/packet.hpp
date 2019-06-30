@@ -18,6 +18,7 @@ class packet
     public:
 
     static const uint8_t header_length = 16;
+    static const std::string print_format;
 
     packet();
 
@@ -60,9 +61,6 @@ class packet
     const std::string& format() const;
     std::string& format();
 
-    const std::set<std::string>& warnings() const;
-    std::set<std::string>& warnings();
-
     private:
 
     uint16_t _sync_bytes;
@@ -72,8 +70,6 @@ class packet
     std::vector<uint8_t> _data;
     uint16_t _checksum;
     std::string _format;
-    mutable std::set<std::string> _warnings;
-
 };
 
 bool operator == (const packet& left, const packet& right);
@@ -87,10 +83,6 @@ bool nextPacket(packet &pack, std::vector<uint8_t>::iterator &begin,
 
 packet str2packet(const std::chrono::system_clock::time_point &time,
                   const std::string &fstr);
-
-std::string packet2str(const packet &pack);
-
-std::string packet2str(const packet &pack, const std::string &fmt);
 
 std::string pprintf(const std::string& fmt, const packet& pack);
 

@@ -34,11 +34,16 @@ int main(int argc, char **argv)
         serv.call(pack);
     }
 
+    for (auto pack : serv.history)
+    {
+        std::cout << pack << std::endl;
+    }
+
     std::cout << serv << std::endl;
 
     for (auto pack : serv.history)
     {
-        std::cout << rvt::pprintf("[%@][%#][%$] %s", pack) << std::endl;
+        std::cout << rvt::pprintf(rvt::packet::print_format, pack) << std::endl;
     }
 
     return 0;

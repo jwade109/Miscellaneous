@@ -23,8 +23,6 @@ server::server() :
             std::string key, value;
             data >> key >> value;
             if (key == "" || value == "") return 1;
-            std::cout << "Add to context: " << key
-                << " = " << value << std::endl;
             serv.context[key] = value;
             return 0;
         }},
@@ -35,8 +33,6 @@ server::server() :
             uint16_t id;
             std::string format;
             data >> id >> format;
-            std::cout << "Add to parse formats: "
-                << id << " -> " << format << std::endl;
             serv.parse_formats[id] = format;
             return 0;
         }},
@@ -47,8 +43,6 @@ server::server() :
             uint16_t id;
             std::string name;
             data >> id >> name;
-            std::cout << "Add to names: "
-                << id << " -> " << name << std::endl;
             serv.message_names[id] = name;
             return 0;
         }}
@@ -69,11 +63,7 @@ int server::call(const packet& pack)
     auto iter = callbacks.find(copy.id());
     if (iter != callbacks.end())
     {
-        int ret = iter->second(*this, copy);
-        std::cout << "Callback " << iter->first << " with packet ("
-                  << packet2str(copy) << ")"
-                  << " returned " << ret << std::endl;
-        return ret;
+        return iter->second(*this, copy);
     }
     return -1;
 }
@@ -131,7 +121,7 @@ std::ostream& operator << (std::ostream &os, const server &serv)
         auto pack = serv.history[i];
         ss << "  " << std::setw(4) << std::setfill('0')
            << std::hex << std::right << i << " "
-           << packet2str(pack) << std::endl;
+           << pprintf("%@ %# '%$' %s", pack) << std::endl;
     }
     return os << ss.str();
 }
