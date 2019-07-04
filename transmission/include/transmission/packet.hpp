@@ -105,7 +105,9 @@ std::string pprintf(const std::string& fmt, const packet& pack);
 
 std::ostream& operator << (std::ostream &os, const packet &pack);
 
-std::vector<packet> fromFile(const std::string& binfile, uint16_t sync_bytes);
+std::vector<packet> from_file(const std::string& binfile, uint16_t sync_bytes);
+
+std::vector<packet> from_file(const std::string& binfile, uint16_t sync_bytes);
 
 } // namespace rvt
 

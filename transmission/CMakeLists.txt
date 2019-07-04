@@ -30,6 +30,3 @@ target_link_libraries(hexdump transmission)
 
 add_executable(play src/play.cpp)
 target_link_libraries(play transmission)
-
-add_executable(asio src/asio.cpp)
-target_link_libraries(asio "-lpthread")
