@@ -116,7 +116,7 @@ std::ostream& operator << (std::ostream &os, const server &serv)
            << std::left << e.second << std::endl;
     }
     ss << "< History >" << std::endl;
-    for (int64_t i = 0; i < serv.history.size(); ++i)
+    for (size_t i = 0; i < serv.history.size(); ++i)
     {
         auto pack = serv.history[i];
         ss << "  " << std::setw(4) << std::setfill('0')

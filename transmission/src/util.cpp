@@ -14,13 +14,13 @@ namespace rvt
 bool begins_with(const std::string &str, const std::string &begin)
 {
     return str.rfind(begin, 0) == 0;
-};
+}
 
 bool ends_with(const std::string &str, const std::string &ending)
 {
     if (ending.length() > str.length()) return false;
     return str.compare(str.length() - ending.length(), ending.length(), ending) == 0;
-};
+}
 
 std::string wrap(const std::string &str, size_t num_chars, size_t offset)
 {

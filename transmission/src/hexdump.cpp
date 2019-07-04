@@ -49,15 +49,17 @@ int main(int argc, char **argv)
     std::vector<rvt::packet> packets;
     auto read_iter(begin(bytes)), ending(end(bytes));
     rvt::packet pack;
-    pack.syncBytes() = 0xaa14;
     auto last_read_iter = read_iter;
-    while (rvt::nextPacket(pack, read_iter, ending))
+    while (rvt::nextPacket(0xAA14, pack, read_iter, ending))
     {
         size_t address = (read_iter - pack.data().size() - 16) - begin(bytes);
         addresses.push_back(address);
         packets.push_back(pack);
         std::cout << pack << std::endl;
     }
+
+    return 0;
+
 
     size_t i = 0;
     size_t packet_num = 0;

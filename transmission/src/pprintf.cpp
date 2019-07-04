@@ -32,7 +32,7 @@ std::string pprintf(const std::string& fmt, const packet& pack)
     id << std::right << std::hex << std::setw(4)
         << std::setfill('0') << pack.id();
     sync << std::right << std::hex << std::setw(4)
-        << std::setfill('0') << pack.syncBytes();
+        << std::setfill('0') << pack.sync_bytes();
     name << std::left << std::setw(9)
         << std::setfill('-') << pack.name();
 
@@ -164,7 +164,7 @@ std::string packet2str(const packet &pack)
 
     if (data.size() > 0)
     {
-        result << " (" << data.size() << " bytes)";
+        result << "(" << data.size() << " bytes)";
     }
 
     return result.str();

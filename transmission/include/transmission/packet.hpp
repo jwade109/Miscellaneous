@@ -9,6 +9,7 @@
 #include <chrono>
 #include <string>
 #include <iostream>
+#include <utility>
 
 namespace rvt
 {
@@ -26,12 +27,15 @@ class packet
 
     packet(const std::string& fmt);
 
-    // header information is front loaded
-    // SYNC | TIME | ID | LEN | CS | DATA...
+    packet(const std::array<uint8_t, header_length> &header,
+           const std::vector<uint8_t> &data);
+
+    // HEADER INFO //
+    // [SYNC] [TIME] [ID] [LEN] [CS] | [DATA...]
     // 16 bytes in length
 
-    uint16_t syncBytes() const;
-    uint16_t& syncBytes();
+    uint16_t sync_bytes() const;
+    uint16_t& sync_bytes();
 
     const std::chrono::system_clock::time_point& time() const;
     std::chrono::system_clock::time_point& time();
@@ -39,36 +43,51 @@ class packet
     uint16_t id() const;
     uint16_t& id();
 
-    const std::string& name() const;
-    std::string& name();
+    uint16_t data_length() const;
+    uint16_t& data_length();
 
-    uint16_t length() const;
- 
     uint16_t checksum() const;
     uint16_t& checksum();
 
-    std::array<uint8_t, 16> header() const;
+    std::array<uint8_t, header_length> header() const;
+    void set_header(const std::array<uint8_t, header_length> &header);
 
-    // end header data
+    // DATA //
 
     const std::vector<uint8_t>& data() const;
     std::vector<uint8_t>& data();
 
-    bool isValid() const;
+    // QUALITY CONTROL OPERATIONS
+
+    uint16_t total_length() const;
+ 
+    std::pair<bool, std::string> is_valid() const;
     
-    uint16_t updateChecksum();
+    void make_valid();
+
+    // METADATA //
 
     const std::string& format() const;
     std::string& format();
 
+    const std::string& name() const;
+    std::string& name();
+
     private:
 
+    // header, constant length of 16 bytes
     uint16_t _sync_bytes;
+    // time is represented as 64-bit unsigned int
     std::chrono::system_clock::time_point _time;
     uint16_t _id;
-    std::string _name;
-    std::vector<uint8_t> _data;
+    uint16_t _data_length;
     uint16_t _checksum;
+
+    // data, variable in length
+    std::vector<uint8_t> _data;
+
+    // extra metadata, not included in binary representation
+    std::string _name;
     std::string _format;
 };
 
@@ -78,11 +97,9 @@ std::vector<uint8_t>& operator << (std::vector<uint8_t> &bytes, const packet &pa
 
 std::vector<uint8_t>& operator >> (std::vector<uint8_t> &bytes, packet &pack);
 
-bool nextPacket(packet &pack, std::vector<uint8_t>::iterator &begin,
-                        const std::vector<uint8_t>::iterator &end);
-
-packet str2packet(const std::chrono::system_clock::time_point &time,
-                  const std::string &fstr);
+bool nextPacket(uint16_t sync_bytes, packet &pack,
+          std::vector<uint8_t>::iterator &start,
+    const std::vector<uint8_t>::iterator &stop);
 
 std::string pprintf(const std::string& fmt, const packet& pack);
 

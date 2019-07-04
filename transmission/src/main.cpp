@@ -36,7 +36,7 @@ int main(int argc, char **argv)
 
     for (auto pack : serv.history)
     {
-        std::cout << pack << std::endl;
+    //    std::cout << pack << std::endl;
     }
 
     std::cout << serv << std::endl;

@@ -22,7 +22,7 @@ std::vector<uint8_t>& operator <<
     (std::vector<uint8_t> &vec, T data)
 {
     uint8_t *c = reinterpret_cast<unsigned char*>(&data);
-    for (int i = sizeof(T) - 1; i >= 0; --i)
+    for (size_t i = sizeof(T) - 1; i >= 0; --i)
     {
         vec.push_back(c[i]);
     }
@@ -41,10 +41,41 @@ std::array<uint8_t, N + sizeof(T)> operator <<
     std::array<uint8_t, N + sizeof(T)> ret;
     std::copy(begin(arr), end(arr), begin(ret));
     uint8_t *c = reinterpret_cast<unsigned char*>(&data);
-    for (int i = 0; i < sizeof(T); ++i)
+    for (size_t i = 0; i < sizeof(T); ++i)
     {
         ret[i + N] = c[sizeof(T) - 1 - i];
     }
+    return ret;
+}
+
+/// \brief Converts a variable from bytes from an array
+/// \param arr The array in which raw binary is stored
+/// \param data A variable into which to extract the data
+/// \return A new array of size N - sizeof(T)
+template <typename T, size_t N, typename U =
+    std::enable_if_t<std::is_fundamental<T>::value, T>>
+std::array<uint8_t, N - sizeof(T)> operator >>
+    (std::array<uint8_t, N> arr, T &data)
+{
+    std::array<uint8_t, N - sizeof(T)> ret;
+    std::copy(begin(arr) + sizeof(T), end(arr), begin(ret));
+    std::vector<uint8_t> good_stuff(begin(arr), begin(arr) + sizeof(T));
+    good_stuff >> data;
+    return ret;
+}
+
+/// \brief Extracts a chrono::time_point from an array of bytes
+/// \param arr The array in which raw binary is stored
+/// \param data A variable into which to extract the data
+/// \return A new array of size N - sizeof(T)
+template <size_t N>
+decltype(auto) operator >> (std::array<uint8_t, N> arr,
+    std::chrono::system_clock::time_point &time)
+{
+    using namespace std::chrono;
+    uint64_t millis;
+    auto ret = arr >> millis;
+    time = system_clock::time_point{} + milliseconds(millis);
     return ret;
 }
 
@@ -94,7 +125,7 @@ std::vector<uint8_t>& operator >>
     }
 
     std::vector<uint8_t> extract;
-    for (int i = sizeof(T) - 1; i >= 0; --i)
+    for (size_t i = sizeof(T) - 1; i >= 0; --i)
     {
         extract.push_back(vec[i]);
     }
