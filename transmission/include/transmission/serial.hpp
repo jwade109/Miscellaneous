@@ -22,7 +22,7 @@ std::vector<uint8_t>& operator <<
     (std::vector<uint8_t> &vec, T data)
 {
     uint8_t *c = reinterpret_cast<unsigned char*>(&data);
-    for (size_t i = sizeof(T) - 1; i >= 0; --i)
+    for (int i = sizeof(T) - 1; i >= 0; --i)
     {
         vec.push_back(c[i]);
     }
@@ -125,7 +125,7 @@ std::vector<uint8_t>& operator >>
     }
 
     std::vector<uint8_t> extract;
-    for (size_t i = sizeof(T) - 1; i >= 0; --i)
+    for (int i = sizeof(T) - 1; i >= 0; --i)
     {
         extract.push_back(vec[i]);
     }
