@@ -1,4 +1,4 @@
-#! /usr/bin/env python2.7
+#! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import argparse
@@ -6,9 +6,9 @@ from math import floor, ceil, log
 from os import popen
 import sys
 try:
-    import shutil
+    from shutil import get_terminal_size
 except:
-    shutil = None
+    get_terminal_size = None
 
 base = 10000 # base of cistercian numeral system
 
@@ -26,8 +26,8 @@ def print_numerals(numerals):
         return
     if not numerals[0]:
         return
-    if shutil:
-        columns, _ = shutil.get_terminal_size((80, 20))
+    if get_terminal_size:
+        columns, _ = get_terminal_size()
     else:
         _, columns = popen('stty size', 'r').read().split()
     columns = int(columns)
