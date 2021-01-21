@@ -5,9 +5,12 @@ import argparse
 from math import floor, ceil, log
 from os import popen
 import sys
+try:
+    import shutil
+except:
+    shutil = None
 
 base = 10000 # base of cistercian numeral system
-numeral_width = 11 # must be odd
 
 
 def print_numeral(numeral):
@@ -23,7 +26,10 @@ def print_numerals(numerals):
         return
     if not numerals[0]:
         return
-    _, columns = popen('stty size', 'r').read().split()
+    if shutil:
+        columns, _ = shutil.get_terminal_size((80, 20))
+    else:
+        _, columns = popen('stty size', 'r').read().split()
     columns = int(columns)
     effective_width = len(numerals[0][0]) * 2 + 3
     num_to_print = max(1, min(len(numerals), int(floor(columns/effective_width))))
