@@ -81,15 +81,15 @@ def segment(width, value):
     elif value == 9:
         return overlay(segment(width, 8), segment(width, 1))
     elif value > 9 and value < 100:
-        return overlay(hinvert(segment(width, value / 10)), segment(width, value % 10))
+        return overlay(hinvert(segment(width, value // 10)), segment(width, value % 10))
     elif value > 99 and value < 1000:
-        return overlay(vinvert(segment(width, value / 100)),
-                       hinvert(segment(width, (value / 10) % 10)),
+        return overlay(vinvert(segment(width, value // 100)),
+                       hinvert(segment(width, (value // 10) % 10)),
                        segment(width, value % 10))
     elif value > 999 and value < 10000:
-        return overlay(vinvert(hinvert(segment(width, value / 1000))),
-                       vinvert(segment(width, (value / 100) % 10)),
-                       hinvert(segment(width, (value / 10) % 10)),
+        return overlay(vinvert(hinvert(segment(width, value // 1000))),
+                       vinvert(segment(width, (value // 100) % 10)),
+                       hinvert(segment(width, (value // 10) % 10)),
                        segment(width, value % 10))
     else:
         return None
@@ -124,9 +124,9 @@ def hinvert(numeral):
 
 def decompose(num):
     l = list()
-    while num > base:
+    while num >= base:
         l.append(num % base)
-        num /= base
+        num //= base
     l.append(num)
     return l[::-1]
 
