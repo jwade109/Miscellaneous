@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import argparse
-from math import floor, ceil, log
+from math import floor, ceil
 from os import popen
 import sys
 try:
@@ -70,6 +70,9 @@ def segment(width, value):
     elif value == 2:
         numeral[half_width-1][-half_width:] = ["█"]*half_width
     elif value == 3:
+        # non-official, but more internally consistent version:
+        # return overlay(segment(width, 1), segment(width, 2))
+        # credits to stephanie owen and the owen family
         for i in range(0, half_width):
             numeral[i][half_width+1+i] = "█"
     elif value == 4:
@@ -139,7 +142,7 @@ def decompose(num):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("number", type=int)
+    parser.add_argument("numbers", type=int, nargs="+")
     parser.add_argument("--width", "-w", type=int, default=7)
     args = parser.parse_args()
 
@@ -147,13 +150,14 @@ def main():
         print("Width must be an odd number of at least 5.")
         exit()
 
-    num = args.number
+    list_nums = args.numbers
     width = args.width
-    digits = 1 if num == 0 else int(ceil(log(num, base)))
-    # print("Digits = {}".format(digits))
-    # print("decompose({}) = {}".format(num, decompose(num)))
+    numerals = list()
+    for num in list_nums:
+        numerals.extend([segment(width, n) for n in decompose(num)])
+
     print("")
-    print_numerals([segment(width, n) for n in decompose(num)])
+    print_numerals(numerals)
     print("")
 
 
