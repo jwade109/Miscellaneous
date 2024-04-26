@@ -3,6 +3,7 @@
 import sys
 from dataclasses import dataclass
 from itertools import combinations
+from copy import copy
 
 
 @dataclass
@@ -54,14 +55,14 @@ def print_pretty(operations):
 def solve(numbers, operations=[], level=0):
 
     space = " " * 2 * level
-    # if len(numbers) > 1:
-        # print(f"{space}{numbers}")
 
     if len(numbers) == 1:
         if numbers[0] == 24:
-            print_pretty(operations)
-            print()
-            return True
+            return operations
+        else:
+            return []
+
+    sols = []
 
     for a, b in generate_ordered_pairs(numbers):
         subproblem = list(numbers)
@@ -69,31 +70,39 @@ def solve(numbers, operations=[], level=0):
         subproblem.remove(b)
         ops = generate_ops_table(a, b)
 
-        op = Op(a=a, b=b, op=None)
+        op = Op(a=a, b=b, op='+')
 
-        op.op = '+'
         op.res = ops.add
-        solve([*subproblem, ops.add], [*operations, op], level + 1)
+        s = solve([*subproblem, ops.add],
+            [*operations, copy(op)], level + 1)
+        if s:
+            sols.append(s)
 
         # subtraction
         op.op = '-'
         op.res = ops.sub
         if not ops.sub is None:
-            # print(f"{space}{a} - {b} = {ops.sub}")
-            solve([*subproblem, ops.sub], [*operations, op], level + 1)
+            s = solve([*subproblem, ops.sub],
+                [*operations, copy(op)], level + 1)
+            if s:
+                sols.append(s)
 
         # multiplication
         op.op = '*'
         op.res = ops.mul
-        # print(f"{space}{a} * {b} = {ops.mul}")
-        solve([*subproblem, ops.mul], [*operations, op], level + 1)
+        s = solve([*subproblem, ops.mul], 
+            [*operations, copy(op)], level + 1)
+        if s:
+            sols.append(s)
 
         # division
         op.op = '/'
         op.res = ops.div
         if not ops.div is None:
-            # print(f"{space}{a} / {b} = {ops.div}")
-            solve([*subproblem, ops.div], [*operations, op], level + 1)
+            s = solve([*subproblem, ops.div],
+                [*operations, copy(op)], level + 1)
+            if s:
+                sols.append(s)
 
         op.a, op.b = op.b, op.a
 
@@ -101,24 +110,39 @@ def solve(numbers, operations=[], level=0):
         op.op = '-'
         op.res = ops.sub_inv
         if not ops.sub_inv is None:
-            # print(f"{space}{b} - {a} = {ops.sub_inv}")
-            solve([*subproblem, ops.sub_inv], [*operations, op], level + 1)
+            s = solve([*subproblem, ops.sub_inv],
+                [*operations, copy(op)], level + 1)
+            if s:
+                sols.append(s)
 
         # inv division
         op.op = '/'
         op.res = ops.div_inv
         if not ops.div_inv is None:
-            # print(f"{space}{b} / {a} = {ops.div_inv}")
-            solve([*subproblem, ops.div_inv], [*operations, op], level + 1)
+            s = solve([*subproblem, ops.div_inv],
+                [*operations, copy(op)], level + 1)
+            if s:
+                sols.append(s)
 
-    return False
+    if not sols:
+        return None
+
+    # print(f"{' ' * level * 2}{numbers} Return: {sols}")
+
+    return sols
 
 
 def main():
     numbers = [int(x) for x in sys.argv[1:]]
-    solve(numbers)
-
+    s = solve(numbers)
+    for sol in s:
+        steps = sol
+        while type(steps[0]) == list:
+            steps = steps[0]
+        print_pretty(steps)
+        print()
 
 
 if __name__ == "__main__":
     main()
+
